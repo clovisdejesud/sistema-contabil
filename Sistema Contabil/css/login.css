@@ -1,6 +1,10 @@
 
         body {
             background-color: #6979a3;
+            background-image: url('../img/img_Fundo.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             color:#FFFFFF;  
             font-family: Arial, sans-serif;
             display: flex;
