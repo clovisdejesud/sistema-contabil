@@ -104,8 +104,37 @@ function renderPage(page) {
 
   if (renders[page]) {
     content.innerHTML = renders[page]();
+
+    // --- ADICIONE ESTE BLOCO ABAIXO ---
+    // Se a página aberta for 'contas-pagar', dispara as funções de banco de dados
+    if (page === 'contas-pagar') {
+      // Usamos um pequeno atraso (timeout) para garantir que o HTML 
+      // já apareceu na tela antes de tentarmos preencher a tabela
+      setTimeout(() => {
+        console.log("Página de Contas a Pagar detectada. Buscando dados...");
+        if (typeof carregarCategoriasNoSelect === 'function') carregarCategoriasNoSelect();
+        if (typeof buscarContasPagarDoBanco === 'function') buscarContasPagarDoBanco();
+      }, 100);
+    }
+    // ----------------------------------
+
   } else {
     content.innerHTML = `<div style="color:var(--text-muted);padding:40px;text-align:center;">Página em desenvolvimento</div>`;
+  }
+
+  // Atualiza os ícones da biblioteca Lucide, se houver
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+}
+
+  // --- ADICIONADO: Gatilho para carregar dados do Banco de Dados ---
+  if (page === 'contas-pagar') {
+    // Timeout pequeno para garantir que o HTML foi injetado antes de buscar os IDs
+    setTimeout(() => {
+      carregarCategoriasNoSelect();
+      buscarContasPagarDoBanco();
+    }, 50);
   }
   
   if (typeof lucide !== 'undefined') {
@@ -240,9 +269,75 @@ function renderFolha() {
   </div>`;
 }
 
+
+
 // ── RESTE DAS FUNÇÕES (PLACEHOLDERS REAIS) ───────────────────────────────
 function renderPlanoContas() { return `<div style="background:var(--surface); padding:20px; border-radius:14px;">${cardHeader('Plano de Contas')} <p>Lógica de árvore de contas aqui...</p></div>`; }
-function renderContasTable(t, type) { return `<div style="background:var(--surface); padding:20px; border-radius:14px;">${cardHeader(t)} <p>Tabela de contas a ${type}...</p></div>`; }
+function renderContasTable(t, type) {
+  // Se for "pagar", renderiza o formulário e a tabela conectada ao banco
+  if (type === 'pagar') {
+    return `
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+      
+      <div style="background: var(--surface); padding: 20px; border-radius: 14px; border: 1px solid var(--border); height: fit-content;">
+        ${cardHeader('Novo Lançamento')}
+        <form id="meuFormPagar" style="display: flex; flex-direction: column; gap: 12px;">
+          <div>
+            <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:4px;">Descrição</label>
+            <input type="text" id="desc" required style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text);">
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:4px;">Vencimento</label>
+              <input type="date" id="data_vencimento" required style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text);">
+            </div>
+            <div>
+              <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:4px;">Valor (R$)</label>
+              <input type="number" step="0.01" id="valor" required style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text);">
+            </div>
+          </div>
+
+          <div>
+            <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:4px;">Plano de Contas</label>
+            <select id="plano_conta_id" required style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text);">
+              <option value="">Carregando categorias...</option>
+            </select>
+          </div>
+
+          <input type="hidden" id="data_emissao" value="${new Date().toISOString().split('T')[0]}">
+          <input type="hidden" id="fornecedor" value="Geral">
+
+          <button type="submit" style="margin-top:10px; background:linear-gradient(135deg,#4f8ef7,#7c5cfc); color:white; border:none; padding:10px; border-radius:8px; font-weight:600; cursor:pointer;">
+            Confirmar Lançamento
+          </button>
+        </form>
+      </div>
+
+      <div style="background: var(--surface); padding: 20px; border-radius: 14px; border: 1px solid var(--border);">
+        ${cardHeader(t)}
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border);">
+                <th style="text-align:left; padding:12px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Vencimento</th>
+                <th style="text-align:left; padding:12px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Descrição</th>
+                <th style="text-align:left; padding:12px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Valor</th>
+                <th style="text-align:left; padding:12px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-contas-pagar">
+              <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">Carregando dados...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Fallback para Contas a Receber (que faremos depois)
+  return `<div style="background:var(--surface); padding:20px; border-radius:14px;">${cardHeader(t)} <p>Módulo de Contas a ${type} em desenvolvimento.</p></div>`;
+}
 function renderFluxoCaixa() { return `<div style="background:var(--surface); padding:20px; border-radius:14px;">${cardHeader('Fluxo de Caixa')}</div>`; }
 function renderConciliacao() { return `<div style="background:var(--surface); padding:20px; border-radius:14px;">${cardHeader('Conciliação')}</div>`; }
 function renderLancamentos() { return `<div style="background:var(--surface); padding:20px; border-radius:14px;">${cardHeader('Lançamentos')}</div>`; }
@@ -262,6 +357,98 @@ function renderCadastroTable(title, headers, rows) {
     ${tableWrap(headers, rows)}
   </div>`;
 }
+
+// ── FUNÇÕES DE INTEGRAÇÃO COM BANCO DE DADOS (NOVO BLOCO) ────────────────
+
+// 1. Busca as categorias do Plano de Contas para o formulário
+async function carregarCategoriasNoSelect() {
+    try {
+        const response = await fetch('http://localhost:3000/contas');
+        const contas = await response.json();
+        const select = document.getElementById('plano_conta_id');
+        
+        if (!select) return;
+
+        select.innerHTML = '<option value="">Selecione uma conta...</option>';
+        contas.forEach(conta => {
+            if(conta.tipo_conta === 'Analítica') {
+                const option = document.createElement('option');
+                option.value = parseInt(conta.id);
+                option.textContent = `${conta.codigo_conta} - ${conta.nome_conta}`;
+                select.appendChild(option);
+            }
+        });
+    } catch (error) {
+        console.error("Erro ao carregar categorias:", error);
+    }
+}
+
+// 2. Busca a lista de contas a pagar (ordenada por vencimento)
+async function buscarContasPagarDoBanco() {
+    try {
+        const response = await fetch('http://localhost:3000/api/contas-pagar');
+        if (!response.ok) throw new Error('Erro na rede');
+        
+        const dados = await response.json();
+        const tbody = document.getElementById('corpo-contas-pagar');
+        
+        if (!tbody) return;
+
+        tbody.innerHTML = ''; // ISSO AQUI TIRA O "CARREGANDO..."
+
+        if (dados.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Nenhum lançamento no banco.</td></tr>';
+            return;
+        }
+
+        dados.forEach(item => {
+            let classe = item.status === 'Atrasado' ? 'badge-red' : (item.status === 'Pago' ? 'badge-green' : 'badge-orange');
+            
+            tbody.innerHTML += `
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <td style="padding: 12px; font-family: 'DM Mono';">${new Date(item.data_vencimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</td>
+                    <td style="padding: 12px;">${item.descricao}</td>
+                    <td style="padding: 12px; font-weight: 700;">R$ ${parseFloat(item.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                    <td style="padding: 12px;"><span class="badge ${classe}">${item.status}</span></td>
+                </tr>`;
+        });
+    } catch (error) {
+        console.error("Erro ao buscar:", error);
+        document.getElementById('corpo-contas-pagar').innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Erro ao conectar com o servidor.</td></tr>';
+    }
+}
+
+// 3. Listener para o formulário (Delegated)
+document.addEventListener('submit', async (e) => {
+    if (e.target && e.target.id === 'meuFormPagar') {
+        e.preventDefault();
+        
+        const dados = {
+            data_emissao: document.getElementById('data_emissao').value,
+            data_vencimento: document.getElementById('data_vencimento').value,
+            descricao: document.getElementById('desc').value,
+            valor: document.getElementById('valor').value,
+            fornecedor: document.getElementById('fornecedor').value,
+            plano_conta_id: document.getElementById('plano_conta_id').value
+        };
+
+        try {
+            const response = await fetch('http://localhost:3000/api/contas-pagar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            if (response.ok) {
+                alert('Lançamento realizado!');
+                e.target.reset();
+                buscarContasPagarDoBanco();
+            }
+        } catch (error) {
+            alert('Erro na conexão com o servidor.');
+        }
+    }
+});
 
 // ── INIT ─────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {

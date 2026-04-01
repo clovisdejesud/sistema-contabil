@@ -1,4 +1,4 @@
-<!doctype html>
+form<!doctype html>
 <html lang="pt-BR" class="h-full">
  <head>
   <meta charset="UTF-8">
@@ -340,10 +340,12 @@ function tableWrap(headers, rows) {
             <button style="background:transparent;border:none;cursor:pointer;color:var(--text-muted);margin-right:6px;" title="Editar"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
             <button style="background:transparent;border:none;cursor:pointer;color:var(--text-muted);" title="Excluir"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
           </td>
-        </tr>`).join('')}
+        </tr>
+        `).join('')}
       </tbody>
     </table>
-  </div>`;
+  </div>
+  `;
 }
 
 // ── DASHBOARD ───────────────────────────────────────────────────────────
@@ -473,59 +475,114 @@ function renderCadastroTable(title, headers, rows) {
 
 // ── PLANO DE CONTAS ─────────────────────────────────────────────────────
 function renderPlanoContas() {
-  const groups = [
-    { code:'1', name:'ATIVO', children: [
-      { code:'1.1', name:'Ativo Circulante', children:[
-        { code:'1.1.1', name:'Caixa e Equivalentes' },
-        { code:'1.1.2', name:'Contas a Receber' },
-      ]},
-      { code:'1.2', name:'Ativo Não Circulante', children:[
-        { code:'1.2.1', name:'Imobilizado' },
-      ]},
-    ]},
-    { code:'2', name:'PASSIVO', children:[
-      { code:'2.1', name:'Passivo Circulante', children:[
-        { code:'2.1.1', name:'Fornecedores' },
-        { code:'2.1.2', name:'Obrigações Fiscais' },
-      ]},
-    ]},
-    { code:'3', name:'RECEITAS', children:[
-      { code:'3.1', name:'Receita Bruta de Vendas', children:[] },
-    ]},
-    { code:'4', name:'DESPESAS', children:[
-      { code:'4.1', name:'Custo dos Serviços Prestados', children:[] },
-      { code:'4.2', name:'Despesas Administrativas', children:[] },
-    ]},
-  ];
-  const renderGroup = (g, level=0) => {
-    const pad = level * 20;
-    const isBold = level === 0;
+    console.log("Sistema: Chamando a página Plano de Contas...");
+
+    // Tenta buscar os dados do banco após 300ms
+    setTimeout(() => {
+        if (typeof buscarContasDoBanco === 'function') {
+            console.log("Sistema: Iniciando busca de dados no MySQL...");
+            buscarContasDoBanco();
+        } else {
+            console.error("Erro: A função buscarContasDoBanco não foi encontrada no script!");
+        }
+    }, 300);
+
     return `
-    <div style="padding:9px 12px;padding-left:${12+pad}px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;" class="table-row">
-      <span style="font-size:12px;font-weight:600;color:var(--text-muted);font-family:'DM Mono',monospace;min-width:60px;">${g.code}</span>
-      <span style="font-size:${isBold?14:13}px;font-weight:${isBold?700:500};color:var(--text);">${g.name}</span>
-    </div>
-    ${(g.children||[]).map(c => renderGroup(c, level+1)).join('')}`;
-  };
-  return `<div class="stat-card">${cardHeader('Plano de Contas','+ Nova Conta')}<div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">${groups.map(g=>renderGroup(g)).join('')}</div></div>`;
+    <div class="stat-card">
+        <h2 style="font-size:18px; font-weight:700; margin-bottom:15px; color:var(--text);">Plano de Contas Oficial</h2>
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse: collapse; background: var(--surface2); border-radius: 10px;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border); text-align: left;">
+                        <th style="padding: 12px; color: var(--text-muted); font-size: 11px; text-transform:uppercase;">Código</th>
+                        <th style="padding: 12px; color: var(--text-muted); font-size: 11px; text-transform:uppercase;">Descrição</th>
+                        <th style="padding: 12px; color: var(--text-muted); font-size: 11px; text-transform:uppercase;">Natureza</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-plano-contas">
+                    <tr>
+                        <td colspan="3" style="padding:20px; text-align:center; color:var(--text-muted);">
+                            Conectando ao servidor...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>`;
 }
 
 // ── CONTAS TABLE ────────────────────────────────────────────────────────
+// ── CONTAS TABLE COM FORMULÁRIO ────────────────────────────────────────
 function renderContasTable(title, tipo) {
   const isPagar = tipo === 'pagar';
-  const rows = isPagar ? [
-    ['Aluguel Comercial','01/07/2025','R$ 5.500,00','<span class="badge badge-orange">Vence Hoje</span>'],
-    ['Energia Elétrica','10/07/2025','R$ 890,00','<span class="badge badge-blue">Em Aberto</span>'],
-    ['Fornecedor Alfa','15/07/2025','R$ 4.200,00','<span class="badge badge-blue">Em Aberto</span>'],
-    ['DARF IRPJ','25/07/2025','R$ 1.850,00','<span class="badge badge-blue">Em Aberto</span>'],
-    ['Pgto. Anterior','28/06/2025','R$ 2.100,00','<span class="badge badge-green">Pago</span>'],
-  ] : [
-    ['Tech Solutions Ltda.','05/07/2025','R$ 12.000,00','<span class="badge badge-orange">Vence Em Breve</span>'],
-    ['Maria Consultoria','12/07/2025','R$ 6.500,00','<span class="badge badge-blue">Em Aberto</span>'],
-    ['Comércio Norte','20/07/2025','R$ 3.200,00','<span class="badge badge-blue">Em Aberto</span>'],
-    ['Recebido Jun.','28/06/2025','R$ 9.800,00','<span class="badge badge-green">Recebido</span>'],
-  ];
-  return `<div class="stat-card">${cardHeader(title,'+ Novo Lançamento')}${tableWrap(['Descrição','Vencimento','Valor','Status'],rows)}</div>`;
+  
+  // Se for Contas a Pagar, carregamos as categorias do banco para o select
+  if (isPagar) {
+      setTimeout(() => {
+          carregarCategoriasNoSelect(); // Função que busca do seu server.js
+          buscarContasPagarDoBanco();   // Função que lista o que já existe no banco
+      }, 100);
+  }
+
+  return `
+    ${isPagar ? `
+    <div class="stat-card" style="margin-bottom: 24px; border-left: 4px solid var(--accent);">
+        <h3 style="font-size:15px; font-weight:700; margin-bottom:15px; color:var(--text);">Novo Lançamento de Despesa</h3>
+        <form id="meuFormPagar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div>
+                <label style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px;">Descrição</label>
+                <input type="text" id="desc" placeholder="Ex: Aluguel" required style="width:100%; background:var(--surface2); border:1px solid var(--border); padding:8px; border-radius:6px; color:var(--text); outline:none;">
+            </div>
+            <div>
+                <label style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px;">Fornecedor</label>
+                <input type="text" id="fornecedor" placeholder="Nome da empresa" required style="width:100%; background:var(--surface2); border:1px solid var(--border); padding:8px; border-radius:6px; color:var(--text); outline:none;">
+            </div>
+            <div>
+                <label style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px;">Valor (R$)</label>
+                <input type="number" id="valor" step="0.01" required style="width:100%; background:var(--surface2); border:1px solid var(--border); padding:8px; border-radius:6px; color:var(--text); outline:none;">
+            </div>
+            <div>
+                <label style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px;">Conta Contábil</label>
+                <select id="plano_conta_id" required style="width:100%; background:var(--surface2); border:1px solid var(--border); padding:8px; border-radius:6px; color:var(--text); outline:none;">
+                    <option value="">Carregando contas...</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px;">Data Emissão</label>
+                <input type="date" id="data_emissao" required style="width:100%; background:var(--surface2); border:1px solid var(--border); padding:8px; border-radius:6px; color:var(--text); outline:none;">
+            </div>
+            <div>
+                <label style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px;">Data Vencimento</label>
+                <input type="date" id="data_vencimento" required style="width:100%; background:var(--surface2); border:1px solid var(--border); padding:8px; border-radius:6px; color:var(--text); outline:none;">
+            </div>
+            <div style="grid-column: 1 / -1; text-align: right;">
+                <button type="submit" style="background:linear-gradient(135deg,#4f8ef7,#7c5cfc); color:white; border:none; padding:10px 24px; border-radius:8px; font-weight:600; cursor:pointer;">
+                    Confirmar Lançamento
+                </button>
+            </div>
+        </form>
+    </div>
+    ` : ''}
+
+    <div class="stat-card">
+        ${cardHeader(title)}
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <th style="text-align:left;padding:10px;font-size:11px;color:var(--text-muted);text-transform:uppercase;">Vencimento</th>
+                        <th style="text-align:left;padding:10px;font-size:11px;color:var(--text-muted);text-transform:uppercase;">Descrição</th>
+                        <th style="text-align:left;padding:10px;font-size:11px;color:var(--text-muted);text-transform:uppercase;">Valor</th>
+                        <th style="text-align:left;padding:10px;font-size:11px;color:var(--text-muted);text-transform:uppercase;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-contas-pagar">
+                    <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">Carregando lançamentos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+  `;
 }
 
 // ── FLUXO DE CAIXA ──────────────────────────────────────────────────────
@@ -609,15 +666,49 @@ function renderConciliacao() {
 }
 
 // ── LANÇAMENTOS ─────────────────────────────────────────────────────────
+// ── LANÇAMENTOS (Substitua a função existente por esta) ──────────────
 function renderLancamentos() {
-  return `<div class="stat-card">${cardHeader('Lançamentos Contábeis','+ Novo Lançamento')}
-    ${tableWrap(['Data','Documento','Descrição','Débito','Crédito','Valor'],[
-      ['02/07/25','NF-0042','Venda de Serviços','1.1.2','3.1.1','R$ 12.000,00'],
-      ['01/07/25','NF-0108','Compra Mat. Escritório','4.2.1','2.1.1','R$ 340,00'],
-      ['30/06/25','DOC-210','Folha Junho 2025','4.1.1','2.1.3','R$ 28.400,00'],
-      ['28/06/25','REC-019','Recebimento Cliente','1.1.1','1.1.2','R$ 9.800,00'],
-    ])}
-  </div>`;
+  return `
+    <div class="stat-card">
+      ${cardHeader('Novo Lançamento Contábil')}
+      
+      <form id="form-lancamento" style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; background: var(--surface2); padding: 20px; border-radius: 12px;">
+        <div>
+          <label style="font-size:12px; color:var(--text-muted);">Data do Lançamento</label><br>
+          <input type="date" id="data_lancamento" required style="width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:8px; border-radius:6px;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--text-muted);">Valor (R$)</label><br>
+          <input type="number" id="valor" step="0.01" required style="width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:8px; border-radius:6px;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--text-muted);">Conta de Débito</label><br>
+          <select id="id_conta_debito" required style="width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:8px; border-radius:6px;">
+             <option value="">Selecione...</option>
+             <option value="3">1.1.1 - Caixa Geral</option>
+             <option value="7">1.2.1 - Imóveis</option>
+             <option value="15">2.2.1 - Capital Social</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--text-muted);">Conta de Crédito</label><br>
+          <select id="id_conta_credito" required style="width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:8px; border-radius:6px;">
+             <option value="">Selecione...</option>
+             <option value="3">1.1.1 - Caixa Geral</option>
+             <option value="12">2.1.1 - Fornecedores</option>
+             <option value="15">2.2.1 - Capital Social</option>
+          </select>
+        </div>
+        <div style="grid-column: span 2;">
+          <label style="font-size:12px; color:var(--text-muted);">Histórico</label><br>
+          <textarea id="historico" style="width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:8px; border-radius:6px;"></textarea>
+        </div>
+        <button type="submit" style="grid-column: span 2; background:linear-gradient(135deg,#4f8ef7,#7c5cfc); color:white; padding:10px; border:none; border-radius:8px; font-weight:600; cursor:pointer;">
+          Gravar Lançamento no Banco
+        </button>
+      </form>
+    </div>
+  `;
 }
 
 // ── BALANCETE ───────────────────────────────────────────────────────────
@@ -843,9 +934,9 @@ function renderConfig() {
       ${cardHeader('Dados da Empresa')}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         ${[
-          ['Razão Social','ContábilCMRT','text'],
+          ['Razão Social','Pharmacia Matter','text'],
           ['CNPJ','12.345.678/0001-99','text'],
-          ['E-mail','contato@contabilcmrt.com.br','email'],
+          ['E-mail','contato@farmaciamatter.com.br','email'],
           ['Telefone','(11) 9 9999-0000','text'],
           ['Endereço','Rua das Flores, 100 – SP','text'],
           ['Regime Tributário','Lucro Presumido','text'],
@@ -878,5 +969,60 @@ window.addEventListener('DOMContentLoaded', () =>{
   navigateTo('dashboard');
 });
 </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9de66b9d822daef0',t:'MTc3Mzg1OTc5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>
+async function buscarContasDoBanco() {
+    try {
+        const response = await fetch('http://localhost:3000/contas');
+        
+        if (!response.ok) throw new Error('Servidor não respondeu corretamente');
+        
+        const contas = await response.json();
+        const tbody = document.getElementById('corpo-plano-contas');
+
+        if (!tbody) return;
+
+        tbody.innerHTML = ''; // Limpa o "Conectando..."
+
+        if (contas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="padding:20px; text-align:center;">Nenhuma conta encontrada no banco.</td></tr>';
+            return;
+        }
+
+        contas.forEach(conta => {
+            // Usando exatamente os nomes das colunas que você passou
+            const linha = `
+                <tr style="border-bottom: 1px solid var(--border);" class="table-row">
+                    <td style="padding: 12px; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text-muted);">
+                        ${conta.codigo_conta}
+                    </td>
+                    <td style="padding: 12px; font-weight: ${conta.tipo_conta === 'Sintética' ? '700' : '400'}; color: var(--text);">
+                        ${conta.nome_conta}
+                    </td>
+                    <td style="padding: 12px;">
+                        <span class="badge" style="background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); font-size: 10px;">
+                            ${conta.tipo_conta}
+                        </span>
+                    </td>
+                    <td style="padding: 12px;">
+                        <span class="badge ${conta.natureza === 'Devedora' ? 'badge-orange' : 'badge-green'}">
+                            ${conta.natureza}
+                        </span>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += linha;
+        });
+
+    } catch (error) {
+        console.error("Erro na integração:", error);
+        const tbody = document.getElementById('corpo-plano-contas');
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="4" style="padding:20px; text-align:center; color:red;">Erro ao carregar dados do MySQL. Verifique o terminal do Node.js.</td></tr>`;
+        }
+    }
+}
+ </script>
+<script src="javascript/auth.js"></script>
+<script src="javascript/movimentacoes.js"></script>
+</body>
 </html>
