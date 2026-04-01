@@ -514,75 +514,38 @@ function renderPlanoContas() {
 // ── CONTAS TABLE ────────────────────────────────────────────────────────
 // ── CONTAS TABLE COM FORMULÁRIO ────────────────────────────────────────
 function renderContasTable(title, tipo) {
-  const isPagar = tipo === 'pagar';
-  
-  // Se for Contas a Pagar, carregamos as categorias do banco para o select
-  if (isPagar) {
-      setTimeout(() => {
-          carregarCategoriasNoSelect(); // Função que busca do seu server.js
-          buscarContasPagarDoBanco();   // Função que lista o que já existe no banco
-      }, 100);
-  }
+    // Agenda a busca de dados no MySQL para 100ms após a página carregar
+    setTimeout(() => {
+        buscarContasPagarDoBanco();
+    }, 100);
 
-  return `
-    ${isPagar ? `
-    <div class="stat-card" style="margin-bottom: 24px; border-left: 4px solid var(--accent);">
-        <h3 style="font-size:15px; font-weight:700; margin-bottom:15px; color:var(--text);">Novo Lançamento de Despesa</h3>
-        <form id="meuFormPagar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <div>
-                <label style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px;">Descrição</label>
-                <input type="text" id="desc" placeholder="Ex: Aluguel" required style="width:100%; background:var(--surface2); border:1px solid var(--border); padding:8px; border-radius:6px; color:var(--text); outline:none;">
-            </div>
-            <div>
-                <label style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px;">Fornecedor</label>
-                <input type="text" id="fornecedor" placeholder="Nome da empresa" required style="width:100%; background:var(--surface2); border:1px solid var(--border); padding:8px; border-radius:6px; color:var(--text); outline:none;">
-            </div>
-            <div>
-                <label style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px;">Valor (R$)</label>
-                <input type="number" id="valor" step="0.01" required style="width:100%; background:var(--surface2); border:1px solid var(--border); padding:8px; border-radius:6px; color:var(--text); outline:none;">
-            </div>
-            <div>
-                <label style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px;">Conta Contábil</label>
-                <select id="plano_conta_id" required style="width:100%; background:var(--surface2); border:1px solid var(--border); padding:8px; border-radius:6px; color:var(--text); outline:none;">
-                    <option value="">Carregando contas...</option>
-                </select>
-            </div>
-            <div>
-                <label style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px;">Data Emissão</label>
-                <input type="date" id="data_emissao" required style="width:100%; background:var(--surface2); border:1px solid var(--border); padding:8px; border-radius:6px; color:var(--text); outline:none;">
-            </div>
-            <div>
-                <label style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px;">Data Vencimento</label>
-                <input type="date" id="data_vencimento" required style="width:100%; background:var(--surface2); border:1px solid var(--border); padding:8px; border-radius:6px; color:var(--text); outline:none;">
-            </div>
-            <div style="grid-column: 1 / -1; text-align: right;">
-                <button type="submit" style="background:linear-gradient(135deg,#4f8ef7,#7c5cfc); color:white; border:none; padding:10px 24px; border-radius:8px; font-weight:600; cursor:pointer;">
-                    Confirmar Lançamento
-                </button>
-            </div>
-        </form>
-    </div>
-    ` : ''}
-
+    return `
     <div class="stat-card">
-        ${cardHeader(title)}
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+            <h2 style="font-size:15px; font-weight:700; color:var(--text); margin:0;">${title}</h2>
+        </div>
+        
         <div style="overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse;">
                 <thead>
                     <tr style="border-bottom:1px solid var(--border);">
-                        <th style="text-align:left;padding:10px;font-size:11px;color:var(--text-muted);text-transform:uppercase;">Vencimento</th>
-                        <th style="text-align:left;padding:10px;font-size:11px;color:var(--text-muted);text-transform:uppercase;">Descrição</th>
-                        <th style="text-align:left;padding:10px;font-size:11px;color:var(--text-muted);text-transform:uppercase;">Valor</th>
-                        <th style="text-align:left;padding:10px;font-size:11px;color:var(--text-muted);text-transform:uppercase;">Status</th>
+                        <th style="text-align:left; padding:10px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Vencimento</th>
+                        <th style="text-align:left; padding:10px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Valor</th>
+                        <th style="text-align:left; padding:10px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Fornecedor</th>
+                        <th style="text-align:left; padding:10px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Descrição</th>
                     </tr>
                 </thead>
                 <tbody id="corpo-contas-pagar">
-                    <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">Carregando lançamentos...</td></tr>
+                    <tr>
+                        <td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">
+                            Buscando lançamentos no banco de dados...
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
-  `;
+    `;
 }
 
 // ── FLUXO DE CAIXA ──────────────────────────────────────────────────────
@@ -970,54 +933,66 @@ window.addEventListener('DOMContentLoaded', () =>{
 });
 </script>
  <script>
-async function buscarContasDoBanco() {
+// --- FUNÇÃO COMPLETA PARA O PROTOTIPO.HTML ---
+async function buscarContasPagarDoBanco() {
     try {
-        const response = await fetch('http://localhost:3000/contas');
+        console.log("Iniciando busca de dados no servidor...");
+        const response = await fetch('http://localhost:3000/api/contas-pagar');
         
-        if (!response.ok) throw new Error('Servidor não respondeu corretamente');
+        if (!response.ok) throw new Error('Erro ao conectar com o servidor');
         
-        const contas = await response.json();
-        const tbody = document.getElementById('corpo-plano-contas');
-
-        if (!tbody) return;
-
-        tbody.innerHTML = ''; // Limpa o "Conectando..."
-
-        if (contas.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="padding:20px; text-align:center;">Nenhuma conta encontrada no banco.</td></tr>';
+        const dados = await response.json();
+        const tbody = document.getElementById('corpo-contas-pagar');
+        
+        if (!tbody) {
+            console.error("Erro: Elemento 'corpo-contas-pagar' não encontrado na página.");
             return;
         }
 
-        contas.forEach(conta => {
-            // Usando exatamente os nomes das colunas que você passou
-            const linha = `
-                <tr style="border-bottom: 1px solid var(--border);" class="table-row">
-                    <td style="padding: 12px; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text-muted);">
-                        ${conta.codigo_conta}
+        // Limpa o texto "Buscando dados..." ou "Carregando..."
+        tbody.innerHTML = ''; 
+
+        if (dados.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Nenhum lançamento encontrado no banco de dados.</td></tr>';
+            return;
+        }
+
+        // Preenche a tabela linha por linha
+        dados.forEach(item => {
+            // Formata a data para o padrão brasileiro sem erro de fuso horário
+            const dataFormatada = new Date(item.data_vencimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+            
+            // Formata o valor para Moeda Real (R$)
+            const valorFormatado = parseFloat(item.valor).toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+
+            tbody.innerHTML += `
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <td style="padding: 12px; font-family: 'DM Mono', monospace;">
+                        ${dataFormatada}
                     </td>
-                    <td style="padding: 12px; font-weight: ${conta.tipo_conta === 'Sintética' ? '700' : '400'}; color: var(--text);">
-                        ${conta.nome_conta}
+                    <td style="padding: 12px; font-weight: 700;">
+                        ${valorFormatado}
                     </td>
                     <td style="padding: 12px;">
-                        <span class="badge" style="background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); font-size: 10px;">
-                            ${conta.tipo_conta}
-                        </span>
+                        ${item.fornecedor || '---'}
                     </td>
                     <td style="padding: 12px;">
-                        <span class="badge ${conta.natureza === 'Devedora' ? 'badge-orange' : 'badge-green'}">
-                            ${conta.natureza}
-                        </span>
+                        ${item.descricao}
                     </td>
                 </tr>
             `;
-            tbody.innerHTML += linha;
         });
 
+        console.log("Tabela de Contas a Pagar atualizada com sucesso.");
+
     } catch (error) {
-        console.error("Erro na integração:", error);
-        const tbody = document.getElementById('corpo-plano-contas');
+        console.error("Erro ao listar contas:", error);
+        const tbody = document.getElementById('corpo-contas-pagar');
         if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="4" style="padding:20px; text-align:center; color:red;">Erro ao carregar dados do MySQL. Verifique o terminal do Node.js.</td></tr>`;
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red; padding:20px;">Erro ao carregar dados. Verifique se o servidor Node.js está rodando.</td></tr>';
         }
     }
 }

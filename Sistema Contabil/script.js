@@ -273,70 +273,33 @@ function renderFolha() {
 
 // ── RESTE DAS FUNÇÕES (PLACEHOLDERS REAIS) ───────────────────────────────
 function renderPlanoContas() { return `<div style="background:var(--surface); padding:20px; border-radius:14px;">${cardHeader('Plano de Contas')} <p>Lógica de árvore de contas aqui...</p></div>`; }
-function renderContasTable(t, type) {
-  // Se for "pagar", renderiza o formulário e a tabela conectada ao banco
-  if (type === 'pagar') {
-    return `
-    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
-      
-      <div style="background: var(--surface); padding: 20px; border-radius: 14px; border: 1px solid var(--border); height: fit-content;">
-        ${cardHeader('Novo Lançamento')}
-        <form id="meuFormPagar" style="display: flex; flex-direction: column; gap: 12px;">
-          <div>
-            <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:4px;">Descrição</label>
-            <input type="text" id="desc" required style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text);">
-          </div>
-          
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div>
-              <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:4px;">Vencimento</label>
-              <input type="date" id="data_vencimento" required style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text);">
-            </div>
-            <div>
-              <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:4px;">Valor (R$)</label>
-              <input type="number" step="0.01" id="valor" required style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text);">
-            </div>
-          </div>
+// Substitua a função renderContasTable antiga por esta:
+function renderContasTable(title, tipo) {
+  // Agenda a busca de dados no banco
+  setTimeout(() => {
+      buscarContasPagarDoBanco();
+  }, 100);
 
-          <div>
-            <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:4px;">Plano de Contas</label>
-            <select id="plano_conta_id" required style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text);">
-              <option value="">Carregando categorias...</option>
-            </select>
-          </div>
-
-          <input type="hidden" id="data_emissao" value="${new Date().toISOString().split('T')[0]}">
-          <input type="hidden" id="fornecedor" value="Geral">
-
-          <button type="submit" style="margin-top:10px; background:linear-gradient(135deg,#4f8ef7,#7c5cfc); color:white; border:none; padding:10px; border-radius:8px; font-weight:600; cursor:pointer;">
-            Confirmar Lançamento
-          </button>
-        </form>
-      </div>
-
-      <div style="background: var(--surface); padding: 20px; border-radius: 14px; border: 1px solid var(--border);">
-        ${cardHeader(t)}
+  return `
+    <div class="stat-card">
+        <h2 style="font-size:15px; font-weight:700; color:var(--text); margin-bottom:18px;">${title}</h2>
         <div style="overflow-x:auto;">
-          <table style="width:100%; border-collapse:collapse;">
-            <thead>
-              <tr style="border-bottom:1px solid var(--border);">
-                <th style="text-align:left; padding:12px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Vencimento</th>
-                <th style="text-align:left; padding:12px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Descrição</th>
-                <th style="text-align:left; padding:12px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Valor</th>
-                <th style="text-align:left; padding:12px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Status</th>
-              </tr>
-            </thead>
-            <tbody id="corpo-contas-pagar">
-              <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">Carregando dados...</td></tr>
-            </tbody>
-          </table>
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <th style="text-align:left; padding:10px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Vencimento</th>
+                        <th style="text-align:left; padding:10px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Valor</th>
+                        <th style="text-align:left; padding:10px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Fornecedor</th>
+                        <th style="text-align:left; padding:10px; font-size:11px; color:var(--text-muted); text-transform:uppercase;">Descrição</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-contas-pagar">
+                    <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">Buscando dados no servidor...</td></tr>
+                </tbody>
+            </table>
         </div>
-      </div>
-    </div>`;
-  }
-
-  // Fallback para Contas a Receber (que faremos depois)
-  return `<div style="background:var(--surface); padding:20px; border-radius:14px;">${cardHeader(t)} <p>Módulo de Contas a ${type} em desenvolvimento.</p></div>`;
+    </div>
+  `;
 }
 function renderFluxoCaixa() { return `<div style="background:var(--surface); padding:20px; border-radius:14px;">${cardHeader('Fluxo de Caixa')}</div>`; }
 function renderConciliacao() { return `<div style="background:var(--surface); padding:20px; border-radius:14px;">${cardHeader('Conciliação')}</div>`; }
@@ -404,13 +367,21 @@ async function buscarContasPagarDoBanco() {
         dados.forEach(item => {
             let classe = item.status === 'Atrasado' ? 'badge-red' : (item.status === 'Pago' ? 'badge-green' : 'badge-orange');
             
-            tbody.innerHTML += `
-                <tr style="border-bottom: 1px solid var(--border);">
-                    <td style="padding: 12px; font-family: 'DM Mono';">${new Date(item.data_vencimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</td>
-                    <td style="padding: 12px;">${item.descricao}</td>
-                    <td style="padding: 12px; font-weight: 700;">R$ ${parseFloat(item.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                    <td style="padding: 12px;"><span class="badge ${classe}">${item.status}</span></td>
-                </tr>`;
+       // Substitua o trecho dentro do seu dados.forEach por este:
+      // Localize este trecho dentro do buscarContasPagarDoBanco:
+dados.forEach(item => {
+    tbody.innerHTML += `
+        <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 12px; font-family: 'DM Mono';">
+                ${new Date(item.data_vencimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}
+            </td>
+            <td style="padding: 12px; font-weight: 700;">
+                R$ ${parseFloat(item.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}
+            </td>
+            <td style="padding: 12px;">${item.fornecedor || '---'}</td>
+            <td style="padding: 12px;">${item.descricao}</td>
+        </tr>`;
+});
         });
     } catch (error) {
         console.error("Erro ao buscar:", error);
