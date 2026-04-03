@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novo Lançamento - CMRT</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  
+  <style>
+    
+    body { background: var(--bg); color: var(--text); overflow: hidden; }
+    
+    /* Container principal em duas colunas */
+    .layout-grid {
+      display: flex;
+      gap: 24px;
+      padding: 24px;
+      height: calc(100vh - 70px); /* Desconta o header */
+    }
+
+    /* Coluna do Formulário */
+    .form-column {
+      flex: 0 0 400px; /* Largura fixa para o formulário */
+    }
+
+    /* Coluna do Plano de Contas (Espelhada) */
+    .plano-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    /* Estilos de badges vindos do seu Plano de Contas */
+    .badge-sintetica { background: rgba(124, 92, 252, 0.1); color: #7c5cfc; }
+    .badge-analitica { background: rgba(48, 201, 126, 0.1); color: #30c97e; }
+    
+    table { width: 100%; border-collapse: collapse; }
+    th { position: sticky; top: 0; background: var(--surface); z-index: 10; }
+  </style>
+</head>
+
+<body class="h-full">
+  <div style="display:flex; flex-direction:column; height:100vh;">
+    
+  <header class="header-custom">
+    <div>
+      <div class="header-title">Lançamento Contábil</div>
+      <div class="header-subtitle">Registre movimentações consultando o plano ao lado</div>
+      </div>
+      <a href="../prototipo.html" class="header-back-link">
+      <i data-lucide="arrow-left"></i> Voltar
+      </a>
+  </header>
+
+    <div class="layout-grid">
+      
+      <div class="form-column">
+        <div class="stat-card">
+          <form id="form-lancamento">
+            <div style="margin-bottom:16px;">
+              <label style="display:block; font-weight:600; font-size:13px; margin-bottom:6px;">Data:</label>
+              <input type="date" name="data_lancamento" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;" required>
+            </div>
+            
+            <div style="margin-bottom:16px;">
+              <label style="display:block; font-weight:600; font-size:13px; margin-bottom:6px;">Código Conta Débito:</label>
+              <input type="text" name="codigo_conta_debito" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;" required>
+            </div>
+            
+            <div style="margin-bottom:16px;">
+              <label style="display:block; font-weight:600; font-size:13px; margin-bottom:6px;">Código Conta Crédito:</label>
+              <input type="text" name="codigo_conta_credito" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;" required>
+            </div>
+            <div style="margin-bottom:16px;">
+              <label style="display:block; font-weight:600; font-size:13px; margin-bottom:6px;">Fornecedor:</label>
+              <input type="text" name="fornecedor" id="lan_fornecedor"
+              style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;"
+              placeholder="Ex: Empresa XYZ">
+            </div>
+            
+            <div style="margin-bottom:16px;">
+              <label style="display:block; font-weight:600; font-size:13px; margin-bottom:6px;">Valor (R$):</label>
+              <input type="number" step="0.01" name="valor" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;" placeholder="0,00" required>
+            </div>
+            
+            <div style="margin-bottom:20px;">
+              <label style="display:block; font-weight:600; font-size:13px; margin-bottom:6px;">Histórico:</label>
+              <textarea name="historico" rows="3" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;"></textarea>
+            </div>
+            
+            <button type="submit" style="width:100%; background:var(--success); color:white; border:none; padding:12px; border-radius:8px; font-weight:600; cursor:pointer;">
+              Salvar Lançamento
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="plano-column">
+        <div class="stat-card" style="height: 100%; display: flex; flex-direction: column; padding: 0;">
+          <div style="padding: 16px; border-bottom: 1px solid var(--border);">
+            <div style="font-weight: 700; font-size: 14px;">Consulta: Plano de Contas</div>
+          </div>
+          
+          <div class="scroll-area">
+            <table>
+              <thead>
+                <tr style="text-align: left; border-bottom: 1px solid var(--border);">
+                  <th style="padding: 12px; font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Código</th>
+                  <th style="padding: 12px; font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Conta</th>
+                  <th style="padding: 12px; font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Tipo</th>
+                </tr>
+              </thead>
+              <tbody id="lista-espelho-plano">
+                <tr><td colspan="3" style="padding:20px; text-align:center;">Carregando contas...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    // Mesma função da sua página plano-contas.html para espelhar os dados
+    async function carregarPlanoContasEspelho() {
+      const tbody = document.getElementById('lista-espelho-plano');
+      try {
+        const response = await fetch('http://localhost:3000/contas');
+        const dados = await response.json();
+        tbody.innerHTML = '';
+
+        dados.forEach(conta => {
+          const classeTipo = conta.tipo_conta === 'Sintética' ? 'badge-sintetica' : 'badge-analitica';
+          tbody.innerHTML += `
+            <tr style="border-bottom: 1px solid var(--border); font-size: 13px;">
+              <td style="padding: 10px; font-family: 'DM Mono'; color: var(--text-muted);">${conta.codigo_conta}</td>
+              <td style="padding: 10px; font-weight: 500;">${conta.nome_conta}</td>
+              <td style="padding: 10px;">
+                <span class="badge ${classeTipo}" style="font-size:10px;">${conta.tipo_conta}</span>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (error) {
+        tbody.innerHTML = '<tr><td colspan="3" style="color:red; padding:10px;">Erro ao carregar consulta.</td></tr>';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', carregarPlanoContasEspelho);
+  </script>
+</body>
+</html>

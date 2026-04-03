@@ -21,6 +21,8 @@ body { font-family: 'DM Sans', sans-serif; margin: 0; }
   --success: #30c97e;
   --warning: #f5a623;
   --danger: #f25c5c;
+
+  --sidebar-bg: #0E204E;
 }
 
 /* Aplicação no Layout Geral */
@@ -47,9 +49,10 @@ body { background-color: var(--bg); color: var(--text); }
 }
 
 .sidebar-item.active { 
-  background: rgba(255, 255, 255, 0.2); 
-  color: var(--sidebar-text); 
-  border-left: 3px solid #FFFFFF; 
+ background: #ffffff;
+  color: #1e293b;
+  font-weight: 600;
+  border-left: 3px solid #4f8ef7;
   padding-left: 11px; 
 }
 
@@ -100,3 +103,50 @@ body { background-color: var(--bg); color: var(--text); }
 .collapsed .collapse-arrow { transform: rotate(-90deg); }
 .submenu { overflow: hidden; max-height: 500px; transition: max-height 0.3s ease; }
 .submenu.hidden-menu { max-height: 0; }
+
+/* Pagina Lancamentos*/
+/* No seu style.css */
+.header-custom {
+    background-color: #00008B !important;
+    padding: 14px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Força os títulos a serem brancos */
+.header-title {
+    color: #FFFFFF !important;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* Força o subtítulo a ser um cinza claro (contraste alto sobre o azul) */
+.header-subtitle {
+    color: #B0B8C1 !important;
+    font-size: 12px;
+}
+
+/* Ajusta o link de voltar */
+.header-back-link {
+    text-decoration: none;
+    color: #FFFFFF !important;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Isso força todos os textos dentro do header a serem brancos ou cinza claro */
+.header-custom div, 
+.header-custom span, 
+.header-custom a {
+    color: #FFFFFF !important;
+}
+
+/* Classe auxiliar para o subtítulo não ficar tão brilhante quanto o título */
+.header-custom .header-subtitle {
+    color: #B0B8C1 !important;
+    font-size: 12px;
+}

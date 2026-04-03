@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Contabilidade - CMRT</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { box-sizing: border-box; margin: 0; background: var(--bg); color: var(--text); }
+    .sidebar-item { cursor: pointer; text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 8px; transition: 0.2s; font-size: 14px; }
+    a.sidebar-item:hover { background: var(--surface2); }
+    .sidebar-item.active { background: var(--surface2); font-weight: 600; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: 14px; }
+    .submenu { margin-left: 12px; border-left: 1px solid var(--border); padding-left: 8px; }
+    .sidebar-group-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin: 20px 10px 8px; letter-spacing: 0.05em; }
+  </style>
+</head>
+
+<body class="h-full">
+  <div id="app-root" style="display:flex; height:100vh; width:100%; overflow:hidden;">
+    
+    <aside id="sidebar" style="width:230px; min-width:230px; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto;">
+      <div style="padding:20px 18px 12px; border-bottom:1px solid var(--border);">
+        <img src="./img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width: 100%;">
+      </div>
+      
+      <nav style="flex:1; padding:10px 8px;">
+        <a href="index.html" class="sidebar-item active">
+          <i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard
+        </a>
+
+        <div class="sidebar-group-label">Cadastro</div>
+        <div class="submenu">
+          <a href="clientes.html" class="sidebar-item"><i data-lucide="user" style="width:14px;height:14px;"></i> Clientes</a>
+          <a href="fornecedores.html" class="sidebar-item"><i data-lucide="truck" style="width:14px;height:14px;"></i> Fornecedores</a>
+          <a href="funcionarios.html" class="sidebar-item"><i data-lucide="user-check" style="width:14px;height:14px;"></i> Funcionários</a>
+          <a href="produtos.html" class="sidebar-item"><i data-lucide="package" style="width:14px;height:14px;"></i> Produtos/Serviços</a>
+          <a href="#" data-page="plano-contas" onclick="navigateTo('plano-contas')" class="sidebar-item"><i data-lucide="list" style="width:14px;height:14px;"></i> Plano de Contas
+</a>
+        </div>
+
+        <div class="sidebar-group-label">Financeiro</div>
+        <div class="submenu">
+          <a href="contas-pagar.html" class="sidebar-item"><i data-lucide="arrow-up-circle" style="width:14px;height:14px;"></i> Contas a Pagar</a>
+          <a href="contas-receber.html" class="sidebar-item"><i data-lucide="arrow-down-circle" style="width:14px;height:14px;"></i> Contas a Receber</a>
+          <a href="fluxo-caixa.html" class="sidebar-item"><i data-lucide="trending-up" style="width:14px;height:14px;"></i> Fluxo de Caixa</a>
+          <a href="conciliacao.html" class="sidebar-item"><i data-lucide="git-compare" style="width:14px;height:14px;"></i> Conciliação</a>
+        </div>
+
+        <div class="sidebar-group-label">Contabilidade</div>
+        <div class="submenu">
+          <a href="menu/lancamentos.html" class="sidebar-item"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> Lançamentos</a>
+          <a href="balancete.html" class="sidebar-item"><i data-lucide="table-2" style="width:14px;height:14px;"></i> Balancete</a>
+          <a href="dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> DRE</a>
+          <a href="livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
+          <a href="livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
+        </div>
+
+        <div class="sidebar-group-label">Recursos Humanos</div>
+        <div class="submenu">
+          <a href="folha.html" class="sidebar-item"><i data-lucide="receipt" style="width:14px;height:14px;"></i> Folha de Pagamento</a>
+          <a href="ponto.html" class="sidebar-item"><i data-lucide="clock" style="width:14px;height:14px;"></i> Relatórios de Ponto</a>
+        </div>
+
+        <div class="sidebar-group-label">Sistema</div>
+        <a href="config.html" class="sidebar-item"><i data-lucide="settings" style="width:16px;height:16px;"></i> Configurações</a>
+      </nav>
+    </aside>
+
+    <main style="flex:1; display:flex; flex-direction:column; min-width:0;">
+      <header style="padding:14px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface);">
+        <div>
+          <div style="font-size:18px; font-weight:700;">Dashboard</div>
+          <div style="font-size:12px; color:var(--text-muted);">Visão geral do sistema</div>
+        </div>
+      </header>
+      
+      <div id="page-content" style="flex:1; padding:24px 28px; overflow-y:auto;">
+        
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px;">
+          <div class="stat-card">
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Receita Total</div>
+            <div id="receita-total" style="font-size:22px; font-weight:700; font-family:'DM Mono'; margin:8px 0;">R$ 0,00</div>
+          </div>
+          <div class="stat-card">
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Contas a Pagar</div>
+            <div id="pagar-total" style="font-size:22px; font-weight:700; font-family:'DM Mono'; margin:8px 0;">R$ 0,00</div>
+          </div>
+          <div class="stat-card">
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Contas a Receber</div>
+            <div id="receber-total" style="font-size:22px; font-weight:700; font-family:'DM Mono'; margin:8px 0;">R$ 0,00</div>
+          </div>
+          <div class="stat-card">
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Saldo em Caixa</div>
+            <div id="saldo-caixa" style="font-size:22px; font-weight:700; font-family:'DM Mono'; margin:8px 0;">R$ 0,00</div>
+          
+        </div>
+
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:16px;">
+          <div class="stat-card">
+            <h2 style="font-size:15px; font-weight:700; margin-bottom:18px;">Fluxo Mensal</h2>
+            <div style="height:200px; background:var(--surface2); border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--text-muted);">
+               [Gráfico de Movimentação]
+            </div>
+          </div>
+          <div class="stat-card">
+            <h2 style="font-size:15px; font-weight:700; margin-bottom:18px;">Tarefas Pendentes</h2>
+            <div id="tarefas-lista" style="font-size:13px; color:var(--text-muted);">
+              Nenhuma tarefa carregada.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Inicializa os ícones do Lucide
+    lucide.createIcons();
+
+    // Aqui você pode manter suas funções de busca do banco para popular o Dashboard
+    async function carregarDadosDashboard() {
+      try {
+        console.log("Buscando indicadores do dashboard...");
+        // Exemplo: const res = await fetch('http://localhost:3000/api/dashboard-stats');
+      } catch (error) {
+        console.error("Erro ao carregar dashboard:", error);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', carregarDadosDashboard);
+  </script>
+  <script src="api.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

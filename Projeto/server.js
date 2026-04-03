@@ -64,3 +64,24 @@ app.post('/api/contas-pagar', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
+
+app.post('/api/lancamentos', (req, res) => {
+    const { data_lancamento, id_conta_debito, id_conta_credito, valor, historico } = req.body;
+
+    const sql = `
+        INSERT INTO lancamentos 
+        (data_lancamento, id_conta_debito, id_conta_credito, valor, historico)
+        VALUES (?, ?, ?, ?, ?)
+    `;
+
+    db.query(sql, [data_lancamento, id_conta_debito, id_conta_credito, valor, historico], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        res.status(201).json({ message: 'Lançamento salvo!' });
+    });
+});
+
+
+const path = require('path');
+
+app.use(express.static(path.join(__dirname, 'Sistema Contabil')));
