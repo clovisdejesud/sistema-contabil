@@ -150,3 +150,323 @@ body { background-color: var(--bg); color: var(--text); }
     color: #B0B8C1 !important;
     font-size: 12px;
 }
+
+/* Estilo para os Badges de Status */
+.badge-ativo { background: #30c97e22; color: #30c97e; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.badge-inativo { background: #f25c5c22; color: #f25c5c; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+
+/* Grid para o formulário de cadastro */
+
+
+.form-group label {
+    display: block;
+    font-size: 11px;
+    color: rgb(0, 0, 139); /* Seu azul escuro */
+    font-weight: 700;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    outline: none;
+}
+
+/* Cabeçalho do Card */
+.card-header-contabil {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Botão de Ação */
+.btn-novo {
+    background: linear-gradient(135deg, rgb(0, 0, 139), #0033ff);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-novo:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* Tabela Personalizada */
+.tabela-contabil {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabela-contabil th {
+    text-align: left;
+    padding: 12px 10px;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+}
+
+.table-row-contabil:hover {
+    background: var(--surface2);
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+/* --- NOVAS CLASSES PARA BOTÕES DE FORMULÁRIO --- */
+
+/* Base comum para os botões ficarem do mesmo tamanho e formato */
+.btn-salvar-contabil,
+.btn-cancelar-contabil {
+    background-color: #00008B; /* Azul Escuro solicitado */
+    color: #FFFFFF;
+    border: none;
+    padding: 14px 28px; /* Preenchimento generoso e padronizado */
+    border-radius: 99px; /* Bordas arredondadas (estilo pílula) */
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Espaço entre o ícone e o texto */
+    transition: 0.2s;
+    min-width: 250px; /* Garante que os dois fiquem do mesmo tamanho */
+}
+
+/* Efeito Hover nos Botões (Azul Marinho) */
+.btn-salvar-contabil:hover,
+.btn-cancelar-contabil:hover {
+    background-color: #0E204E; /* Azul mais marinho (como na sidebar) */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,139,0.2);
+}
+
+/* Estilos gerais de espaçamento entre rótulos e campos (aproveitando o grid) */
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: #00008B; /* Rótulos em azul para o visual contábil */
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.form-group input, .form-group select {
+    margin-bottom: 5px; /* Espaço pequeno para o próximo elemento */
+}
+
+/* Centralização da página */
+.container-form {
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+}
+
+/* Card do formulário */
+.card-form {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 900px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+/* Grid mais organizado */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+/* Campos que ocupam linha inteira */
+.full-width {
+    grid-column: span 2;
+}
+
+/* Labels */
+.form-group label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #0E204E;
+    margin-bottom: 6px;
+}
+
+/* Inputs modernos */
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #DEE2E6;
+    background: #F8F9FA;
+    transition: 0.2s;
+}
+
+/* Efeito foco */
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #0E204E;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(14,32,78,0.1);
+}
+
+/* Espaçamento entre blocos */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Botões alinhados */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+.btn-icon:hover { color: rgb(0, 0, 139); }
+
+fieldset {
+    border: none;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+fieldset:first-child {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+/* Título das seções (opcional mas TOP) */
+.section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0E204E;
+    margin-bottom: 10px;
+}
+
+/*Clientes*/
+/* Configuração da Página de Clientes */
+.body-clientes {
+    background-color: #FFFFFF !important;
+}
+
+/* Header Azul Escuro */
+.header-clientes {
+    background-color: #00008B !important;
+    padding: 40px 0;
+    width: 100%;
+}
+
+.header-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.header-title {
+    color: #FFFFFF;
+    font-size: 24px;
+    margin: 0;
+}
+
+.header-subtitle {
+    color: #B0B8C1;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* Container e Card */
+.container-form {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.card-form {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 900px;
+    /* Se quiser sombra leve no card branco: */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    padding: 30px;
+    border-radius: 12px;
+}
+
+/* Grid e Espaçamento */
+.form-section {
+    border: none;
+    border-top: 1px solid #DEE2E6;
+    margin-top: 30px;
+    padding-top: 20px;
+}
+
+.form-section:first-child {
+    border-top: none;
+    margin-top: 0;
+}
+
+.section-title {
+    font-size: 14px;
+    color: #00008B;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+/* Botões Padronizados e Arredondados */
+.btn-contabil {
+    height: 50px;
+    min-width: 280px; /* Mesma largura para ambos */
+    border-radius: 50px; /* Bordas bem arredondadas */
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: 0.3s;
+}
+
+.btn-salvar {
+    background-color: #00008B;
+    color: #FFFFFF;
+}
+
+.btn-limpar {
+    background-color: #F1F5F9;
+    color: #475569;
+}
+
+.btn-salvar:hover {
+    background-color: #0E204E;
+    transform: translateY(-2px);
+}
+
+.input-financeiro {
+    color: #00008B;
+    font-weight: 700;
+}

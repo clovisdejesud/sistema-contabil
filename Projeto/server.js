@@ -85,3 +85,13 @@ app.post('/api/lancamentos', (req, res) => {
 const path = require('path');
 
 app.use(express.static(path.join(__dirname, 'Sistema Contabil')));
+
+//Rota para clientes
+// Rota para buscar todos os clientes
+app.get('/api/clientes', (req, res) => {
+    const sql = "SELECT * FROM clientes ORDER BY razao_social ASC";
+    db.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
