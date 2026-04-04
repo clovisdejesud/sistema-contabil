@@ -470,3 +470,74 @@ fieldset:first-child {
     color: #00008B;
     font-weight: 700;
 }
+
+/* Header - Plano de Contas */
+.header-plano-contas {
+    background-color: #00008B;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* BLOCO ESQUERDA (TÍTULO) */
+.header-esquerda {
+    display: flex;
+    flex-direction: column;
+}
+
+/* BLOCO CENTRAL (BOTÃO) */
+.header-centro {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* BLOCO DIREITA (VOLTAR) */
+.header-direita {
+    margin-left: auto;
+}
+
+/* BOTÃO MAIS AZUL CLARO */
+.btn-novo {
+    background: #3b82f6; /* azul mais claro */
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-novo:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.header-plano-contas .header-title {
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.header-plano-contas .header-subtitle {
+    color: #B0B8C1;
+    font-size: 12px;
+}
+
+.header-plano-contas a {
+    text-decoration: none;
+    color: #FFFFFF;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.header-plano-contas .divisor-header {
+    width: 1px;
+    height: 30px;
+    background: rgba(255,255,255,0.2);
+}

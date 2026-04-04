@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Cadastro de Fornecedor</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="body-clientes">
+
+    <header class="header-custom">
+        <div>
+            <div class="header-title">Novo Cadastro de Fornecedor</div>
+            <div class="header-subtitle">
+                Preencha todos os campos obrigatórios para o registro contábil
+            </div>
+        </div>
+        <div class="header-direita">
+        <a href="../prototipo.html">
+          <i data-lucide="arrow-left"></i>
+          Voltar
+        </a>
+      </div>
+    </header>
+
+    <main class="container-form">
+        <div class="card-form">
+            <form id="formFornecedor">
+                
+                <fieldset class="form-section">
+                    <h3 class="section-title">1. Identificação e Dados Fiscais</h3>
+                    <div class="form-grid cols-2">
+                        <div class="form-group">
+                            <label>Razão Social *</label>
+                            <input type="text" name="razao_social" placeholder="Razão Social completa" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nome Fantasia</label>
+                            <input type="text" name="nome_fantasia" placeholder="Nome Comercial">
+                        </div>
+                    </div>
+
+                    <div class="form-grid cols-3">
+                        <div class="form-group">
+                            <label>Tipo de Pessoa</label>
+                            <select name="tipo_pessoa">
+                                <option value="JURIDICA">Pessoa Jurídica (CNPJ)</option>
+                                <option value="FISICA">Pessoa Física (CPF)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>CNPJ</label>
+                            <input type="text" name="cnpj" placeholder="00.000.000/0000-00">
+                        </div>
+                        <div class="form-group">
+                            <label>CPF</label>
+                            <input type="text" name="cpf" placeholder="000.000.000-00">
+                        </div>
+                    </div>
+
+                    <div class="form-grid cols-3">
+                        <div class="form-group">
+                            <label>Regime Tributário</label>
+                            <select name="regime_tributario">
+                                <option value="Simples Nacional">Simples Nacional</option>
+                                <option value="Lucro Presumido">Lucro Presumido</option>
+                                <option value="Lucro Real">Lucro Real</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Inscrição Estadual (IE)</label>
+                            <input type="text" name="inscricao_estadual">
+                        </div>
+                        <div class="form-group">
+                            <label>Inscrição Municipal (IM)</label>
+                            <input type="text" name="inscricao_municipal">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="form-section">
+                    <h3 class="section-title">2. Localização e Endereço</h3>
+                    <div class="form-grid cols-3">
+                        <div class="form-group">
+                            <label>CEP</label>
+                            <input type="text" name="cep" placeholder="00000-000">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Logradouro</label>
+                            <input type="text" name="logradouro" placeholder="Rua, Avenida, Praça...">
+                        </div>
+                    </div>
+
+                    <div class="form-grid cols-3">
+                        <div class="form-group">
+                            <label>Número</label>
+                            <input type="text" name="numero">
+                        </div>
+                        <div class="form-group">
+                            <label>Bairro</label>
+                            <input type="text" name="bairro">
+                        </div>
+                        <div class="form-group">
+                            <label>Cidade</label>
+                            <input type="text" name="cidade">
+                        </div>
+                    </div>
+
+                    <div class="form-grid cols-2">
+                        <div class="form-group">
+                            <label>Complemento</label>
+                            <input type="text" name="complemento">
+                        </div>
+                        <div class="form-group">
+                            <label>Estado (UF)</label>
+                            <input type="text" name="estado" maxlength="2" placeholder="Ex: SP">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="form-section">
+                    <h3 class="section-title">3. Contato e Controle</h3>
+                    <div class="form-grid cols-3">
+                        <div class="form-group">
+                            <label>Nome do Contato</label>
+                            <input type="text" name="nome_contato" placeholder="Responsável">
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail</label>
+                            <input type="email" name="email" placeholder="fornecedor@empresa.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone</label>
+                            <input type="text" name="telefone" placeholder="(00) 0000-0000">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 15px; width: 32%;">
+                        <label>Status do Registro (Ativo)</label>
+                        <select name="ativo">
+                            <option value="1">Sim - Ativo para Lançamentos</option>
+                            <option value="0">Não - Bloqueado/Inativo</option>
+                        </select>
+                    </div>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancelar-contabil" onclick="this.form.reset()">
+                        <i data-lucide="rotate-ccw" style="width: 16px;"></i> Limpar
+                    </button>
+                    <button type="submit" class="btn-salvar-contabil">
+                        <i data-lucide="save" style="width: 18px;"></i> SALVAR
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+<script>
+    lucide.createIcons();
+
+    document.getElementById('formFornecedor').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const dados = Object.fromEntries(new FormData(this).entries());
+
+        try {
+            const response = await fetch('http://localhost:3000/api/fornecedores', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            const resultado = await response.json();
+
+            if (response.ok) {
+                alert('✅ Fornecedor cadastrado com sucesso! ID: ' + resultado.id);
+                this.reset();
+            } else {
+                alert('❌ Erro ao cadastrar: ' + resultado.error);
+            }
+        } catch (err) {
+            alert('❌ Não foi possível conectar ao servidor. Verifique se o backend está rodando.\n\n' + err.message);
+        }
+    });
+</script>
+</body>
+</html>

@@ -20,7 +20,8 @@ function renderPage(page) {
   const pages = {
     dashboard: renderDashboard,
     'plano-contas': renderPlanoContas,
-    'contas-pagar': renderContasPagar
+    'contas-pagar': renderContasPagar,
+    'fornecedores': renderFornecedores
   };
 
   content.innerHTML = pages[page] ? pages[page]() : 'Página não encontrada';
@@ -33,6 +34,10 @@ function renderPage(page) {
   if (page === 'contas-pagar') {
     setTimeout(carregarContasPagar, 100);
   }
+
+  if (page === 'fornecedores') {                       
+    setTimeout(buscarFornecedoresDoBanco, 100);       
+}  
 
   lucide.createIcons();
 }
@@ -61,7 +66,32 @@ function renderPlanoContas() {
     </table>
   `;
 }
+async function carregarPlanoContas() {
+  const tbody = document.getElementById('corpo-plano-contas');
+  try {
+    const response = await fetch('http://localhost:3000/api/plano-contas');
+    if (!response.ok) throw new Error('Erro na API');
+    const dados = await response.json();
+    tbody.innerHTML = '';
 
+    if (dados.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Nenhuma conta cadastrada.</td></tr>';
+      return;
+    }
+
+    dados.forEach(c => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${c.codigo_conta}</td>
+          <td>${c.nome_conta}</td>
+          <td>${c.tipo_conta}</td>
+          <td>${c.natureza}</td>
+        </tr>`;
+    });
+  } catch (error) {
+    tbody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">Erro ao carregar dados.</td></tr>';
+  }
+}
 async function carregarPlanoContas() {
   const dados = await buscarPlanoContas();
 
@@ -289,4 +319,134 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// ITEM 3: Listener para o formulário de Fornecedores (No script.js)
+document.addEventListener('submit', async (e) => {
+    if (e.target && e.target.id === 'formFornecedor') {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const dados = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch('http://localhost:3000/api/fornecedores', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            if (response.ok) {
+                alert('Fornecedor cadastrado com sucesso!');
+                e.target.reset();
+            } else {
+                alert('Erro ao salvar fornecedor.');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+});
+
+// ── FORNECEDORES ─────────────────────────────────────────────────
+function renderFornecedores() {
+    return `
+    <div class="stat-card">
+        <div class="card-header-contabil">
+            <h2 style="font-size:16px; font-weight:700; color:var(--text); margin:0;">Cadastro de Fornecedores</h2>
+            <button class="btn-novo" onclick="window.open('fornecedores/novo.html', '_blank')">+ Novo Fornecedor</button>
+        </div>
+        <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
+        <div style="overflow-x:auto;">
+            <table class="tabela-contabil">
+                <thead>
+                    <tr>
+                        <th>Razão Social / Fantasia</th>
+                        <th>CPF/CNPJ</th>
+                        <th>Regime Tributário</th>
+                        <th>Contato (E-mail/Tel)</th>
+                        <th>Cidade / UF</th>
+                        <th>Status</th>
+                        <th style="text-align:right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-tabela-fornecedores">
+                    <tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">Conectando ao servidor...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>`;
+}
+
+async function buscarFornecedoresDoBanco() {
+    try {
+        const response = await fetch('http://localhost:3000/api/fornecedores');
+        if (!response.ok) throw new Error('Falha na comunicação com o servidor');
+
+        const fornecedores = await response.json();
+        const tbody = document.getElementById('corpo-tabela-fornecedores');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        if (fornecedores.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">Nenhum fornecedor cadastrado.</td></tr>';
+            return;
+        }
+
+        fornecedores.forEach(f => {
+            const documento = f.tipo_pessoa === 'JURIDICA' ? f.cnpj : f.cpf;
+            const statusLabel = parseInt(f.ativo)
+                ? '<span class="badge-ativo">Ativo</span>'
+                : '<span class="badge-inativo">Inativo</span>';
+
+            tbody.innerHTML += `
+                <tr class="table-row-contabil">
+                    <td>
+                        <div style="font-weight:600; color:var(--text);">${f.razao_social}</div>
+                        <div style="font-size:11px; color:var(--text-muted);">${f.nome_fantasia || '---'}</div>
+                    </td>
+                    <td style="font-family:'DM Mono'; font-size:12px;">${documento || '---'}</td>
+                    <td style="font-size:12px;">${f.regime_tributario || '---'}</td>
+                    <td style="font-size:12px;">
+                        <div>${f.email || '---'}</div>
+                        <div style="color:var(--text-muted);">${f.telefone || ''}</div>
+                    </td>
+                    <td style="font-size:12px;">
+                        <div>${f.cidade || '---'}</div>
+                        <div style="color:var(--text-muted); font-weight:600;">${f.estado || ''}</div>
+                    </td>
+                    <td>${statusLabel}</td>
+                    <td style="text-align:right;">
+                        <button class="btn-icon" onclick="editarFornecedor(${f.id})"><i data-lucide="pencil"></i></button>
+                        <button class="btn-icon" onclick="deletarFornecedor(${f.id})"><i data-lucide="trash-2"></i></button>
+                    </td>
+                </tr>`;
+        });
+
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    } catch (error) {
+        console.error("Erro:", error);
+        document.getElementById('corpo-tabela-fornecedores').innerHTML =
+            '<tr><td colspan="7" style="text-align:center; color:red; padding:20px;">Erro ao carregar dados do MySQL.</td></tr>';
+    }
+}
+
+async function deletarFornecedor(id) {
+    if (!confirm('Deseja realmente excluir este fornecedor?')) return;
+    try {
+        const response = await fetch(`http://localhost:3000/api/fornecedores/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+            alert('Fornecedor excluído!');
+            buscarFornecedoresDoBanco();
+        } else {
+            alert('Erro ao excluir.');
+        }
+    } catch (error) {
+        alert('Erro ao conectar ao servidor: ' + error.message);
+    }
+}
+
+function editarFornecedor(id) {
+    window.open(`fornecedores/novo.html?id=${id}`, '_blank');
+}
 

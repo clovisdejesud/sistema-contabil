@@ -138,9 +138,15 @@
     async function carregarPlanoContasEspelho() {
       const tbody = document.getElementById('lista-espelho-plano');
       try {
-        const response = await fetch('http://localhost:3000/contas');
+        const response = await fetch('http://localhost:3000/api/plano-contas');
+        if (!response.ok) throw new Error('Erro na API');
         const dados = await response.json();
         tbody.innerHTML = '';
+
+        if (dados.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" style="padding:20px; text-align:center;">Nenhuma conta cadastrada.</td></tr>';
+          return;
+        }
 
         dados.forEach(conta => {
           const classeTipo = conta.tipo_conta === 'Sintética' ? 'badge-sintetica' : 'badge-analitica';
