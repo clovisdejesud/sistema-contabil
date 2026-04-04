@@ -247,3 +247,46 @@ async function buscarClientesDoBanco() {
     }
 }
 
+//Clientes
+// ── FORMULÁRIO DE CLIENTES ──────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('formCliente');
+    if (!form) return; // só executa se estiver na página de clientes
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const dados = {
+            razao_social: this.razao_social.value,
+            nome_fantasia: this.nome_fantasia.value,
+            tipo_pessoa: this.tipo_pessoa.value,
+            documento: this.documento.value,
+            inscricao_estadual: this.inscricao_estadual.value,
+            email: this.email.value,
+            celular: this.celular.value,
+            limite_credito: this.limite_credito.value,
+            inscricao_municipal: this.inscricao_municipal.value,
+            data_nascimento: this.data_nascimento.value
+        };
+
+        try {
+            const response = await fetch('http://localhost:3000/api/clientes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('Cliente cadastrado com sucesso!');
+                form.reset();
+            } else {
+                alert('Erro: ' + result.error);
+            }
+        } catch (error) {
+            alert('Erro ao conectar ao servidor: ' + error.message);
+        }
+    });
+});
+
