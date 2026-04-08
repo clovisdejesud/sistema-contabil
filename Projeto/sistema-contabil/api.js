@@ -36,3 +36,16 @@ async function salvarLancamento(dados) {
   
   return await res.json();
 }
+
+//Clientes
+async function cadastrarEmpresa(dados) {
+    const resposta = await fetch('http://localhost:3000/api/clientes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+    });
+    
+    if (resposta.ok) {
+        alert("Empresa cadastrada com sucesso!");
+    }
+}

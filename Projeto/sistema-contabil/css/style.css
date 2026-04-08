@@ -541,3 +541,58 @@ fieldset:first-child {
     height: 30px;
     background: rgba(255,255,255,0.2);
 }
+
+/*  CONTAS A PAGAR E LISTAGENS */   
+.container-tabela { 
+    margin: 20px auto; 
+    max-width: 1200px; 
+    padding: 0 20px; 
+}
+
+/* Status das Datas */
+.status-vencido { 
+    color: var(--danger); 
+    font-weight: 700; 
+}
+
+.status-pendente { 
+    color: var(--warning); 
+    font-weight: 700; 
+}
+
+/* Tipografia para valores financeiros (Usando a sua fonte DM Mono) */
+.valor-celula { 
+    font-family: 'DM Mono', monospace; 
+    font-weight: 700; 
+}
+
+/* Badges Dinâmicos para os Status do JS */
+.badge-pago { 
+    background: rgba(48,201,126,0.13); 
+    color: var(--success); 
+    padding: 4px 10px; 
+    border-radius: 99px; 
+    font-size: 11px; 
+    font-weight: 700; 
+    text-transform: uppercase; 
+}
+
+.badge-pendente { 
+    background: rgba(245,166,35,0.13); 
+    color: var(--warning); 
+    padding: 4px 10px; 
+    border-radius: 99px; 
+    font-size: 11px; 
+    font-weight: 700; 
+    text-transform: uppercase; 
+}
+
+.badge-vencido { 
+    background: rgba(242,92,92,0.13); 
+    color: var(--danger); 
+    padding: 4px 10px; 
+    border-radius: 99px; 
+    font-size: 11px; 
+    font-weight: 700; 
+    text-transform: uppercase; 
+}

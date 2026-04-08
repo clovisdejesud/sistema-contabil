@@ -42,6 +42,21 @@ function renderPage(page) {
   lucide.createIcons();
 }
 
+function renderPage(page) { 
+  const content = document.getElementById('page-content');
+
+  if (!content) return; // 🔥 evita erro em outras páginas
+
+  const pages = {
+    dashboard: renderDashboard,
+    'plano-contas': renderPlanoContas,
+    'contas-pagar': renderContasPagar,
+    'fornecedores': renderFornecedores
+  };
+
+  content.innerHTML = pages[page] ? pages[page]() : 'Página não encontrada';
+}
+
 // ── DASHBOARD ────────────────────────────
 function renderDashboard() {
   return `<h1>Dashboard</h1>`;
@@ -92,60 +107,84 @@ async function carregarPlanoContas() {
     tbody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">Erro ao carregar dados.</td></tr>';
   }
 }
-async function carregarPlanoContas() {
-  const dados = await buscarPlanoContas();
 
-  const tbody = document.getElementById('corpo-plano-contas');
-  tbody.innerHTML = '';
-
-  dados.forEach(c => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${c.codigo_conta}</td>
-        <td>${c.nome_conta}</td>
-        <td>${c.tipo_conta}</td>
-        <td>${c.natureza}</td>
-      </tr>
-    `;
-  });
-}
-
-// ── CONTAS A PAGAR ───────────────────────
 function renderContasPagar() {
   return `
     <h2>Contas a Pagar</h2>
-
-    <form id="form">
-      <input placeholder="Descrição" id="desc">
-      <input placeholder="Valor" id="valor">
-      <button type="submit">Salvar</button>
-    </form>
-
     <table border="1" width="100%">
+      <thead>
+        <tr>
+          <th>Vencimento</th>
+          <th>Valor</th>
+          <th>Fornecedor</th>
+          <th>Descrição</th>
+        </tr>
+      </thead>
       <tbody id="corpo-contas-pagar">
-        <tr><td>Carregando...</td></tr>
+        <tr><td colspan="4">Carregando...</td></tr>
       </tbody>
     </table>
   `;
 }
 
-async function carregarContasPagar() {
-  const dados = await buscarContasPagar();
-
-  const tbody = document.getElementById('corpo-contas-pagar');
-  tbody.innerHTML = '';
-
-  dados.forEach(c => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${c.data_vencimento}</td>
-        <td>${c.valor}</td>
-        <td>${c.fornecedor}</td>
-        <td>${c.descricao}</td>
-      </tr>
-    `;
-  });
+// ── CONTAS A PAGAR ───────────────────────
+async function buscarContasPagar() {
+    const response = await fetch('http://localhost:3000/api/contas-pagar');
+    if (!response.ok) throw new Error('Erro na requisição');
+    return await response.json();
 }
+
+async function carregarContasPagar() {
+    try {
+        let dados = await buscarContasPagar();
+        const tbody = document.getElementById('corpo-contas-pagar');
+        const hoje = new Date().toISOString().split('T')[0]; // Data atual (YYYY-MM-DD)
+
+        tbody.innerHTML = '';
+
+        if (!dados || dados.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Nenhuma conta encontrada.</td></tr>';
+            return;
+        }
+
+        // --- LÓGICA DE ORDENAÇÃO ---
+        dados.sort((a, b) => {
+            // Converte para data para garantir comparação precisa
+            const dataA = new Date(a.data_vencimento);
+            const dataB = new Date(b.data_vencimento);
+            return dataA - dataB; // Ordem crescente (mais antigas/vencidas primeiro)
+        });
+
+        // --- RENDERIZAÇÃO ---
+        dados.forEach(c => {
+            // Verifica se está vencido (comparando strings YYYY-MM-DD)
+            const isVencido = c.data_vencimento < hoje && c.status !== 'PAGO';
+            
+            // Formata a data para PT-BR
+            const dataFormatada = c.data_vencimento 
+                ? new Date(c.data_vencimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) 
+                : '-';
+
+            // Formata o valor para Moeda
+            const valorFormatado = c.valor 
+                ? Number(c.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) 
+                : '-';
+
+            tbody.innerHTML += `
+                <tr style="${isVencido ? 'color: #e63946; font-weight: bold;' : ''}">
+                    <td>${isVencido ? '⚠️ ' : ''}${dataFormatada}</td>
+                    <td>${valorFormatado}</td>
+                    <td>${c.fornecedor ?? '-'}</td>
+                    <td>${c.descricao ?? '-'}</td>
+                </tr>
+            `;
+        });
+    } catch (err) {
+        document.getElementById('corpo-contas-pagar').innerHTML =
+            `<tr><td colspan="4">❌ Erro ao carregar: ${err.message}</td></tr>`;
+    }
+}
+
 
 // ── FORM SUBMIT ──────────────────────────
 document.addEventListener('submit', async (e) => {
@@ -183,9 +222,13 @@ document.addEventListener('submit', async (e) => {
 
 // ── INIT ────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
-  navigateTo('dashboard');
-});
+  const content = document.getElementById('page-content');
 
+  // Só roda se estiver na página principal
+  if (content) {
+    navigateTo('dashboard');
+  }
+});
 //Clientes
 // ── Função de Renderização da Interface ────────────────────────────────
 function renderClientes() {
@@ -276,21 +319,67 @@ async function buscarClientesDoBanco() {
             '<tr><td colspan="6" style="text-align:center; color:red; padding:20px;">Erro ao carregar dados do MySQL.</td></tr>';
     }
 }
-
-//Clientes
 // ── FORMULÁRIO DE CLIENTES ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('formCliente');
-    if (!form) return; // só executa se estiver na página de clientes
+    if (!form) return;
 
+    const tipoPessoa = form.tipo_pessoa;
+    const campoDocumento = form.documento;
+
+    // 🔁 Troca placeholder CPF/CNPJ
+    tipoPessoa.addEventListener("change", () => {
+        campoDocumento.value = "";
+
+        if (tipoPessoa.value === "JURIDICA") {
+            campoDocumento.placeholder = "00.000.000/0000-00";
+        } else {
+            campoDocumento.placeholder = "000.000.000-00";
+        }
+    });
+
+    // 🎭 Máscara CPF/CNPJ
+    campoDocumento.addEventListener("input", () => {
+        let valor = campoDocumento.value.replace(/\D/g, "");
+
+        if (tipoPessoa.value === "JURIDICA") {
+            valor = valor
+                .replace(/^(\d{2})(\d)/, "$1.$2")
+                .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+                .replace(/\.(\d{3})(\d)/, ".$1/$2")
+                .replace(/(\d{4})(\d)/, "$1-$2");
+        } else {
+            valor = valor
+                .replace(/^(\d{3})(\d)/, "$1.$2")
+                .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+                .replace(/\.(\d{3})(\d)/, ".$1-$2");
+        }
+
+        campoDocumento.value = valor;
+    });
+
+    // 🚀 Envio do formulário (AJUSTADO)
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
+
+        const tipo = this.tipo_pessoa.value;
+        const documentoLimpo = this.documento.value.replace(/\D/g, "");
+
+        let cpf = null;
+        let cnpj = null;
+
+        if (tipo === "JURIDICA") {
+            cnpj = documentoLimpo;
+        } else {
+            cpf = documentoLimpo;
+        }
 
         const dados = {
             razao_social: this.razao_social.value,
             nome_fantasia: this.nome_fantasia.value,
-            tipo_pessoa: this.tipo_pessoa.value,
-            documento: this.documento.value,
+            tipo_pessoa: tipo,
+            cpf: cpf,
+            cnpj: cnpj,
             inscricao_estadual: this.inscricao_estadual.value,
             email: this.email.value,
             celular: this.celular.value,
