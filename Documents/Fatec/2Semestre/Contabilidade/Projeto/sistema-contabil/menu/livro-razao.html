@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livro Razão</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+    
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="body-clientes">
+
+    <header class="header-custom">
+        <div>
+            <div class="header-title">Livro Razão</div>
+            <div class="header-subtitle">Registro detalhado dos movimentos por conta</div>
+        </div>
+
+        <div class="header-direita" style="display: flex; gap: 15px; align-items: center;">
+            <a href="../prototipo.html" class="header-back-link">
+                <i data-lucide="arrow-left"></i> Voltar
+            </a>
+        </div>
+    </header>
+
+    <main class="container-tabela">
+        <div class="card-form">
+            <table class="tabela-contabil" id="tabelaLivroRazao">
+                <tbody id="corpoTabela">
+                    <tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">Carregando livro razão...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="../javascript/api.js"></script>
+    <script>
+        lucide.createIcons();
+
+        async function carregarLivroRazao() {
+            const corpo = document.getElementById('corpoTabela');
+            try {
+                const url = 'http://localhost:3000/api/livro-razao';
+                console.log('Buscando livro razão em', url);
+                const response = await fetch(url, { cache: 'no-store' });
+
+                if (!response.ok) {
+                    const texto = await response.text();
+                    throw new Error(`HTTP ${response.status} - ${texto}`);
+                }
+
+                const dados = await response.json();
+                renderizarTabela(dados);
+            } catch (err) {
+                console.error('Erro ao carregar livro razão:', err);
+                corpo.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger); padding:20px;">Erro ao carregar dados do servidor: ${err.message}</td></tr>`;
+            }
+        }
+
+        function renderizarTabela(dados) {
+            const corpo = document.getElementById('corpoTabela');
+            corpo.innerHTML = '';
+
+            if (dados.length === 0) {
+                corpo.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">Nenhum movimento encontrado.</td></tr>`;
+                return;
+            }
+
+            // Group by codigo_conta
+            const grouped = dados.reduce((acc, item) => {
+                if (!acc[item.codigo_conta]) {
+                    acc[item.codigo_conta] = { nome_conta: item.nome_conta, movimentos: [] };
+                }
+                acc[item.codigo_conta].movimentos.push(item);
+                return acc;
+            }, {});
+
+            Object.keys(grouped).forEach(codigo => {
+                const { nome_conta, movimentos } = grouped[codigo];
+
+                // Account header row
+                const headerTr = document.createElement('tr');
+                headerTr.className = 'table-row-contabil account-header';
+                headerTr.innerHTML = `
+                    <td colspan="5" style="font-weight: bold; background-color: var(--background-secondary); padding: 10px;">
+                        ${codigo} ${nome_conta}
+                    </td>
+                `;
+                corpo.appendChild(headerTr);
+
+                // Column labels row
+                const labelTr = document.createElement('tr');
+                labelTr.className = 'table-row-contabil label-row';
+                labelTr.innerHTML = `
+                    <td>Data</td>
+                    <td class="numeric">Débito</td>
+                    <td class="numeric">Crédito</td>
+                    <td>Histórico</td>
+                    <td class="numeric">Saldo</td>
+                `;
+                corpo.appendChild(labelTr);
+
+                // Movement rows
+                movimentos.forEach(item => {
+                    const dataFormatada = new Date(item.data_movimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+                    const debitoFormatado = item.debito ? new Number(item.debito).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
+                    const creditoFormatado = item.credito ? new Number(item.credito).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
+                    const historicoTruncado = item.historico ? item.historico.substring(0, 50) : '';
+                    const saldoFormatado = new Number(item.saldo).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'table-row-contabil movimento-row';
+
+                    tr.innerHTML = `
+                        <td>${dataFormatada}</td>
+                        <td class="valor-celula numeric">${debitoFormatado}</td>
+                        <td class="valor-celula numeric">${creditoFormatado}</td>
+                        <td>${historicoTruncado}</td>
+                        <td class="valor-celula numeric ${item.saldo < 0 ? 'status-vencido' : ''}">${saldoFormatado}</td>
+                    `;
+
+                    corpo.appendChild(tr);
+                });
+
+                // Add a small separator after each account
+                const separatorTr = document.createElement('tr');
+                separatorTr.innerHTML = `<td colspan="5" style="height: 5px;"></td>`;
+                corpo.appendChild(separatorTr);
+            });
+        }
+
+        // Carregar dados quando o DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', carregarLivroRazao);
+    </script>
+
+</body>
+</html>

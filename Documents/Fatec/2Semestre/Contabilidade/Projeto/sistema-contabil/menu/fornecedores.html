@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Cadastro de Fornecedor</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+</head>
+
+<body class="body-clientes">
+
+    <header class="header-custom">
+        <div>
+            <div class="header-title">Cadastro de Fornecedor</div>
+            <div class="header-subtitle">
+                Preencha todos os campos obrigatórios para o registro contábil
+            </div>
+        </div>
+        <div class="header-direita">
+            <a href="../prototipo.html">
+                <i data-lucide="arrow-left"></i>
+                Voltar
+            </a>
+        </div>
+    </header>
+
+    <main class="container-form">
+        <div class="card-form">
+            <form id="formFornecedor">
+
+                <fieldset class="form-section">
+                    <h3 class="section-title">Dados de Identificação</h3>
+                    <div class="form-grid cols-2">
+                        <div class="form-group">
+                            <label>Razão Social / Nome Completo *</label>
+                            <input type="text" name="razao_social" placeholder="Razão Social completa" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nome Fantasia / Apelido</label>
+                            <input type="text" name="nome_fantasia" placeholder="Nome comercial">
+                        </div>
+                    </div>
+
+                    <div class="form-grid cols-3">
+                        <div class="form-group">
+                            <label>Tipo de Pessoa</label>
+                            <select name="tipo_pessoa">
+                                <option value="JURIDICA">Pessoa Jurídica (CNPJ)</option>
+                                <option value="FISICA">Pessoa Física (CPF)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>CPF / CNPJ *</label>
+                            <input type="text" name="documento" placeholder="00.000.000/0000-00" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Inscrição Estadual</label>
+                            <input type="text" name="inscricao_estadual">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="form-section">
+                    <h3 class="section-title">Contato e Fiscal</h3>
+                    <div class="form-grid cols-2">
+                        <div class="form-group">
+                            <label>E-mail Principal</label>
+                            <input type="email" name="email" placeholder="fiscal@fornecedor.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone / Celular</label>
+                            <input type="text" name="telefone" placeholder="(13) 99999-9999">
+                        </div>
+                    </div>
+
+                    <div class="form-grid cols-3">
+                        <div class="form-group">
+                            <label>Nome do Contato</label>
+                            <input type="text" name="nome_contato" placeholder="Responsável">
+                        </div>
+                        <div class="form-group">
+                            <label>Inscrição Municipal</label>
+                            <input type="text" name="inscricao_municipal">
+                        </div>
+                        <div class="form-group">
+                            <label>Regime Tributário</label>
+                            <select name="regime_tributario">
+                                <option value="Simples Nacional">Simples Nacional</option>
+                                <option value="Lucro Presumido">Lucro Presumido</option>
+                                <option value="Lucro Real">Lucro Real</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-contabil btn-limpar" onclick="this.form.reset()">
+                        <i data-lucide="rotate-ccw"></i> Limpar Campos
+                    </button>
+                    <button type="submit" class="btn-contabil btn-salvar">
+                        <i data-lucide="save"></i> SALVAR
+                    </button>
+                    <button type="button" class="btn-contabil" onclick="irParaEnderecoFornecedor()">
+                        <i data-lucide="map-pin"></i> Cadastrar Endereço
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="../javascript/script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+
+</html>

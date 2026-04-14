@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sincronizar Contas a Pagar</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .container-sync {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        
+        .card-sync {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .sync-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+        
+        .sync-description {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .btn-sync {
+            width: 100%;
+            padding: 12px 20px;
+            background: #7c5cfc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-sync:hover {
+            background: #6a4ddc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(124, 92, 252, 0.3);
+        }
+        
+        .btn-sync:active {
+            transform: translateY(0);
+        }
+        
+        .btn-sync.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .resultado {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .resultado.sucesso {
+            background: rgba(48, 201, 126, 0.1);
+            color: #30c97e;
+            border: 1px solid rgba(48, 201, 126, 0.2);
+            display: block;
+        }
+        
+        .resultado.erro {
+            background: rgba(255, 68, 68, 0.1);
+            color: #ff4444;
+            border: 1px solid rgba(255, 68, 68, 0.2);
+            display: block;
+        }
+        
+        .resultado-titulo {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .resultado-detalhes {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .info-box {
+            background: rgba(124, 92, 252, 0.05);
+            border-left: 4px solid #7c5cfc;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: var(--text);
+        }
+        
+        .info-box strong {
+            color: #7c5cfc;
+        }
+    </style>
+</head>
+<body class="body-clientes">
+    <header class="header-custom">
+        <div>
+            <div class="header-title">Sincronizar Contas a Pagar</div>
+            <div class="header-subtitle">Gere contas a pagar a partir dos lançamentos contábeis</div>
+        </div>
+        <a href="../prototipo.html" class="header-back-link">
+            <i data-lucide="arrow-left"></i> Voltar
+        </a>
+    </header>
+
+    <main class="container-sync">
+        <div class="card-sync">
+            <div class="sync-title">📊 Sincronizar Contas a Pagar</div>
+            <div class="sync-description">
+                Este processo irá analisar todos os lançamentos contábeis e criar automaticamente 
+                entradas em "Contas a Pagar" para aqueles que ainda não foram processados.
+            </div>
+
+            <div class="info-box">
+                <strong>ℹ️ Como funciona:</strong><br>
+                • Busca lançamentos com contas de crédito relacionadas a "Contas a Pagar"<br>
+                • Cria um registro em "Contas a Pagar" para cada lançamento não processado<br>
+                • Associa automaticamente o fornecedor, valor e datas
+            </div>
+
+            <button class="btn-sync" onclick="sincronizarContas()">
+                <i data-lucide="refresh-cw"></i> Sincronizar Agora
+            </button>
+
+            <div id="resultado" class="resultado"></div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        async function sincronizarContas() {
+            const btnSync = document.querySelector('.btn-sync');
+            const divResultado = document.getElementById('resultado');
+            
+            // Desabilitar botão
+            btnSync.classList.add('loading');
+            btnSync.innerHTML = '<i data-lucide="loader"></i> Sincronizando...';
+            lucide.createIcons();
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/gerar-contas-pagar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao sincronizar');
+                }
+                
+                const resultado = await response.json();
+                
+                // Exibir resultado
+                divResultado.className = 'resultado sucesso';
+                divResultado.innerHTML = `
+                    <div class="resultado-titulo">✅ Sincronização realizada com sucesso!</div>
+                    <div class="resultado-detalhes">
+                        <strong>${resultado.processados}</strong> conta(s) a pagar criada(s)<br>
+                        <strong>${resultado.total}</strong> lançamento(s) processado(s) no total
+                    </div>
+                    ${resultado.erros && resultado.erros.length > 0 ? `
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(48, 201, 126, 0.3);">
+                            <strong>⚠️ Avisos:</strong>
+                            <ul style="margin: 5px 0 0 20px;">
+                                ${resultado.erros.map(e => `<li>Lançamento ID ${e.lancamento_id}: ${e.erro}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(48, 201, 126, 0.3); font-size: 13px;">
+                        Agora você pode visualizar as contas em <strong>"Contas a Pagar"</strong>
+                    </div>
+                `;
+                
+            } catch (erro) {
+                console.error('Erro:', erro);
+                divResultado.className = 'resultado erro';
+                divResultado.innerHTML = `
+                    <div class="resultado-titulo">❌ Erro ao sincronizar</div>
+                    <div class="resultado-detalhes">
+                        ${erro.message}<br><br>
+                        <strong>Verifique:</strong>
+                        • Se o servidor está rodando (http://localhost:3000)<br>
+                        • Se há lançamentos cadastrados<br>
+                        • Se o banco de dados está conectado
+                    </div>
+                `;
+            } finally {
+                // Reabilitar botão
+                btnSync.classList.remove('loading');
+                btnSync.innerHTML = '<i data-lucide="refresh-cw"></i> Sincronizar Agora';
+                lucide.createIcons();
+            }
+        }
+
+        // Atualizar ícones quando página carrega
+        lucide.createIcons();
+    </script>
+</body>
+</html>

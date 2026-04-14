@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listagem de Contas a Pagar</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+    
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="body-clientes">
+
+    <header class="header-custom">
+        <div>
+            <div class="header-title">Contas a Pagar</div>
+            <div class="header-subtitle">Gestão de obrigações e fluxos de saída</div>
+        </div>
+
+        <div class="header-direita" style="display: flex; gap: 15px; align-items: center;">
+            <a href="cadastro-conta.html" class="btn-novo" style="text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                <i data-lucide="plus-circle"></i> Nova Conta
+            </a>
+            <a href="../prototipo.html" class="header-back-link">
+                <i data-lucide="arrow-left"></i> Voltar
+            </a>
+        </div>
+    </header>
+
+    <main class="container-tabela">
+        <div class="card-form">
+            <table class="tabela-contabil" id="tabelaContas">
+                <thead>
+                    <tr>
+                        <th>Vencimento</th>
+                        <th>Fornecedor</th>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="corpoTabela">
+                    <tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">Carregando contas...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        async function carregarContas() {
+            try {
+                const response = await fetch('http://localhost:3000/api/contas-pagar');
+                if (!response.ok) throw new Error('Erro ao buscar dados');
+                
+                const contas = await response.json();
+
+                const hoje = new Date().toISOString().split('T')[0];
+
+                contas.sort((a, b) => {
+                    return new Date(a.data_vencimento) - new Date(b.data_vencimento);
+                });
+
+                renderizarTabela(contas, hoje);
+            } catch (err) {
+                console.error('Erro:', err);
+                document.getElementById('corpoTabela').innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger); padding:20px;">Erro ao carregar dados do servidor.</td></tr>`;
+            }
+        }
+
+        function renderizarTabela(contas, hoje) {
+            const corpo = document.getElementById('corpoTabela');
+            corpo.innerHTML = '';
+
+            if (contas.length === 0) {
+                corpo.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">Nenhuma conta a pagar encontrada.</td></tr>`;
+                return;
+            }
+
+            contas.forEach(conta => {
+                const isVencido = conta.data_vencimento < hoje && conta.status.toUpperCase() !== 'PAGO';
+                const dataFormatada = new Date(conta.data_vencimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+                const valorFormatado = new Number(conta.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+                const tr = document.createElement('tr');
+                
+                // Adicionada a classe hover padrão (table-row-contabil)
+                tr.className = 'table-row-contabil';
+                
+                tr.innerHTML = `
+                    <td class="${isVencido ? 'status-vencido' : ''}">
+                        ${isVencido ? '⚠️ ' : ''}${dataFormatada}
+                    </td>
+                    <td><strong style="color: var(--text);">${conta.fornecedor}</strong></td>
+                    <td>${conta.descricao}</td>
+                    <td class="valor-celula">${valorFormatado}</td>
+                    <td>
+                        <span class="badge-${conta.status.toLowerCase().replace(' ', '')}">
+                            ${conta.status}
+                        </span>
+                    </td>
+                `;
+                corpo.appendChild(tr);
+            });
+        }
+
+        window.onload = carregarContas;
+    </script>
+
+</body>
+</html>

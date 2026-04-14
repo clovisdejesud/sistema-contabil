@@ -1,0 +1,189 @@
+# 📊 Fluxo de Dados - Contas a Pagar
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    SISTEMA DE CONTAS A PAGAR                            │
+│                         (Fluxo Completo)                                │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                          │
+│  1️⃣  ENTRADA: CRIAR LANÇAMENTO CONTÁBIL                               │
+│  ─────────────────────────────────────────                             │
+│                                                                          │
+│  Usuário preenche:                                                      │
+│  ├─ Data do Lançamento                                                  │
+│  ├─ Conta Débito (ex: Caixa/Banco)                                     │
+│  ├─ Conta Crédito (ex: Contas a Pagar)  ⭐ CHAVE!                     │
+│  ├─ Valor                                                               │
+│  ├─ Fornecedor                                                          │
+│  ├─ Histórico/Descrição                                                 │
+│  └─ Data de Vencimento                                                  │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                          │
+│  2️⃣  PROCESSAMENTO: VALIDAÇÃO E SALVAMENTO                             │
+│  ──────────────────────────────────────────                             │
+│                                                                          │
+│  Frontend verifica:                                                     │
+│  ✓ Todos os campos obrigatórios                                        │
+│  ✓ Formato de valores numéricos                                        │
+│                                                                          │
+│  Envia POST /api/lancamentos com os dados                              │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                          │
+│  3️⃣  BANCO DE DADOS: SALVAR LANÇAMENTO                                 │
+│  ────────────────────────────────────                                   │
+│                                                                          │
+│  INSERT INTO lancamentos VALUES (                                       │
+│    id=1,                                                                │
+│    data_lancamento='2024-01-15',                                       │
+│    id_conta_debito=5,              ← Caixa/Banco                       │
+│    id_conta_credito=210,           ← Contas a Pagar                    │
+│    valor=1000.00,                                                       │
+│    fornecedor='Empresa XYZ',                                            │
+│    historico='Compra de materiais',                                     │
+│    data_vencimento='2024-02-15'                                        │
+│  )                                                                       │
+│  ◀─ ✅ Lançamento salvo com sucesso!                                   │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                          │
+│  4️⃣  AUTOMAÇÃO: DETECTAR CONTA A PAGAR                                 │
+│  ────────────────────────────────────                                   │
+│                                                                          │
+│  Função verificarEcriarContaPagar() executa:                           │
+│                                                                          │
+│  ┌─ Query: SELECT * FROM plano_contas WHERE id=210                     │
+│  │  └─ Verifica se contém "pagar" ou "débito" na descrição            │
+│  │                                                                      │
+│  ├─ ✅ SIM? Continue...                                               │
+│  │                                                                      │
+│  └─ ❌ NÃO? Stop (não cria conta a pagar)                             │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼ (se SIM)
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                          │
+│  5️⃣  BUSCAR FORNECEDOR                                                  │
+│  ──────────────────────                                                  │
+│                                                                          │
+│  Query: SELECT id FROM fornecedores                                     │
+│         WHERE razao_social='Empresa XYZ'                                │
+│                                                                          │
+│  Resultado:                                                              │
+│  ├─ ✅ Encontrou? fornecedor_id=42                                     │
+│  └─ ❌ Não encontrou? fornecedor_id=NULL                               │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                          │
+│  6️⃣  CRIAR CONTA A PAGAR AUTOMATICAMENTE                               │
+│  ────────────────────────────────────────                               │
+│                                                                          │
+│  INSERT INTO contas_pagar VALUES (                                      │
+│    id=100,                                                              │
+│    id_lancamento=1,           ← Link para lançamento                    │
+│    fornecedor_id=42,          ← Link para fornecedor                    │
+│    descricao='Compra de materiais',                                     │
+│    valor=1000.00,                                                       │
+│    data_emissao='2024-01-15',                                          │
+│    data_vencimento='2024-02-15',                                       │
+│    status='Pendente'          ← Status padrão                           │
+│  )                                                                       │
+│  ◀─ ✅ Conta a pagar criada!                                           │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                          │
+│  7️⃣  RESULTADO FINAL                                                    │
+│  ───────────────────                                                    │
+│                                                                          │
+│  Response ao Frontend:                                                  │
+│  {                                                                       │
+│    "message": "Lançamento registrado com sucesso!",                    │
+│    "id": 1                                                               │
+│  }                                                                       │
+│                                                                          │
+│  ✅ Lançamento salvo                                                    │
+│  ✅ Conta a pagar criada automaticamente                                │
+│  ✅ Relação entre lançamento e conta a pagar estabelecida               │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════
+
+🔄 FLUXO ALTERNATIVO: GERAR EM LOTE
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                          │
+│  Usuário clica: "Sincronizar Contas" em sincronizar-contas.html        │
+│                                        │                                │
+│                                        ▼                                │
+│      POST /api/gerar-contas-pagar                                      │
+│                                        │                                │
+│                                        ▼                                │
+│  Query: SELECT * FROM lancamentos l                                    │
+│         WHERE l.id NOT IN (                                            │
+│           SELECT id_lancamento FROM contas_pagar                       │
+│         )                                                               │
+│         AND l.id_conta_credito IN (                                    │
+│           SELECT id FROM plano_contas                                  │
+│           WHERE descricao LIKE '%pagar%'                               │
+│         )                                                               │
+│                                        │                                │
+│  (Busca todos os lançamentos ainda não processados)                    │
+│                                        │                                │
+│                                        ▼                                │
+│  Para cada lançamento encontrado:                                      │
+│    └─ INSERT INTO contas_pagar ...                                     │
+│                                        │                                │
+│                                        ▼                                │
+│  Response:                                                              │
+│  {                                                                       │
+│    "processados": 5,                                                    │
+│    "total": 5,                                                          │
+│    "erros": []                                                          │
+│  }                                                                       │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════
+
+🎯 RESULTADO: VISUALIZAÇÃO EM "CONTAS A PAGAR"
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│  Vencimento│Fornecedor   │Descrição              │Valor    │Status       │
+├────────────┼─────────────┼──────────────────────┼─────────┼─────────────┤
+│ 15/02/2024 │ Empresa XYZ │ Compra de materiais   │ R$ 1.000│ Pendente    │
+│ 20/02/2024 │ Fornecedor ABC │ Serviços prestados │ R$ 500  │ Pendente    │
+│ 25/02/2024 │ Outro Fornec │ Material de consumo   │ R$ 300  │ Pago        │
+└────────────┴─────────────┴──────────────────────┴─────────┴──────────────┘
+
+═══════════════════════════════════════════════════════════════════════════
+
+💡 PONTOS-CHAVE:
+
+✓ O lançamento é a origem dos dados
+✓ A detecção acontece automaticamente baseada na conta de crédito
+✓ Se der erro, o lançamento ainda é criado com sucesso!
+✓ Não há duplicação - lançamentos já processados são ignorados
+✓ O fornecedor é linkado automaticamente se encontrado na tabela
+✓ Status padrão é "Pendente" - pode ser alterado manualmente
+
+═══════════════════════════════════════════════════════════════════════════

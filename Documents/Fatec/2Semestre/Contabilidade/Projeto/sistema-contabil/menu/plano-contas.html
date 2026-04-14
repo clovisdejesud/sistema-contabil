@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plano de Contas - CMRT</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  
+</head>
+
+<body class="h-full">
+  <div style="display:flex; height:100vh; width:100%; overflow:hidden;">
+    
+    <main style="flex:1; display:flex; flex-direction:column; min-width:0;">
+    <header class="header-plano-contas">
+
+      <!-- ESQUERDA -->
+      <div class="header-esquerda">
+        <div class="header-title">Plano de Contas</div>
+        <div class="header-subtitle">Estrutura de contas do banco sistema_contabil</div>
+      </div>
+
+      <!-- CENTRO -->
+      <div class="header-centro">
+        <button class="btn-novo">+ Nova Conta</button>
+      </div>
+
+      <!-- DIREITA -->
+      <div class="header-direita">
+        <a href="../prototipo.html">
+          <i data-lucide="arrow-left"></i>
+          Voltar
+        </a>
+      </div>
+
+    </header>
+      <div style="flex:1; padding:24px 28px; overflow-y:auto;">
+        <div class="stat-card" style="margin-bottom: 24px;">
+          <div>
+            <label style="display:block; font-weight:600; font-size:13px; margin-bottom:8px; color: var(--text-muted);">Buscar por ID:</label>
+            <input type="number" id="buscar-id-conta" placeholder="Digite o ID da conta..." style="width:100%; max-width: 200px; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:14px; background: var(--surface);">
+            <div id="resultado-busca" style="margin-top:6px; font-size:12px; color:var(--text-muted); min-height:18px;"></div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border); text-align: left;">
+                  <th style="padding: 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; max-width: 60px;">ID</th>
+                  <th style="padding: 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">Código</th>
+                  <th style="padding: 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">Nome da Conta</th>
+                  <th style="padding: 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">Tipo</th>
+                  <th style="padding: 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">Natureza</th>
+                  <th style="padding: 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="lista-plano-contas">
+                <tr>
+                  <td colspan="6" style="padding:40px; text-align:center; color:var(--text-muted);">
+                    Carregando dados do servidor...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    let contasCache = [];
+
+    async function carregarPlanoContas() {
+      const tbody = document.getElementById('lista-plano-contas');
+      
+      try {
+        // Chamada para a sua API Node/PHP
+        const response = await fetch('http://localhost:3000/api/plano-contas');
+        if (!response.ok) throw new Error('Erro na conexão');
+        
+        const dados = await response.json();
+        contasCache = dados; // Guardar em cache
+        tbody.innerHTML = '';
+
+        if (dados.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="padding:20px; text-align:center;">Nenhuma conta cadastrada.</td></tr>';
+          return;
+        }
+
+        dados.forEach(conta => {
+          const classeTipo = conta.tipo_conta === 'Sintética' ? 'badge-sintetica' : 'badge-analitica';
+          
+          tbody.innerHTML += `
+            <tr style="border-bottom: 1px solid var(--border); font-size: 14px;">
+              <td style="padding: 14px; color: var(--text-muted); background: rgba(124, 92, 252, 0.05); font-weight: 600;">${conta.id}</td>
+              <td style="padding: 14px; color: var(--text-muted);">${conta.codigo_conta}</td>
+              <td style="padding: 14px; font-weight: 500;">${conta.nome_conta}</td>
+              <td style="padding: 14px;">
+                <span class="badge ${classeTipo}">${conta.tipo_conta}</span>
+              </td>
+              <td style="padding: 14px; color: ${conta.natureza === 'Devedora' ? '#f25c5c' : '#4f8ef7'};">
+                ${conta.natureza}
+              </td>
+              <td style="padding: 14px; text-align: right;">
+                <button style="background:none; border:none; color:var(--text-muted); cursor:pointer; margin-right:8px;"><i data-lucide="edit-2" style="width:14px;"></i></button>
+                <button style="background:none; border:none; color:var(--text-muted); cursor:pointer;"><i data-lucide="trash" style="width:14px;"></i></button>
+              </td>
+            </tr>
+          `;
+        });
+        
+        lucide.createIcons(); // Recarrega ícones da tabela
+
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = `<tr><td colspan="6" style="padding:40px; text-align:center; color:#f25c5c;">Erro ao carregar o plano de contas. Verifique se a API está rodando.</td></tr>`;
+      }
+    }
+
+    // Função para buscar conta por ID
+    function buscarContaPorId() {
+      const inputId = document.getElementById('buscar-id-conta');
+      const resultadoDiv = document.getElementById('resultado-busca');
+
+      inputId.addEventListener('input', () => {
+        const id = inputId.value.trim();
+
+        if (!id) {
+          resultadoDiv.textContent = '';
+          return;
+        }
+
+        const conta = contasCache.find(c => c.id === parseInt(id));
+
+        if (conta) {
+          resultadoDiv.innerHTML = `<span style="color: #7c5cfc;">✓ ${conta.codigo_conta} • ${conta.nome_conta}</span>`;
+        } else {
+          resultadoDiv.innerHTML = `<span style="color: #ff4444;">✗ Conta não encontrada</span>`;
+        }
+      });
+    }
+
+    // Carrega ao abrir a página
+    window.addEventListener('DOMContentLoaded', () => {
+      carregarPlanoContas();
+      buscarContaPorId();
+    });
+  </script>
+ 
+</body>
+</html>

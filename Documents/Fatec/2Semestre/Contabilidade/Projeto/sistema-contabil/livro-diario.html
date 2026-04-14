@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Livro Diário</title>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { background: var(--bg); color: var(--text); }
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+    .header-title { font-size: 26px; font-weight: 700; }
+    .header-subtitle { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; }
+    .btn-primary { background: #7c5cfc; color: #fff; }
+    .btn-secondary { background: rgba(124,92,252,0.08); color: var(--text); border: 1px solid var(--border); }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+    .table-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    th, td { padding: 14px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+    th { background: var(--surface); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+    .date-group { background: rgba(124,92,252,0.08); font-weight: 700; }
+    .table-wrapper table td { font-size: 13px; color: #0E204E; }
+    .status { font-size: 13px; color: var(--text-muted); }
+    .info-box { margin-bottom: 16px; padding: 16px; border-radius: 12px; background: rgba(124,92,252,0.08); color: var(--text-muted); border: 1px solid var(--border); }
+    .message { margin-bottom: 16px; padding: 14px 16px; border-radius: 12px; display: none; }
+    .message.success { background: rgba(48, 201, 126, 0.12); color: #30c97e; border: 1px solid rgba(48, 201, 126, 0.25); }
+    .message.error { background: rgba(255, 68, 68, 0.1); color: #ff4444; border: 1px solid rgba(255, 68, 68, 0.2); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header-custom">
+      <div>
+        <div class="header-title">Livro Diário</div>
+        <div class="header-subtitle">Acompanhamento automático dos lançamentos agrupados por dia</div>
+      </div>
+      <div class="header-direita">
+        <a href="prototipo.html" class="header-back-link">
+          <i data-lucide="arrow-left"></i>
+          Voltar
+        </a>
+      </div>
+    </header>
+
+    <div id="statusMessage" class="message"></div>
+
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Conta Débito</th>
+              <th>Conta Crédito</th>
+              <th>Histórico</th>
+              <th>Fornecedor</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody id="diarioTabela">
+            <tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum registro carregado.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.9/dayjs.min.js"></script>
+  <script src="api.js"></script>
+  <script>
+    lucide.createIcons();
+
+    async function carregarDiario() {
+      const tbody = document.getElementById('diarioTabela');
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">Carregando diário...</td></tr>';
+
+      try {
+        const diarios = await buscarDiarios();
+        if (diarios.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum registro de diário encontrado.</td></tr>';
+          return;
+        }
+
+        const grouped = diarios.reduce((acc, item) => {
+          const dia = item.data_lancamento ? new Date(item.data_lancamento).toLocaleDateString('pt-BR') : 'Sem data';
+          if (!acc[dia]) acc[dia] = [];
+          acc[dia].push(item);
+          return acc;
+        }, {});
+
+        tbody.innerHTML = '';
+        Object.keys(grouped).forEach(dia => {
+          const group = grouped[dia];
+          const row = document.createElement('tr');
+          row.className = 'date-group';
+          row.innerHTML = `<td colspan="6">${dia} — ${group.length} registro(s)</td>`;
+          tbody.appendChild(row);
+
+          group.forEach(item => {
+            const valorFormatado = new Number(item.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            const historico = item.historico || '-';
+            tbody.innerHTML += `
+              <tr>
+                <td>${dia}</td>
+                <td>${item.conta_debito || '---'}</td>
+                <td>${item.conta_credito || '---'}</td>
+                <td>${historico}</td>
+                <td>${item.fornecedor || '-'}</td>
+                <td>${valorFormatado}</td>
+              </tr>
+            `;
+          });
+        });
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--danger);">Erro ao carregar diário.</td></tr>';
+      }
+    }
+
+    function setStatus(message, type) {
+      const elem = document.getElementById('statusMessage');
+      elem.textContent = message;
+      elem.className = `message ${type}`.trim();
+      elem.style.display = 'block';
+    }
+
+    async function inicializarDiario() {
+      try {
+        setStatus('Sincronizando diário automaticamente...', '');
+        await popularDiarios();
+        await carregarDiario();
+        setStatus('Diário sincronizado automaticamente.', 'success');
+      } catch (error) {
+        console.error(error);
+        setStatus('Erro ao sincronizar diário automaticamente: ' + error.message, 'error');
+        await carregarDiario();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', inicializarDiario);
+  </script>
+</body>
+</html>
