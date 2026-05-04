@@ -319,6 +319,7 @@ async function buscarClientesDoBanco() {
             '<tr><td colspan="6" style="text-align:center; color:red; padding:20px;">Erro ao carregar dados do MySQL.</td></tr>';
     }
 }
+
 // ── FORMULÁRIO DE CLIENTES ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('formCliente');
@@ -408,6 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
 
 // ITEM 3: Listener para o formulário de Fornecedores (No script.js)
 document.addEventListener('submit', async (e) => {
@@ -538,4 +540,78 @@ async function deletarFornecedor(id) {
 function editarFornecedor(id) {
     window.open(`fornecedores/novo.html?id=${id}`, '_blank');
 }
+
+//ENDEREÇOS
+function irParaEndereco() {
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const clienteId = urlParams.get('cliente_id');
+
+    if (!clienteId) {
+        alert('⚠️ Salve o cliente primeiro!');
+        return;
+    }
+
+    // envia o ID do cliente para a tela de endereço
+    window.location.href = `endereco.html?cliente_id=${clienteId}`;
+}
+
+const response = await fetch('http://localhost:3000/api/clientes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dados)
+});
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('formCliente');
+
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            const dados = {
+                razao_social: formData.get('razao_social'),
+                nome_fantasia: formData.get('nome_fantasia'),
+                tipo_pessoa: formData.get('tipo_pessoa'),
+                documento: formData.get('documento'),
+                inscricao_estadual: formData.get('inscricao_estadual'),
+                email: formData.get('email'),
+                celular: formData.get('celular'),
+                limite_credito: formData.get('limite_credito'),
+                inscricao_municipal: formData.get('inscricao_municipal'),
+                data_nascimento: formData.get('data_nascimento')
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/clientes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error);
+                }
+
+                // 👇 GUARDA O ID
+                localStorage.setItem('cliente_id', result.insertId);
+
+                alert('✅ Cliente salvo! Agora cadastre o endereço.');
+
+            } catch (error) {
+                console.error(error);
+                alert('❌ Erro: ' + error.message);
+            }
+        });
+    }
+});
+
+
+// 👇 GUARDA O ID DO CLIENTE
+localStorage.setItem('cliente_id', result.insertId);
+
+alert('✅ Cliente salvo! Agora cadastre o endereço.');
 

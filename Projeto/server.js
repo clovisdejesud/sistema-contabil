@@ -10,71 +10,20 @@ app.use(express.json());
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '12345678',
-    database: 'sistema_contabil'
+    password: 'fatec#2025',
+    database: 'sistema_contabil',
+    port: 3306
 });
 
+// ✅ DEPOIS
 db.connect((err) => {
     if (err) {
-        console.error('Erro ao conectar ao MySQL:', err.message);
+        console.error('Erro ao conectar ao MySQL:');
+        console.error('  Código  :', err.code);
+        console.error('  Mensagem:', err.message);
         return;
     }
     console.log('Conectado ao MySQL com sucesso!');
-});
-
-
-
-// ── ROTAS: FORNECEDORES ───────────────────────────────────────────
-app.get('/api/fornecedores', (req, res) => {
-    db.query("SELECT * FROM fornecedores ORDER BY razao_social ASC", (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
-    });
-});
-// ── ROTA: POST FORNECEDORES (versão corrigida e única) ────────────
-app.post('/api/fornecedores', (req, res) => {
-    let {
-        razao_social, nome_fantasia, tipo_pessoa, cnpj, cpf,
-        inscricao_estadual, inscricao_municipal, regime_tributario,
-        cep, logradouro, numero, complemento, bairro, cidade, estado,
-        email, telefone, nome_contato, ativo
-    } = req.body;
-
-    // 🔥 NORMALIZAÇÃO: string vazia → null (evita Duplicate entry '')
-    cpf  = (cpf  && cpf.trim()  !== '') ? cpf.trim()  : null;
-    cnpj = (cnpj && cnpj.trim() !== '') ? cnpj.trim() : null;
-
-    // 🔒 VALIDAÇÃO
-    if (tipo_pessoa === 'JURIDICA' && !cnpj)
-        return res.status(400).json({ error: 'CNPJ é obrigatório para Pessoa Jurídica.' });
-
-    if (tipo_pessoa === 'FISICA' && !cpf)
-        return res.status(400).json({ error: 'CPF é obrigatório para Pessoa Física.' });
-
-    const sql = `
-        INSERT INTO fornecedores (
-            razao_social, nome_fantasia, tipo_pessoa, cnpj, cpf,
-            inscricao_estadual, inscricao_municipal, regime_tributario,
-            cep, logradouro, numero, complemento, bairro, cidade, estado,
-            email, telefone, nome_contato, ativo
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-    const values = [
-        razao_social, nome_fantasia, tipo_pessoa, cnpj, cpf,
-        inscricao_estadual || null, inscricao_municipal || null, regime_tributario,
-        cep || null, logradouro || null, numero || null, complemento || null,
-        bairro || null, cidade || null, estado || null,
-        email || null, telefone || null, nome_contato || null,
-        ativo !== undefined ? ativo : 1
-    ];
-
-    db.query(sql, values, (err, result) => {
-        if (err) {
-            console.error('ERRO MYSQL (fornecedor):', err);
-            return res.status(500).json({ error: err.message });
-        }
-        res.status(201).json({ message: 'Fornecedor cadastrado!', id: result.insertId });
-    });
 });
 
 // ── ROTAS: CLIENTES ───────────────────────────────────────────────
@@ -256,6 +205,20 @@ app.post('/api/contas-pagar', (req, res) => {
             return res.status(500).json({ error: err.message });
         }
         res.status(201).json({ message: 'Conta registrada com sucesso!', id: result.insertId });
+    });
+});
+
+//ENDEREÇOS
+app.post('/api/clientes', (req, res) => {
+    const dados = req.body;
+
+    const sql = `INSERT INTO clientes (...) VALUES (...)`;
+
+    db.query(sql, [...], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        // 👇 RETORNA ID
+        res.json({ insertId: result.insertId });
     });
 });
 
