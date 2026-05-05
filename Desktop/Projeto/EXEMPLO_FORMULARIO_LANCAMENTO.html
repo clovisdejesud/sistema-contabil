@@ -1,0 +1,206 @@
+<!-- 
+  EXEMPLO DE FORMULÁRIO MELHORADO PARA LANÇAMENTOS
+  Coloque este código no seu formulário em lancamentos.html
+  Ele já vem com validações e campos corretos para criar contas a pagar automaticamente
+-->
+
+<div class="form-container" style="max-width: 500px; margin: 20px auto; padding: 20px; background: var(--surface); border-radius: 12px; border: 1px solid var(--border);">
+  
+  <h2 style="margin-bottom: 20px; font-size: 20px; font-weight: 700;">Novo Lançamento</h2>
+  
+  <form id="form-lancamento-novo" onsubmit="handleSubmitLancamento(event)">
+    
+    <!-- DATA DO LANÇAMENTO -->
+    <div style="margin-bottom: 16px;">
+      <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px;">
+        📅 Data do Lançamento: <span style="color: #ff4444;">*</span>
+      </label>
+      <input type="date" name="data_lancamento" id="data_lancamento" 
+             style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box;" 
+             required>
+    </div>
+
+    <!-- CONTA DÉBITO -->
+    <div style="margin-bottom: 16px;">
+      <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px;">
+        💰 Conta Débito: <span style="color: #ff4444;">*</span>
+      </label>
+      <select name="id_conta_debito" id="id_conta_debito" 
+              style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box;" 
+              required onchange="atualizarInfoConta('debito')">
+        <option value="">Selecione uma conta...</option>
+        <!-- Será preenchido via JavaScript -->
+      </select>
+      <small id="info_debito" style="display: block; margin-top: 4px; color: var(--text-muted); font-size: 12px;"></small>
+    </div>
+
+    <!-- CONTA CRÉDITO -->
+    <div style="margin-bottom: 16px;">
+      <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px;">
+        📤 Conta Crédito: <span style="color: #ff4444;">*</span>
+      </label>
+      <select name="id_conta_credito" id="id_conta_credito" 
+              style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box;" 
+              required onchange="atualizarInfoConta('credito')">
+        <option value="">Selecione uma conta...</option>
+        <!-- Será preenchido via JavaScript -->
+      </select>
+      <small id="info_credito" style="display: block; margin-top: 4px; color: var(--text-muted); font-size: 12px;"></small>
+      <div id="aviso-contas-pagar" style="display: none; margin-top: 8px; padding: 8px; background: rgba(48, 201, 126, 0.1); border-left: 3px solid #30c97e; border-radius: 4px; font-size: 12px; color: #30c97e;">
+        ✨ Esta conta criará automaticamente uma entrada em "Contas a Pagar"
+      </div>
+    </div>
+
+    <!-- VALOR -->
+    <div style="margin-bottom: 16px;">
+      <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px;">
+        💵 Valor (R$): <span style="color: #ff4444;">*</span>
+      </label>
+      <input type="number" step="0.01" name="valor" id="valor" 
+             style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box;" 
+             placeholder="0,00" min="0" required>
+    </div>
+
+    <!-- FORNECEDOR -->
+    <div style="margin-bottom: 16px;">
+      <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px;">
+        🏢 Fornecedor:
+      </label>
+      <input type="text" name="fornecedor" id="fornecedor" 
+             style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box;" 
+             placeholder="Ex: Empresa XYZ">
+    </div>
+
+    <!-- DATA DE VENCIMENTO (para contas a pagar) -->
+    <div style="margin-bottom: 16px;">
+      <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px;">
+        📆 Data de Vencimento:
+      </label>
+      <input type="date" name="data_vencimento" id="data_vencimento" 
+             style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box;">
+    </div>
+
+    <!-- HISTÓRICO/DESCRIÇÃO -->
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px;">
+        📝 Histórico/Descrição:
+      </label>
+      <textarea name="historico" id="historico" rows="3" 
+                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-family: inherit;"
+                placeholder="Ex: Compra de materiais de escritório"></textarea>
+    </div>
+
+    <!-- BOTÕES -->
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button type="reset" class="btn-secundario" style="padding: 10px 20px; border: 1px solid var(--border); background: transparent; border-radius: 8px; cursor: pointer; font-weight: 600;">
+        Limpar
+      </button>
+      <button type="submit" class="btn-primario" style="padding: 10px 20px; background: #7c5cfc; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+        ✓ Salvar Lançamento
+      </button>
+    </div>
+
+    <div id="mensagem-resultado" style="display: none; margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
+  </form>
+</div>
+
+<script>
+// Carregar plano de contas quando página carrega
+document.addEventListener('DOMContentLoaded', async () => {
+  await carregarPlanoContas();
+  // Auto-popular data de hoje
+  document.getElementById('data_lancamento').valueAsDate = new Date();
+  document.getElementById('data_vencimento').valueAsDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // +30 dias
+});
+
+// Carregar contas do plano
+async function carregarPlanoContas() {
+  try {
+    const contas = await buscarPlanoContas();
+    
+    const selectDebito = document.getElementById('id_conta_debito');
+    const selectCredito = document.getElementById('id_conta_credito');
+    
+    contas.forEach(conta => {
+      const option1 = document.createElement('option');
+      option1.value = conta.id;
+      option1.textContent = `${conta.codigo_conta} - ${conta.descricao}`;
+      selectDebito.appendChild(option1);
+      
+      const option2 = document.createElement('option');
+      option2.value = conta.id;
+      option2.textContent = `${conta.codigo_conta} - ${conta.descricao}`;
+      selectCredito.appendChild(option2);
+    });
+  } catch (erro) {
+    console.error('Erro ao carregar plano de contas:', erro);
+    document.getElementById('mensagem-resultado').innerHTML = '❌ Erro ao carregar plano de contas';
+  }
+}
+
+// Atualizar informações da conta selecionada
+async function atualizarInfoConta(tipo) {
+  const selectElement = tipo === 'debito' 
+    ? document.getElementById('id_conta_debito')
+    : document.getElementById('id_conta_credito');
+  
+  const selectedOption = selectElement.options[selectElement.selectedIndex];
+  const infoElement = tipo === 'debito' 
+    ? document.getElementById('info_debito')
+    : document.getElementById('info_credito');
+  
+  if (selectedOption.value) {
+    infoElement.textContent = `✓ ${selectedOption.textContent}`;
+    
+    // Mostrar aviso se for conta de contas a pagar
+    if (tipo === 'credito' && selectedOption.textContent.toLowerCase().includes('pagar')) {
+      document.getElementById('aviso-contas-pagar').style.display = 'block';
+    } else if (tipo === 'credito') {
+      document.getElementById('aviso-contas-pagar').style.display = 'none';
+    }
+  } else {
+    infoElement.textContent = '';
+  }
+}
+
+// Enviar formulário
+async function handleSubmitLancamento(event) {
+  event.preventDefault();
+  
+  const msgResultado = document.getElementById('mensagem-resultado');
+  msgResultado.style.display = 'block';
+  
+  const dados = {
+    data_lancamento: document.getElementById('data_lancamento').value,
+    id_conta_debito: parseInt(document.getElementById('id_conta_debito').value),
+    id_conta_credito: parseInt(document.getElementById('id_conta_credito').value),
+    valor: parseFloat(document.getElementById('valor').value),
+    fornecedor: document.getElementById('fornecedor').value || null,
+    historico: document.getElementById('historico').value || null,
+    data_vencimento: document.getElementById('data_vencimento').value || null,
+    data_emissao: document.getElementById('data_lancamento').value
+  };
+  
+  try {
+    const resultado = await salvarLancamento(dados);
+    msgResultado.innerHTML = `✅ ${resultado.message}<br><small>ID: ${resultado.id}</small>`;
+    msgResultado.style.background = 'rgba(48, 201, 126, 0.1)';
+    msgResultado.style.color = '#30c97e';
+    msgResultado.style.border = '1px solid #30c97e';
+    
+    // Limpar formulário após 2 segundos
+    setTimeout(() => {
+      document.getElementById('form-lancamento-novo').reset();
+      document.getElementById('data_lancamento').valueAsDate = new Date();
+      document.getElementById('data_vencimento').valueAsDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      msgResultado.style.display = 'none';
+    }, 2000);
+    
+  } catch (erro) {
+    msgResultado.innerHTML = `❌ Erro: ${erro.message}`;
+    msgResultado.style.background = 'rgba(255, 68, 68, 0.1)';
+    msgResultado.style.color = '#ff4444';
+    msgResultado.style.border = '1px solid #ff4444';
+  }
+}
+</script>
