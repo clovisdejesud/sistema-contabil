@@ -28,7 +28,7 @@
         <div class="submenu">
           <a href="clientes.html" class="sidebar-item"><i data-lucide="user" style="width:14px;height:14px;"></i> Clientes</a>
           <a href="fornecedores.html" class="sidebar-item"><i data-lucide="truck" style="width:14px;height:14px;"></i> Fornecedores</a>
-          <a href="enderecos.html" class="sidebar-item"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> EndereÃ§os</a>
+          <a href="enderecos.html" class="sidebar-item"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> Endereços</a>
           <a href="plano-contas.html" class="sidebar-item active"><i data-lucide="list" style="width:14px;height:14px;"></i> Plano de Contas</a>
         </div>
 
@@ -39,32 +39,32 @@
 
         <div class="sidebar-group-label">Contabilidade</div>
         <div class="submenu">
-          <a href="lancamentos.html" class="sidebar-item"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> LanÃ§amentos</a>
-          <a href="livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro DiÃ¡rio</a>
-          <a href="livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro RazÃ£o</a>
+          <a href="lancamentos.html" class="sidebar-item"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> Lançamentos</a>
+          <a href="livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
+          <a href="livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
           <a href="dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> Apuração de Resultado do Exercício</a>
         </div>
       </nav>
     </aside>
 
     <main style="flex:1; display:flex; flex-direction:column; min-width:0; border-left: none;">
-    <header style="padding:14px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface);">
+    <header class="header-padrao">
 
       <!-- ESQUERDA -->
       <div>
         <div style="font-size:18px; font-weight:700;">Plano de Contas</div>
-        <div style="font-size:12px; color:var(--text-muted);">Estrutura de contas do banco sistema_contabil</div>
+        <div style="font-size:12px;">Estrutura de contas do banco sistema_contabil</div>
       </div>
 
       <!-- CENTRO -->
       <div>
-        <button class="btn-novo">+ Nova Conta</button>
+        <button>+ Nova Conta</button>
       </div>
 
     </header>
-      <div style="flex:1; padding:24px 28px; overflow-y:auto;">
+      <div class="busca-div">
         <div class="stat-card" style="margin-bottom: 24px;">
-          <div>
+          <div">
             <label style="display:block; font-weight:600; font-size:13px; margin-bottom:8px; color: var(--text-muted);">Buscar por ID:</label>
             <input type="number" id="buscar-id-conta" placeholder="Digite o ID da conta..." style="width:100%; max-width: 200px; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:14px; background: var(--surface);">
             <div id="resultado-busca" style="margin-top:6px; font-size:12px; color:var(--text-muted); min-height:18px;"></div>
@@ -77,11 +77,11 @@
               <thead>
                 <tr style="border-bottom: 1px solid var(--border); text-align: left;">
                   <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; max-width: 60px;">ID</th>
-                  <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">CÃ³digo</th>
+                  <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">Código</th>
                   <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">Nome da Conta</th>
                   <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">Tipo</th>
                   <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">Natureza</th>
-                  <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; text-align: right;">AÃ§Ãµes</th>
+                  <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; text-align: right;">Ações</th>
                 </tr>
               </thead>
               <tbody id="lista-plano-contas">
@@ -115,7 +115,7 @@
       try {
         // Chamada para a sua API Node/PHP
         const response = await fetch('http://localhost:3000/api/plano-contas');
-        if (!response.ok) throw new Error('Erro na conexÃ£o');
+        if (!response.ok) throw new Error('Erro na conexão');
         
         const dados = await response.json();
         contasCache = dados; // Guardar em cache
@@ -127,7 +127,7 @@
         }
 
         dados.forEach(conta => {
-          const classeTipo = conta.tipo_conta === 'SintÃ©tica' ? 'badge-sintetica' : 'badge-analitica';
+          const classeTipo = conta.tipo_conta === 'Sintética' ? 'badge-sintetica' : 'badge-analitica';
           const paddingLeft = 10 + getIndentPadding(conta.codigo_conta);
           
           tbody.innerHTML += `
@@ -153,7 +153,7 @@
 
       } catch (error) {
         console.error(error);
-        tbody.innerHTML = `<tr><td colspan="6" style="padding:40px; text-align:center; color:#f25c5c;">Erro ao carregar o plano de contas. Verifique se a API estÃ¡ rodando.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="padding:40px; text-align:center; color:#f25c5c;">Erro ao carregar o plano de contas. Verifique se a API está rodando.</td></tr>`;
       }
     }
 
@@ -173,9 +173,9 @@
         const conta = contasCache.find(c => c.id === parseInt(id));
 
         if (conta) {
-          resultadoDiv.innerHTML = `<span style="color: #7c5cfc;">âœ“ ${conta.codigo_conta} â€¢ ${conta.nome_conta}</span>`;
-        } else {
-          resultadoDiv.innerHTML = `<span style="color: #ff4444;">âœ— Conta nÃ£o encontrada</span>`;
+          resultadoDiv.innerHTML = `<span style="color: #7c5cfc;">✔ ${conta.codigo_conta} • ${conta.nome_conta}</span>`;
+          } else {
+            resultadoDiv.innerHTML = `<span style="color: #ff4444;">✗ Conta não encontrada</span>`;
         }
       });
     }
@@ -186,6 +186,6 @@
       buscarContaPorId();
     });
   </script>
- 
+ <script src="../api.js"></script>
 </body>
 </html>

@@ -117,6 +117,30 @@ body { background-color: var(--bg); color: var(--text); }
     border-bottom: none;
 }
 
+/*Header padrao*/
+.header-padrao{
+    color: white;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #0E204E !important;
+}
+
+.busca-div {
+    flex: 1;
+    padding: 24px 28px;
+    overflow-y:auto;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--border);
+}
+
+.busca-container{
+    background-color: #F1F3E0;
+}
+
+
 .header-direita {
     display: flex;
     justify-content: flex-end;
@@ -205,9 +229,9 @@ body { background-color: var(--bg); color: var(--text); }
     align-items: center;
 }
 
-/* Botão de Ação */
+/* Botão de Ação 
 .btn-novo {
-    background: linear-gradient(135deg, rgb(0, 0, 139), #0033ff);
+    
     color: white;
     border: none;
     padding: 8px 16px;
@@ -215,7 +239,7 @@ body { background-color: var(--bg); color: var(--text); }
     font-weight: 600;
     cursor: pointer;
     transition: 0.3s;
-}
+}*/
 
 .btn-novo:hover { opacity: 0.9; transform: translateY(-1px); }
 
@@ -563,14 +587,7 @@ fieldset:first-child {
 }
 
 /* Header - Plano de Contas */
-.header-plano-contas {
-    background-color: #00008B;
-    padding: 14px 28px;
-    display: flex;
-    align-items: center;
-    position: relative;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
+
 
 /* BLOCO ESQUERDA (TÍTULO) */
 .header-esquerda {
