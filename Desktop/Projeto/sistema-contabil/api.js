@@ -100,6 +100,26 @@ async function buscarLivroRazao() {
   return await res.json();
 }
 
+// 🔹 DRE
+async function buscarDRE() {
+  const res = await fetch(`${API_URL}/api/dre`);
+  if (!res.ok) throw new Error('Erro ao buscar DRE');
+  return await res.json();
+}
+
+async function confirmarDRE(dados) {
+  const res = await fetch(`${API_URL}/api/dre/confirmar`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dados)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Erro ao confirmar DRE');
+  }
+  return await res.json();
+}
+
 function normalizarTexto(texto) {
   return texto
     ?.normalize("NFD")

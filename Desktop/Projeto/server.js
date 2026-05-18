@@ -12,7 +12,8 @@ const db = mysql.createConnection({
     user: 'root',
     password: 'fatec#2025',
     database: 'sistema_contabil',
-    port: 3306
+    port: 3306,
+    charset: 'utf8mb4'
 });
 
 // ✅ DEPOIS
@@ -255,8 +256,8 @@ app.get('/api/lancamentos', (req, res) => {
     const sql = `
         SELECT 
             l.*,
-            dc.descricao AS nome_conta_debito,
-            cc.descricao AS nome_conta_credito
+            dc.nome_conta AS nome_conta_debito,
+            cc.nome_conta AS nome_conta_credito
         FROM lancamentos l
         LEFT JOIN plano_contas dc ON l.id_conta_debito = dc.id
         LEFT JOIN plano_contas cc ON l.id_conta_credito = cc.id
@@ -638,6 +639,59 @@ app.get('/api/diarios', (req, res) => {
             return res.status(500).json({ error: err.message });
         }
         res.json(results);
+    });
+});
+
+// ── ROTA: DRE ─────────────────────────────────────────────────────
+app.get('/api/dre', (req, res) => {
+    const sql = `
+        SELECT
+            pc.id,
+            pc.codigo_conta,
+            pc.nome_conta,
+            pc.tipo_conta,
+            COALESCE(SUM(CASE WHEN l.id_conta_debito  = pc.id THEN l.valor ELSE 0 END), 0) AS total_debito,
+            COALESCE(SUM(CASE WHEN l.id_conta_credito = pc.id THEN l.valor ELSE 0 END), 0) AS total_credito
+        FROM plano_contas pc
+        LEFT JOIN lancamentos l ON (l.id_conta_debito = pc.id OR l.id_conta_credito = pc.id)
+        GROUP BY pc.id, pc.codigo_conta, pc.nome_conta, pc.tipo_conta
+        ORDER BY pc.codigo_conta
+    `;
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Erro ao gerar DRE:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(results);
+    });
+});
+
+app.post('/api/dre/confirmar', (req, res) => {
+    const { total_receitas, total_custos, total_despesas, resultado_liquido, periodo } = req.body;
+
+    const createSql = `
+        CREATE TABLE IF NOT EXISTS dre_confirmados (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            periodo VARCHAR(20) NOT NULL,
+            total_receitas DECIMAL(15,2) NOT NULL DEFAULT 0,
+            total_custos DECIMAL(15,2) NOT NULL DEFAULT 0,
+            total_despesas DECIMAL(15,2) NOT NULL DEFAULT 0,
+            resultado_liquido DECIMAL(15,2) NOT NULL,
+            confirmado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `;
+
+    db.query(createSql, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        db.query(
+            'INSERT INTO dre_confirmados (periodo, total_receitas, total_custos, total_despesas, resultado_liquido) VALUES (?, ?, ?, ?, ?)',
+            [periodo || String(new Date().getFullYear()), total_receitas || 0, total_custos || 0, total_despesas || 0, resultado_liquido || 0],
+            (err2, result) => {
+                if (err2) return res.status(500).json({ error: err2.message });
+                res.status(201).json({ message: 'DRE confirmado com sucesso!', id: result.insertId });
+            }
+        );
     });
 });
 

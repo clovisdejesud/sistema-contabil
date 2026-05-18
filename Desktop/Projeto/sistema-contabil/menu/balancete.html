@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Balancete - CMRT</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { box-sizing: border-box; margin: 0; background: var(--bg); color: var(--text); }
+    .sidebar-item { cursor: pointer; text-decoration: none; color: #FFFFFF; display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 8px; transition: 0.2s; font-size: 14px; }
+    a.sidebar-item:hover { background: rgba(255,255,255,0.1); }
+    .sidebar-item.active { background: #ffffff; color: #1e293b; font-weight: 600; border-left: 3px solid #4f8ef7; padding-left: 11px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .submenu { margin-left: 12px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 8px; }
+    .sidebar-group-label { font-size: 11px; text-transform: uppercase; color: #B0B8C1; margin: 20px 10px 8px; letter-spacing: 0.05em; }
+
+    /* Tabela balancete */
+    .bal-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .bal-table th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      background: var(--surface);
+      border-bottom: 2px solid var(--border);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .bal-table th.num { text-align: right; }
+    .bal-table th.nome { text-align: left; }
+    .bal-table td { padding: 8px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .bal-table td.num  { text-align: right; font-variant-numeric: tabular-nums; }
+    .bal-table td.nome { text-align: left; }
+
+    /* Linhas de grupo (cabeçalho de categoria) */
+    .row-grupo td {
+      background: #0E204E;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 8px 14px;
+    }
+
+    /* Linha de subtotal */
+    .row-subtotal td {
+      background: rgba(14,32,78,0.06);
+      font-weight: 600;
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Linha de total geral */
+    .row-total td {
+      background: rgba(14,32,78,0.12);
+      font-weight: 700;
+      font-size: 13px;
+      border-top: 3px solid #0E204E;
+    }
+
+    /* Resultado DRE */
+    .row-dre-header td {
+      background: #1a3a7a;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 10px 14px;
+    }
+    .row-dre-item td { background: rgba(26,58,122,0.04); padding: 8px 14px; }
+    .row-dre-resultado td {
+      background: rgba(26,58,122,0.1);
+      font-weight: 700;
+      font-size: 14px;
+      border-top: 2px solid #1a3a7a;
+    }
+
+    /* Badge D/C */
+    .badge-d { background: rgba(242,92,92,0.1); color: #dc2626; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+    .badge-c { background: rgba(22,163,74,0.1); color: #16a34a; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+
+    /* Verificação */
+    .badge-ok  { background: rgba(22,163,74,0.1); color: #16a34a; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+    .badge-err { background: rgba(220,38,38,0.1); color: #dc2626; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+
+    .valor-verde   { color: #16a34a; }
+    .valor-vermelho { color: #dc2626; }
+  </style>
+</head>
+
+<body class="h-full">
+<div style="display:flex; height:100vh; width:100%; overflow:hidden;">
+
+  <aside style="width:230px; min-width:230px; background:#0E204E; display:flex; flex-direction:column; overflow-y:auto;">
+    <div style="padding:20px 18px 12px; border-bottom:1px solid rgba(255,255,255,0.1);">
+      <img src="../img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width:100%;">
+    </div>
+    <nav style="flex:1; padding:10px 8px;">
+      <a href="../prototipo.html" class="sidebar-item">
+        <i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard
+      </a>
+      <div class="sidebar-group-label">Cadastro</div>
+      <div class="submenu">
+        <a href="clientes.html" class="sidebar-item"><i data-lucide="user" style="width:14px;height:14px;"></i> Clientes</a>
+        <a href="fornecedores.html" class="sidebar-item"><i data-lucide="truck" style="width:14px;height:14px;"></i> Fornecedores</a>
+        <a href="enderecos.html" class="sidebar-item"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> Endereços</a>
+        <a href="plano-contas.html" class="sidebar-item"><i data-lucide="list" style="width:14px;height:14px;"></i> Plano de Contas</a>
+      </div>
+      <div class="sidebar-group-label">Financeiro</div>
+      <div class="submenu">
+        <a href="contas-pagar.html" class="sidebar-item"><i data-lucide="arrow-up-circle" style="width:14px;height:14px;"></i> Contas a Pagar</a>
+      </div>
+      <div class="sidebar-group-label">Contabilidade</div>
+      <div class="submenu">
+        <a href="lancamentos.html" class="sidebar-item"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> Lançamentos</a>
+        <a href="livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
+        <a href="livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
+        <a href="balancete.html" class="sidebar-item active"><i data-lucide="table-2" style="width:14px;height:14px;"></i> Balancete</a>
+        <a href="balanco-patrimonial.html" class="sidebar-item"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Balanço Patrimonial</a>
+        <a href="dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> Apuração de Resultado do Exercício</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main style="flex:1; display:flex; flex-direction:column; min-width:0; overflow-y:auto; border-left:none;">
+    <header class="header-custom">
+      <div>
+        <div style="font-size:18px; font-weight:700;">Balancete de Verificação</div>
+        <div style="font-size:12px; color:var(--text-muted);" id="subtitulo-periodo"></div>
+      </div>
+      <div class="header-direita">
+        <a href="../prototipo.html" class="header-back-link">
+          <i data-lucide="arrow-left"></i> Voltar
+        </a>
+      </div>
+    </header>
+
+    <div style="flex:1; padding:24px 28px; overflow-y:auto;">
+      <div class="stat-card">
+        <div id="balanceteConteudo" style="padding:20px; text-align:center; color:var(--text-muted);">
+          Carregando balancete...
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../api.js"></script>
+<script>
+  lucide.createIcons();
+
+  const agora = new Date();
+  const periodo = agora.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  document.getElementById('subtitulo-periodo').textContent = 'Exercício — ' + periodo.charAt(0).toUpperCase() + periodo.slice(1);
+
+  const GRUPOS = {
+    '1': { label: 'Ativo',                       natureza: 'D' },
+    '2': { label: 'Passivo / Patrimônio Líquido', natureza: 'C' },
+    '3': { label: 'Receitas',                     natureza: 'C' },
+    '4': { label: 'Despesas',                     natureza: 'D' },
+  };
+
+  function fmt(v) {
+    return Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function saldoConta(conta) {
+    const d1 = String(conta.codigo_conta || '').charAt(0);
+    const deb = parseFloat(conta.total_debito)  || 0;
+    const cre = parseFloat(conta.total_credito) || 0;
+    const nat = GRUPOS[d1] ? GRUPOS[d1].natureza : 'D';
+    const saldo = nat === 'D' ? deb - cre : cre - deb;
+    return { saldo, nat, positivo: saldo > 0, saldoD: nat === 'D' && saldo > 0, saldoC: nat === 'C' && saldo > 0 };
+  }
+
+  async function carregarBalancete() {
+    const conteudo = document.getElementById('balanceteConteudo');
+    try {
+      const dados = await buscarDRE();
+
+      // Separar contas com movimento por grupo
+      const grupos = { '1': [], '2': [], '3': [], '4': [] };
+      dados.forEach(c => {
+        const d1 = String(c.codigo_conta || '').charAt(0);
+        const deb = parseFloat(c.total_debito)  || 0;
+        const cre = parseFloat(c.total_credito) || 0;
+        if ((deb + cre) === 0) return;
+        if (grupos[d1]) grupos[d1].push(c);
+      });
+
+      // Totais gerais
+      let grandDeb = 0, grandCre = 0, grandSaldoD = 0, grandSaldoC = 0;
+
+      const ano = new Date().getFullYear();
+
+      let html = `
+        <div style="text-align:center; margin-bottom:20px;">
+          <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); margin-bottom:4px;">CMRT — Sistema Contábil</div>
+          <div style="font-size:16px; font-weight:700;">BALANCETE DE VERIFICAÇÃO</div>
+          <div style="font-size:13px; color:var(--text-muted);">Exercício: ${ano}</div>
+        </div>
+        <table class="bal-table">
+          <thead>
+            <tr>
+              <th style="width:10%;">Código</th>
+              <th class="nome">Conta</th>
+              <th class="num" style="width:14%;">Débitos</th>
+              <th class="num" style="width:14%;">Créditos</th>
+              <th class="num" style="width:14%;">Saldo</th>
+              <th style="width:5%; text-align:center;">N</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+      // Renderizar cada grupo
+      ['1','2','3','4'].forEach(g => {
+        const contas = grupos[g];
+        if (contas.length === 0) return;
+
+        const info = GRUPOS[g];
+        let subDeb = 0, subCre = 0, subSaldoD = 0, subSaldoC = 0;
+
+        html += `<tr class="row-grupo"><td colspan="6">${info.label}</td></tr>`;
+
+        contas.forEach(c => {
+          const deb = parseFloat(c.total_debito)  || 0;
+          const cre = parseFloat(c.total_credito) || 0;
+          const { saldo, saldoD, saldoC } = saldoConta(c);
+
+          subDeb += deb; subCre += cre;
+          if (saldoD) subSaldoD += saldo;
+          if (saldoC) subSaldoC += saldo;
+
+          const badgeSaldo = saldo === 0
+            ? '<span style="color:var(--text-muted);">—</span>'
+            : saldoD
+              ? `<span class="badge-d">D</span>`
+              : `<span class="badge-c">C</span>`;
+
+          html += `
+            <tr>
+              <td style="color:var(--text-muted); font-size:12px;">${c.codigo_conta}</td>
+              <td class="nome">${c.nome_conta}</td>
+              <td class="num">${deb > 0 ? fmt(deb) : '<span style="color:var(--text-muted);">—</span>'}</td>
+              <td class="num">${cre > 0 ? fmt(cre) : '<span style="color:var(--text-muted);">—</span>'}</td>
+              <td class="num">${saldo !== 0 ? fmt(Math.abs(saldo)) : '<span style="color:var(--text-muted);">—</span>'}</td>
+              <td style="text-align:center;">${badgeSaldo}</td>
+            </tr>`;
+        });
+
+        grandDeb    += subDeb;
+        grandCre    += subCre;
+        grandSaldoD += subSaldoD;
+        grandSaldoC += subSaldoC;
+
+        html += `
+          <tr class="row-subtotal">
+            <td colspan="2" style="padding-left:14px;">Subtotal — ${info.label}</td>
+            <td class="num">${fmt(subDeb)}</td>
+            <td class="num">${fmt(subCre)}</td>
+            <td class="num">${fmt(subSaldoD || subSaldoC)}</td>
+            <td style="text-align:center;">${subSaldoD ? '<span class="badge-d">D</span>' : subSaldoC ? '<span class="badge-c">C</span>' : '—'}</td>
+          </tr>`;
+      });
+
+      // Total geral + verificação
+      const equilibrado = Math.abs(grandDeb - grandCre) < 0.01;
+      html += `
+        <tr class="row-total">
+          <td colspan="2"><strong>TOTAL GERAL</strong></td>
+          <td class="num"><strong>${fmt(grandDeb)}</strong></td>
+          <td class="num"><strong>${fmt(grandCre)}</strong></td>
+          <td class="num" colspan="2">
+            <span class="${equilibrado ? 'badge-ok' : 'badge-err'}">
+              ${equilibrado ? '✔ Balancete equilibrado' : '✗ Diferença: ' + fmt(Math.abs(grandDeb - grandCre))}
+            </span>
+          </td>
+        </tr>`;
+
+      // Resultado DRE
+      const receitasContas = grupos['3'];
+      const despesasContas = grupos['4'];
+      const totalReceitas = receitasContas.reduce((s, c) => {
+        const deb = parseFloat(c.total_debito) || 0;
+        const cre = parseFloat(c.total_credito) || 0;
+        return s + Math.max(0, cre - deb);
+      }, 0);
+      const totalDespesas = despesasContas.reduce((s, c) => {
+        const deb = parseFloat(c.total_debito) || 0;
+        const cre = parseFloat(c.total_credito) || 0;
+        return s + Math.max(0, deb - cre);
+      }, 0);
+      const resultado = totalReceitas - totalDespesas;
+      const isLucro   = resultado >= 0;
+
+      html += `
+        <tr class="row-dre-header"><td colspan="6">Resultado do Exercício — Apuração DRE</td></tr>
+        <tr class="row-dre-item">
+          <td colspan="4" style="padding-left:28px;">Receitas Operacionais (3.x)</td>
+          <td class="num valor-verde">${fmt(totalReceitas)}</td>
+          <td style="text-align:center;"><span class="badge-c">C</span></td>
+        </tr>
+        <tr class="row-dre-item">
+          <td colspan="4" style="padding-left:28px;">(-) Despesas Operacionais (4.x)</td>
+          <td class="num valor-vermelho">(${fmt(totalDespesas)})</td>
+          <td style="text-align:center;"><span class="badge-d">D</span></td>
+        </tr>
+        <tr class="row-dre-resultado">
+          <td colspan="4" style="padding-left:14px;">(=) Resultado Líquido — ${isLucro ? 'LUCRO' : 'PREJUÍZO'}</td>
+          <td class="num ${isLucro ? 'valor-verde' : 'valor-vermelho'}">
+            ${isLucro ? '' : '('}${fmt(Math.abs(resultado))}${isLucro ? '' : ')'}
+          </td>
+          <td style="text-align:center;">
+            <span class="${isLucro ? 'badge-c' : 'badge-d'}">${isLucro ? 'C' : 'D'}</span>
+          </td>
+        </tr>
+      `;
+
+      html += `</tbody></table>`;
+      conteudo.innerHTML = html;
+      lucide.createIcons();
+
+    } catch (err) {
+      console.error(err);
+      conteudo.innerHTML = `<div style="text-align:center; padding:40px; color:var(--danger);">Erro ao carregar balancete: ${err.message}</div>`;
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', carregarBalancete);
+</script>
+</body>
+</html>

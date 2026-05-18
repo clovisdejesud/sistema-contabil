@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Balanço Patrimonial - CMRT</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { box-sizing: border-box; margin: 0; background: var(--bg); color: var(--text); }
+    .sidebar-item { cursor: pointer; text-decoration: none; color: #FFFFFF; display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 8px; transition: 0.2s; font-size: 14px; }
+    a.sidebar-item:hover { background: rgba(255,255,255,0.1); }
+    .sidebar-item.active { background: #ffffff; color: #1e293b; font-weight: 600; border-left: 3px solid #4f8ef7; padding-left: 11px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .submenu { margin-left: 12px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 8px; }
+    .sidebar-group-label { font-size: 11px; text-transform: uppercase; color: #B0B8C1; margin: 20px 10px 8px; letter-spacing: 0.05em; }
+
+    /* Layout dois painéis */
+    .bp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) { .bp-grid { grid-template-columns: 1fr; } }
+
+    /* Painel */
+    .bp-painel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .bp-painel-header {
+      background: #0E204E;
+      color: #fff;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Tabela interna */
+    .bp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .bp-table td { padding: 7px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .bp-table td.val { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    /* Linha de grupo (sintética nível 2) */
+    .row-grupo td {
+      background: rgba(14,32,78,0.07);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #0E204E;
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Linha analítica */
+    .row-conta td:first-child { padding-left: 28px; color: var(--text); }
+
+    /* Subtotal do grupo */
+    .row-sub td {
+      font-weight: 600;
+      background: rgba(14,32,78,0.04);
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    /* Total do painel */
+    .row-total td {
+      font-weight: 700;
+      font-size: 14px;
+      background: rgba(14,32,78,0.1);
+      border-top: 3px solid #0E204E;
+    }
+
+    /* Resultado DRE */
+    .row-dre td { font-style: italic; }
+    .row-dre td:first-child { padding-left: 28px; }
+
+    /* Verificação */
+    .bp-verificacao {
+      margin-top: 20px;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .bp-ok  { background: rgba(22,163,74,0.1);  color: #16a34a; border: 1px solid rgba(22,163,74,0.3); }
+    .bp-err { background: rgba(220,38,38,0.1);  color: #dc2626; border: 1px solid rgba(220,38,38,0.3); }
+
+    .valor-verde   { color: #16a34a; }
+    .valor-vermelho { color: #dc2626; }
+    .valor-muted   { color: var(--text-muted); }
+  </style>
+</head>
+
+<body class="h-full">
+<div style="display:flex; height:100vh; width:100%; overflow:hidden;">
+
+  <aside style="width:230px; min-width:230px; background:#0E204E; display:flex; flex-direction:column; overflow-y:auto;">
+    <div style="padding:20px 18px 12px; border-bottom:1px solid rgba(255,255,255,0.1);">
+      <img src="../img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width:100%;">
+    </div>
+    <nav style="flex:1; padding:10px 8px;">
+      <a href="../prototipo.html" class="sidebar-item">
+        <i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard
+      </a>
+      <div class="sidebar-group-label">Cadastro</div>
+      <div class="submenu">
+        <a href="clientes.html" class="sidebar-item"><i data-lucide="user" style="width:14px;height:14px;"></i> Clientes</a>
+        <a href="fornecedores.html" class="sidebar-item"><i data-lucide="truck" style="width:14px;height:14px;"></i> Fornecedores</a>
+        <a href="enderecos.html" class="sidebar-item"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> Endereços</a>
+        <a href="plano-contas.html" class="sidebar-item"><i data-lucide="list" style="width:14px;height:14px;"></i> Plano de Contas</a>
+      </div>
+      <div class="sidebar-group-label">Financeiro</div>
+      <div class="submenu">
+        <a href="contas-pagar.html" class="sidebar-item"><i data-lucide="arrow-up-circle" style="width:14px;height:14px;"></i> Contas a Pagar</a>
+      </div>
+      <div class="sidebar-group-label">Contabilidade</div>
+      <div class="submenu">
+        <a href="lancamentos.html" class="sidebar-item"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> Lançamentos</a>
+        <a href="livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
+        <a href="livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
+        <a href="balancete.html" class="sidebar-item"><i data-lucide="table-2" style="width:14px;height:14px;"></i> Balancete</a>
+        <a href="balanco-patrimonial.html" class="sidebar-item active"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Balanço Patrimonial</a>
+        <a href="dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> Apuração de Resultado do Exercício</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main style="flex:1; display:flex; flex-direction:column; min-width:0; overflow-y:auto; border-left:none;">
+    <header class="header-custom">
+      <div>
+        <div style="font-size:18px; font-weight:700;">Balanço Patrimonial</div>
+        <div style="font-size:12px; color:var(--text-muted);" id="subtitulo-periodo"></div>
+      </div>
+      <div class="header-direita">
+        <a href="../prototipo.html" class="header-back-link">
+          <i data-lucide="arrow-left"></i> Voltar
+        </a>
+      </div>
+    </header>
+
+    <div style="flex:1; padding:24px 28px; overflow-y:auto;">
+
+      <div style="text-align:center; margin-bottom:20px;">
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); margin-bottom:2px;">CMRT — Sistema Contábil</div>
+        <div style="font-size:15px; font-weight:700;" id="titulo-bp">BALANÇO PATRIMONIAL</div>
+        <div style="font-size:12px; color:var(--text-muted);" id="titulo-periodo"></div>
+      </div>
+
+      <div id="bp-conteudo" class="bp-grid">
+        <div style="text-align:center; padding:40px; color:var(--text-muted); grid-column:1/-1;">Carregando...</div>
+      </div>
+
+      <div id="bp-verificacao"></div>
+    </div>
+  </main>
+</div>
+
+<script src="../api.js"></script>
+<script>
+  lucide.createIcons();
+
+  // Período
+  const agora   = new Date();
+  const periodo = agora.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  const periodoLabel = periodo.charAt(0).toUpperCase() + periodo.slice(1);
+  document.getElementById('subtitulo-periodo').textContent  = 'Exercício — ' + periodoLabel;
+  document.getElementById('titulo-periodo').textContent     = 'Exercício — ' + periodoLabel;
+
+  function fmt(v) {
+    return Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function calcSaldo(conta, natureza) {
+    const d = parseFloat(conta.total_debito)  || 0;
+    const c = parseFloat(conta.total_credito) || 0;
+    return natureza === 'D' ? d - c : c - d;
+  }
+
+  function linhaValor(nome, valor, classe, indent) {
+    const v = valor === 0
+      ? `<span class="valor-muted">—</span>`
+      : `<span class="${classe}">${valor < 0 ? '(' : ''}${fmt(Math.abs(valor))}${valor < 0 ? ')' : ''}</span>`;
+    return `<tr class="${indent ? 'row-conta' : 'row-dre'}"><td>${nome}</td><td class="val">${v}</td></tr>`;
+  }
+
+  // Monta painel de um lado do balanço.
+  // dreGrupoCod: código do grupo (ex: '2.2') onde o resultado DRE deve ser injetado
+  function montarPainel(titulo, grupos, natureza, resultado, dreGrupoCod, isLucro) {
+    let totalGeral = 0;
+    let corpo = '';
+
+    grupos.forEach(grupo => {
+      let subtotal = 0;
+      corpo += `<tr class="row-grupo"><td colspan="2">${grupo.nome_grupo}</td></tr>`;
+
+      grupo.contas.forEach(c => {
+        const saldo = calcSaldo(c, natureza);
+        subtotal += saldo;
+        corpo += linhaValor(c.nome_conta, saldo, saldo < 0 ? 'valor-vermelho' : '', true);
+      });
+
+      // Injetar resultado DRE dentro do grupo PL
+      if (grupo.codigo_grupo === dreGrupoCod && resultado !== null) {
+        const label = isLucro ? 'Lucro do Exercício (DRE)' : 'Prejuízo do Exercício (DRE)';
+        subtotal += resultado;
+        corpo += linhaValor(label, resultado, resultado >= 0 ? 'valor-verde' : 'valor-vermelho', true);
+      }
+
+      totalGeral += subtotal;
+      corpo += `<tr class="row-sub"><td>Total — ${grupo.nome_grupo}</td><td class="val">${fmt(subtotal)}</td></tr>`;
+    });
+
+    corpo += `<tr class="row-total"><td>TOTAL ${titulo.toUpperCase()}</td><td class="val">${fmt(totalGeral)}</td></tr>`;
+
+    return { html: `
+      <div class="bp-painel">
+        <div class="bp-painel-header">
+          <span>${titulo}</span>
+        </div>
+        <table class="bp-table"><tbody>${corpo}</tbody></table>
+      </div>`, total: totalGeral };
+  }
+
+  async function carregarBalanco() {
+    const conteudo    = document.getElementById('bp-conteudo');
+    const verificacao = document.getElementById('bp-verificacao');
+
+    try {
+      const dados = await buscarDRE();
+
+      // Índice por código para acesso rápido
+      const idx = {};
+      dados.forEach(c => { idx[c.codigo_conta] = c; });
+
+      // Função: pegar filhos diretos de nível 3 de um grupo nível 2
+      function filhosAnaliticos(prefixo) {
+        return dados.filter(c => {
+          const partes = c.codigo_conta.split('.');
+          return partes.length === 3 && c.codigo_conta.startsWith(prefixo + '.');
+        });
+      }
+
+      // Grupos do ATIVO (1.x)
+      const gruposAtivo = dados
+        .filter(c => c.codigo_conta.split('.').length === 2 && c.codigo_conta.startsWith('1.'))
+        .map(g => ({ codigo_grupo: g.codigo_conta, nome_grupo: g.nome_conta, contas: filhosAnaliticos(g.codigo_conta) }))
+        .filter(g => g.contas.length > 0);
+
+      // Grupos do PASSIVO/PL (2.x)
+      const gruposPassivo = dados
+        .filter(c => c.codigo_conta.split('.').length === 2 && c.codigo_conta.startsWith('2.'))
+        .map(g => ({ codigo_grupo: g.codigo_conta, nome_grupo: g.nome_conta, contas: filhosAnaliticos(g.codigo_conta) }))
+        .filter(g => g.contas.length > 0);
+
+      // Resultado DRE (3.x e 4.x)
+      const totalReceitas = dados
+        .filter(c => c.codigo_conta.charAt(0) === '3')
+        .reduce((s, c) => s + Math.max(0, (parseFloat(c.total_credito)||0) - (parseFloat(c.total_debito)||0)), 0);
+
+      const totalDespesas = dados
+        .filter(c => c.codigo_conta.charAt(0) === '4')
+        .reduce((s, c) => s + Math.max(0, (parseFloat(c.total_debito)||0) - (parseFloat(c.total_credito)||0)), 0);
+
+      const resultado = totalReceitas - totalDespesas;
+      const isLucro   = resultado >= 0;
+
+      // Identificar o grupo PL (2.2.x) para injetar o resultado DRE
+      const grupoPL = gruposPassivo.find(g => g.codigo_grupo.startsWith('2.2'));
+      const dreGrupoCod = grupoPL ? grupoPL.codigo_grupo : null;
+
+      // Montar painéis
+      const paineisAtivo   = montarPainel('Ativo', gruposAtivo, 'D', null, null, null);
+      const paineisPassivo = montarPainel('Passivo + Patrimônio Líquido', gruposPassivo, 'C', resultado, dreGrupoCod, isLucro);
+
+      conteudo.innerHTML = paineisAtivo.html + paineisPassivo.html;
+
+      // Verificação
+      const totalAtivo   = paineisAtivo.total;
+      const totalPassivo = paineisPassivo.total;
+      const equilibrado  = Math.abs(totalAtivo - totalPassivo) < 0.01;
+
+      verificacao.innerHTML = `
+        <div class="bp-verificacao ${equilibrado ? 'bp-ok' : 'bp-err'}">
+          <i data-lucide="${equilibrado ? 'check-circle' : 'alert-circle'}" style="width:18px;height:18px;"></i>
+          ${equilibrado
+            ? `Balanço equilibrado — Ativo = Passivo + PL = <strong>${fmt(totalAtivo)}</strong>`
+            : `Diferença: Ativo <strong>${fmt(totalAtivo)}</strong> ≠ Passivo+PL <strong>${fmt(totalPassivo)}</strong>`
+          }
+        </div>`;
+
+      lucide.createIcons();
+
+    } catch (err) {
+      console.error(err);
+      conteudo.innerHTML = `<div style="text-align:center; padding:40px; color:var(--danger); grid-column:1/-1;">Erro ao carregar: ${err.message}</div>`;
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', carregarBalanco);
+</script>
+</body>
+</html>

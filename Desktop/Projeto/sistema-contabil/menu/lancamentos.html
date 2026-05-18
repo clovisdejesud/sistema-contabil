@@ -134,7 +134,9 @@
           <a href="lancamentos.html" class="sidebar-item active"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> Lançamentos</a>
           <a href="livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
           <a href="livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
-          <a href="dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> Apuração de Resultado do Exercício</a>
+          <a href="balancete.html" class="sidebar-item"><i data-lucide="table-2" style="width:14px;height:14px;"></i> Balancete</a>
+          <a href="balanco-patrimonial.html" class="sidebar-item"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Balanço Patrimonial</a>
+          <a href="dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i>DRE</a>
         </div>
       </nav>
     </aside>
@@ -165,7 +167,7 @@
                 <div id="info_debito" style="margin-top:4px; font-size:11px; color:var(--text-muted); min-height:16px;"></div>
               </div>
               <div style="flex:1;">
-                <label style="display:block; font-weight:600; font-size:13px; margin-bottom:6px;">Crdito (ID):</label>
+                <label style="display:block; font-weight:600; font-size:13px; margin-bottom:6px;">Crédito (ID):</label>
                 <input type="number" name="conta_credito" id="conta_credito_id" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:12px;" required>
                 <div id="info_credito" style="margin-top:4px; font-size:11px; color:var(--text-muted); min-height:16px;"></div>
               </div>
@@ -189,7 +191,7 @@
             </div>
             
             <button type="submit" style="width:100%; background:var(--success); color:white; border:none; padding:12px; border-radius:8px; font-weight:600; cursor:pointer;">
-              Salvar Lanamento
+              Salvar Lançamento
             </button>
           </form>
         </div>
@@ -206,7 +208,7 @@
               <thead>
                 <tr style="text-align: left; border-bottom: 1px solid var(--border);">
                   <th style="padding: 8px; font-size: 10px; color: var(--text-muted); text-transform: uppercase;">ID</th>
-                  <th style="padding: 8px; font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Cdigo</th>
+                  <th style="padding: 8px; font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Código</th>
                   <th style="padding: 8px; font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Conta</th>
                   <th style="padding: 8px; font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Tipo</th>
                 </tr>
@@ -234,8 +236,8 @@
         const dados = await response.json();
         tbody.innerHTML = '';
 
-        // Filtrar apenas contas analÃ­ticas
-        const contasAnaliticas = dados.filter(c => c.tipo_conta === 'AnalÃ­tica');
+        // Filtrar apenas contas analíticas
+        const contasAnaliticas = dados.filter(c => (c.tipo_conta || '').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase() === 'analitica');
 
         if (contasAnaliticas.length === 0) {
           tbody.innerHTML = '<tr><td colspan="4" style="padding:20px; text-align:center;">Nenhuma conta analí­tica cadastrada.</td></tr>';
@@ -249,7 +251,7 @@
               <td style="padding: 8px; color: #7c5cfc; font-weight: 700; font-size: 13px;">${conta.codigo_conta}</td>
               <td style="padding: 8px; font-weight: 600; font-size: 13px; color: var(--text);">${conta.nome_conta}</td>
               <td style="padding: 8px;">
-                <span class="badge badge-analitica" style="font-size:10px;">AnalÃ­tica</span>
+                <span class="badge badge-analitica" style="font-size:10px;">Analítica</span>
               </td>
             </tr>
           `;
@@ -267,8 +269,8 @@
         const response = await fetch('http://localhost:3000/api/plano-contas');
         if (response.ok) {
           const todas = await response.json();
-          // Filtrar apenas contas analÃ­ticas
-          planContasCache = todas.filter(c => c.tipo_conta === 'AnalÃ­tica');
+          // Filtrar apenas contas analíticas
+          planContasCache = todas.filter(c => (c.tipo_conta || '').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase() === 'analitica');
         }
       } catch (error) {
         console.error('Erro ao carregar cache de contas:', error);
@@ -292,9 +294,9 @@
 
         const conta = buscarContaPorId(idConta);
         if (conta) {
-          infoElement.innerHTML = `<span style="color: #7c5cfc;">âœ“ ${conta.codigo_conta} â€¢ ${conta.nome_conta}</span>`;
+          infoElement.innerHTML = `<span style=”color: #7c5cfc;”>✔ ${conta.codigo_conta} • ${conta.nome_conta}</span>`;
         } else {
-          infoElement.innerHTML = `<span style="color: #ff4444;">âœ— Conta analÃ­tica nÃ£o encontrada</span>`;
+          infoElement.innerHTML = `<span style=”color: #ff4444;”>✗ Conta analítica não encontrada</span>`;
         }
       });
     }
@@ -311,7 +313,7 @@
       const contaCreditoObj = buscarContaPorId(dados.conta_credito);
 
       if (!contaDebitoObj || !contaCreditoObj) {
-        alert('IDs de conta analÃ­tica invÃ¡lidos. Verifique os valores na tabela ao lado.');
+        alert('IDs de conta analítica inválidos. Verifique os valores na tabela ao lado.');
         return;
       }
 
@@ -333,7 +335,7 @@
         }
 
         const resultado = await response.json();
-        alert('LanÃ§amento registrado com sucesso! ID: ' + resultado.id);
+        alert('Lançamento registrado com sucesso! ID: ' + resultado.id);
         document.getElementById('form-lancamento').reset();
         document.getElementById('info_debito').textContent = '';
         document.getElementById('info_credito').textContent = '';

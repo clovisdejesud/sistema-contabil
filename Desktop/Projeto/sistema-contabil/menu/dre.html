@@ -13,25 +13,111 @@
         .sidebar-item { cursor: pointer; text-decoration: none; color: #FFFFFF; display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 8px; transition: 0.2s; font-size: 14px; }
         a.sidebar-item:hover { background: rgba(255,255,255,0.1); }
         .sidebar-item.active { background: #ffffff; color: #1e293b; font-weight: 600; border-left: 3px solid #4f8ef7; padding-left: 11px; }
-        .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: 14px; }
+        .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; border-radius: 14px; }
         .submenu { margin-left: 12px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 8px; }
         .sidebar-group-label { font-size: 11px; text-transform: uppercase; color: #B0B8C1; margin: 20px 10px 8px; letter-spacing: 0.05em; }
+
+        /* DRE */
+        .dre-titulo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .dre-titulo .empresa { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 4px; }
+        .dre-titulo .nome { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+        .dre-titulo .periodo { font-size: 13px; color: var(--text-muted); }
+
+        .dre-grupo { margin-bottom: 4px; }
+        .dre-grupo-header {
+            background: #0E204E;
+            color: #fff;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 8px 16px;
+            border-radius: 6px 6px 0 0;
+        }
+        .dre-linha-conta {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 16px 8px 32px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+        .dre-linha-conta:last-child { border-bottom: none; }
+        .dre-linha-subtotal {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 14px;
+            background: rgba(14, 32, 78, 0.05);
+            border-top: 1px solid var(--border);
+        }
+        .dre-linha-resultado {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 16px;
+            font-weight: 700;
+            font-size: 16px;
+            border-top: 3px double #0E204E;
+            margin-top: 12px;
+        }
+        .valor-verde { color: #16a34a; }
+        .valor-vermelho { color: #dc2626; }
+        .dre-vazio {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-muted);
+        }
+        .dre-vazio svg { opacity: 0.25; margin-bottom: 12px; }
+
+        .btn-gerar {
+            background: #0E204E;
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .btn-gerar:hover { background: #1a3a7a; }
+
+        .btn-confirmar {
+            background: #16a34a;
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .btn-confirmar:hover:not(:disabled) { background: #15803d; }
+        .btn-confirmar:disabled { background: #9ca3af; cursor: not-allowed; }
     </style>
 </head>
 
 <body class="h-full">
   <div style="display:flex; height:100vh; width:100%; overflow:hidden;">
-    
+
     <aside style="width:230px; min-width:230px; background:#0E204E; display:flex; flex-direction:column; overflow-y:auto;">
       <div style="padding:20px 18px 12px; border-bottom:1px solid rgba(255,255,255,0.1);">
-        <img src="../img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width: 100%;">
+        <img src="../img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width:100%;">
       </div>
-      
       <nav style="flex:1; padding:10px 8px;">
         <a href="../prototipo.html" class="sidebar-item">
           <i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard
         </a>
-
         <div class="sidebar-group-label">Cadastro</div>
         <div class="submenu">
           <a href="clientes.html" class="sidebar-item"><i data-lucide="user" style="width:14px;height:14px;"></i> Clientes</a>
@@ -39,44 +125,53 @@
           <a href="enderecos.html" class="sidebar-item"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> Endereços</a>
           <a href="plano-contas.html" class="sidebar-item"><i data-lucide="list" style="width:14px;height:14px;"></i> Plano de Contas</a>
         </div>
-
         <div class="sidebar-group-label">Financeiro</div>
         <div class="submenu">
           <a href="contas-pagar.html" class="sidebar-item"><i data-lucide="arrow-up-circle" style="width:14px;height:14px;"></i> Contas a Pagar</a>
         </div>
-
         <div class="sidebar-group-label">Contabilidade</div>
         <div class="submenu">
           <a href="lancamentos.html" class="sidebar-item"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> Lançamentos</a>
           <a href="livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
           <a href="livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
-          <a href="dre.html" class="sidebar-item active"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> Apuração de Resultado do Exercício</a>
+          <a href="balancete.html" class="sidebar-item"><i data-lucide="table-2" style="width:14px;height:14px;"></i> Balancete</a>
+          <a href="balanco-patrimonial.html" class="sidebar-item"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Balanço Patrimonial</a>
+          <a href="dre.html" class="sidebar-item active"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> DRE</a>
         </div>
       </nav>
     </aside>
 
-    <main style="flex:1; display:flex; flex-direction:column; min-width:0; overflow-y:auto; border-left: none;">
+    <main style="flex:1; display:flex; flex-direction:column; min-width:0; overflow-y:auto; border-left:none;">
       <header class="header-custom">
         <div>
-          <div style="font-size:18px; font-weight:700;">Apuração de Resultado do Exercício</div>
-          
+          <div style="font-size:18px; font-weight:700;">Demonstrativo de Resultado do Exercício</div>
+          <div style="font-size:12px; color:var(--text-muted);">Apuração do resultado contábil do período</div>
         </div>
-      
-      <div class="header-direita">
-        <a href="prototipo.html" class="header-back-link">
-          <i data-lucide="arrow-left"></i>
-          Voltar
-        </a>
-      </div>
+        <div class="header-direita" style="display:flex; align-items:center; gap:10px;">
+          <button class="btn-gerar" onclick="gerarDRE()">
+            <i data-lucide="bar-chart-2" style="width:15px;height:15px;"></i>
+            Gerar Demonstrativo
+          </button>
+          <button class="btn-confirmar" id="btnConfirmar" onclick="confirmarResultado()" disabled>
+            <i data-lucide="check-circle" style="width:15px;height:15px;"></i>
+            Confirmar Resultado
+          </button>
+          <a href="../prototipo.html" class="header-back-link">
+            <i data-lucide="arrow-left"></i>
+            Voltar
+          </a>
+        </div>
       </header>
-      
+
       <div id="page-content" style="flex:1; padding:24px 28px; overflow-y:auto;">
         <div class="stat-card">
-            <table class="tabela-contabil" id="tabelaLivroRazao">
-                <tbody id="corpoTabela">
-                    <tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">Carregando DRE...</td></tr>
-                </tbody>
-            </table>
+          <div id="dreConteudo">
+            <div class="dre-vazio">
+              <i data-lucide="file-bar-chart" style="width:48px;height:48px; display:block; margin:0 auto 12px;"></i>
+              <div style="font-size:15px; font-weight:600; margin-bottom:6px;">Demonstrativo não gerado</div>
+              <div style="font-size:13px;">Clique em <strong>Gerar Demonstrativo</strong> para calcular o resultado do exercício.</div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -86,103 +181,131 @@
   <script>
     lucide.createIcons();
 
-    async function carregarLivroRazao() {
-        const corpo = document.getElementById('corpoTabela');
-        try {
-            const url = 'http://localhost:3000/api/livro-razao';
-            console.log('Buscando livro razÃ£o em', url);
-            const response = await fetch(url, { cache: 'no-store' });
+    let dreAtual = null;
 
-                if (!response.ok) {
-                    const texto = await response.text();
-                    throw new Error(`HTTP ${response.status} - ${texto}`);
-                }
+    function fmt(valor) {
+      return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
 
-                const dados = await response.json();
-                renderizarTabela(dados);
-            } catch (err) {
-                console.error('Erro ao carregar livro razÃ£o:', err);
-                corpo.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger); padding:20px;">Erro ao carregar dados do servidor: ${err.message}</td></tr>`;
-            }
+    // Plano de contas deste projeto: 3.x = Receitas, 4.x = Despesas
+    function classificarConta(conta) {
+      const d1 = String(conta.codigo_conta || '').charAt(0);
+      if (d1 === '3') return 'receita';
+      if (d1 === '4') return 'despesa';
+      return null;
+    }
+
+    function saldoDRE(conta, tipo) {
+      const deb = parseFloat(conta.total_debito)  || 0;
+      const cre = parseFloat(conta.total_credito) || 0;
+      // Receitas: natureza credora → crédito - débito
+      // Despesas: natureza devedora → débito - crédito
+      return tipo === 'receita' ? cre - deb : deb - cre;
+    }
+
+    function secaoHTML(titulo, itens, labelTotal, totalValor, classeValor) {
+      if (itens.length === 0) return '';
+      let html = `<div class="dre-grupo"><div class="dre-grupo-header">${titulo}</div>`;
+      itens.forEach(c => {
+        html += `<div class="dre-linha-conta"><span>${c.codigo_conta} — ${c.nome_conta}</span><span>${fmt(c.valor)}</span></div>`;
+      });
+      html += `<div class="dre-linha-subtotal"><span>${labelTotal}</span><span class="${classeValor}">${fmt(totalValor)}</span></div></div>`;
+      return html;
+    }
+
+    async function gerarDRE() {
+      const conteudo = document.getElementById('dreConteudo');
+      conteudo.innerHTML = '<div class="dre-vazio">Calculando...</div>';
+      document.getElementById('btnConfirmar').disabled = true;
+      dreAtual = null;
+
+      try {
+        const dados = await buscarDRE();
+
+        const receitas = [];
+        const despesas = [];
+
+        dados.forEach(conta => {
+          const tipo = classificarConta(conta);
+          if (!tipo) return;
+          const deb = parseFloat(conta.total_debito)  || 0;
+          const cre = parseFloat(conta.total_credito) || 0;
+          if (deb === 0 && cre === 0) return; // sem movimentação, ignora
+          const valor = saldoDRE(conta, tipo);
+          (tipo === 'receita' ? receitas : despesas).push({ ...conta, valor });
+        });
+
+        const totalReceitas = receitas.reduce((s, c) => s + c.valor, 0);
+        const totalDespesas = despesas.reduce((s, c) => s + c.valor, 0);
+        const resultado     = totalReceitas - totalDespesas;
+        const isLucro       = resultado >= 0;
+
+        dreAtual = { totalReceitas, totalCustos: 0, totalDespesas, resultadoLiquido: resultado };
+
+        const ano = new Date().getFullYear();
+
+        let html = `
+          <div class="dre-titulo">
+            <div class="empresa">CMRT — Sistema Contábil</div>
+            <div class="nome">DEMONSTRATIVO DE RESULTADO DO EXERCÍCIO</div>
+            <div class="periodo">Período: ${ano}</div>
+          </div>`;
+
+        if (receitas.length === 0 && despesas.length === 0) {
+          html += `<div class="dre-vazio">Nenhum lançamento em contas de resultado encontrado.<br>Verifique se existem lançamentos registrados no sistema.</div>`;
+          conteudo.innerHTML = html;
+          return;
         }
 
-        function renderizarTabela(dados) {
-            const corpo = document.getElementById('corpoTabela');
-            corpo.innerHTML = '';
+        html += secaoHTML('Receitas (3.x)', receitas, '(=) Total de Receitas', totalReceitas, 'valor-verde');
+        html += secaoHTML('Despesas (4.x)', despesas, '(-) Total de Despesas', totalDespesas, 'valor-vermelho');
 
-            if (dados.length === 0) {
-                corpo.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">Nenhum movimento encontrado.</td></tr>`;
-                return;
-            }
+        html += `
+          <div class="dre-linha-resultado">
+            <span>(=) Resultado do Exercício — ${isLucro ? 'LUCRO' : 'PREJUÍZO'}</span>
+            <span class="${isLucro ? 'valor-verde' : 'valor-vermelho'}">${fmt(Math.abs(resultado))}</span>
+          </div>`;
 
-            // Group by codigo_conta
-            const grouped = dados.reduce((acc, item) => {
-                if (!acc[item.codigo_conta]) {
-                    acc[item.codigo_conta] = { nome_conta: item.nome_conta, movimentos: [] };
-                }
-                acc[item.codigo_conta].movimentos.push(item);
-                return acc;
-            }, {});
+        conteudo.innerHTML = html;
+        document.getElementById('btnConfirmar').disabled = false;
+        lucide.createIcons();
 
-            Object.keys(grouped).forEach(codigo => {
-                const { nome_conta, movimentos } = grouped[codigo];
+      } catch (err) {
+        console.error(err);
+        conteudo.innerHTML = `<div class="dre-vazio" style="color:var(--danger);">Erro ao gerar DRE: ${err.message}</div>`;
+      }
+    }
 
-                // Account header row
-                const headerTr = document.createElement('tr');
-                headerTr.className = 'table-row-contabil account-header';
-                headerTr.innerHTML = `
-                    <td colspan="5" style="font-weight: bold; background-color: var(--background-secondary); padding: 10px;">
-                        ${codigo} ${nome_conta}
-                    </td>
-                `;
-                corpo.appendChild(headerTr);
+    async function confirmarResultado() {
+      if (!dreAtual) return;
 
-                // Column labels row
-                const labelTr = document.createElement('tr');
-                labelTr.className = 'table-row-contabil label-row';
-                labelTr.innerHTML = `
-                    <td>Data</td>
-                    <td class="numeric">Débito</td>
-                    <td class="numeric">Crédito</td>
-                    <td>Histórico</td>
-                    <td class="numeric">Saldo</td>
-                `;
-                corpo.appendChild(labelTr);
+      const ano = new Date().getFullYear();
+      if (!confirm(`Confirmar e registrar o Resultado do Exercício de ${ano}?\n\nEsta ação salva o resultado no banco de dados.`)) return;
 
-                // Movement rows
-                movimentos.forEach(item => {
-                    const dataFormatada = new Date(item.data_movimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'});
-                    const debitoFormatado = item.debito ? new Number(item.debito).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
-                    const creditoFormatado = item.credito ? new Number(item.credito).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
-                    const historicoTruncado = item.historico ? item.historico.substring(0, 50) : '';
-                    const saldoFormatado = new Number(item.saldo).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const btn = document.getElementById('btnConfirmar');
+      btn.disabled = true;
+      btn.innerHTML = 'Registrando...';
 
-                    const tr = document.createElement('tr');
-                    tr.className = 'table-row-contabil movimento-row';
+      try {
+        await confirmarDRE({
+          periodo: String(ano),
+          total_receitas:   dreAtual.totalReceitas,
+          total_custos:     dreAtual.totalCustos,
+          total_despesas:   dreAtual.totalDespesas,
+          resultado_liquido: dreAtual.resultadoLiquido
+        });
 
-                    tr.innerHTML = `
-                        <td>${dataFormatada}</td>
-                        <td class="valor-celula numeric">${debitoFormatado}</td>
-                        <td class="valor-celula numeric">${creditoFormatado}</td>
-                        <td>${historicoTruncado}</td>
-                        <td class="valor-celula numeric ${item.saldo < 0 ? 'status-vencido' : ''}">${saldoFormatado}</td>
-                    `;
+        btn.innerHTML = '<i data-lucide="check" style="width:15px;height:15px;"></i> Confirmado';
+        lucide.createIcons();
+        alert(`Resultado de ${ano} confirmado e registrado com sucesso!`);
 
-                    corpo.appendChild(tr);
-                });
-
-                // Add a small separator after each account
-                const separatorTr = document.createElement('tr');
-                separatorTr.innerHTML = `<td colspan="5" style="height: 5px;"></td>`;
-                corpo.appendChild(separatorTr);
-            });
-        }
-
-        // Carregar dados quando o DOM estiver pronto
-        document.addEventListener('DOMContentLoaded', carregarLivroRazao);
-    </script>
-
+      } catch (err) {
+        alert('Erro ao confirmar: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="check-circle" style="width:15px;height:15px;"></i> Confirmar Resultado';
+        lucide.createIcons();
+      }
+    }
+  </script>
 </body>
 </html>
-
-
