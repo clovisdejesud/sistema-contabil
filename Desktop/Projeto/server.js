@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
+const util = require('util');
 
 const app = express();
 app.use(cors());
@@ -40,6 +41,97 @@ app.get('/api/fornecedores', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
     });
+});
+
+app.get('/api/dashboard', async (req, res) => {
+    const promiseDb = db.promise();
+    const query = promiseDb.query.bind(promiseDb);
+
+    try {
+        const [contasPagar] = await query('SELECT COUNT(*) AS total, COALESCE(SUM(valor), 0) AS total_valor FROM contas_pagar');
+        const [vendas] = await query(`
+            SELECT COALESCE(SUM(
+                CASE WHEN pc.codigo_conta LIKE '3.%' OR pc.codigo_conta = '3' THEN
+                    CASE WHEN l.id_conta_credito = pc.id THEN l.valor ELSE 0 END -
+                    CASE WHEN l.id_conta_debito = pc.id THEN l.valor ELSE 0 END
+                ELSE 0 END
+            ), 0) AS total_vendas
+            FROM plano_contas pc
+            LEFT JOIN lancamentos l ON l.id_conta_debito = pc.id OR l.id_conta_credito = pc.id
+            WHERE pc.codigo_conta LIKE '3.%' OR pc.codigo_conta = '3'
+        `);
+        const [saldoCaixa] = await query(`
+            SELECT COALESCE(SUM(
+                CASE WHEN l.id_conta_debito = pc.id THEN l.valor
+                     WHEN l.id_conta_credito = pc.id THEN -l.valor
+                     ELSE 0 END
+            ), 0) AS saldo_caixa
+            FROM plano_contas pc
+            LEFT JOIN lancamentos l ON l.id_conta_debito = pc.id OR l.id_conta_credito = pc.id
+            WHERE pc.codigo_conta LIKE '1.1.%' OR pc.codigo_conta = '1.1'
+        `);
+
+        const [monthlyRows] = await query(`
+            SELECT
+                DATE_FORMAT(l.data_lancamento, '%Y-%m') AS periodo,
+                pc.codigo_conta,
+                COALESCE(SUM(CASE WHEN l.id_conta_credito = pc.id THEN l.valor ELSE 0 END), 0) AS total_credito,
+                COALESCE(SUM(CASE WHEN l.id_conta_debito = pc.id THEN l.valor ELSE 0 END), 0) AS total_debito
+            FROM lancamentos l
+            JOIN plano_contas pc ON l.id_conta_debito = pc.id OR l.id_conta_credito = pc.id
+            WHERE pc.codigo_conta LIKE '3.%' OR pc.codigo_conta = '3'
+               OR pc.codigo_conta LIKE '4.%' OR pc.codigo_conta = '4'
+            GROUP BY periodo, pc.codigo_conta
+            ORDER BY periodo ASC
+        `);
+
+        const meses = [];
+        const receitasOperacionais = {};
+        const outrasReceitas = {};
+        const custoMercadoria = {};
+        const despesasOperacionais = {};
+        const outrasDespesas = {};
+
+        monthlyRows.forEach(row => {
+            const periodo = row.periodo;
+            if (!meses.includes(periodo)) meses.push(periodo);
+
+            const codigo = String(row.codigo_conta || '');
+            const credito = parseFloat(row.total_credito) || 0;
+            const debito = parseFloat(row.total_debito) || 0;
+            const valor = codigo.startsWith('3') ? credito - debito : debito - credito;
+
+            if (codigo.startsWith('3.1') || codigo === '3.1') {
+                receitasOperacionais[periodo] = (receitasOperacionais[periodo] || 0) + valor;
+            } else if (codigo.startsWith('3.2') || codigo === '3.2') {
+                outrasReceitas[periodo] = (outrasReceitas[periodo] || 0) + valor;
+            } else if (codigo.startsWith('3')) {
+                receitasOperacionais[periodo] = (receitasOperacionais[periodo] || 0) + valor;
+            } else if (codigo.startsWith('4.1') || codigo === '4.1') {
+                custoMercadoria[periodo] = (custoMercadoria[periodo] || 0) + valor;
+            } else if (codigo.startsWith('4.2') || codigo === '4.2') {
+                outrasDespesas[periodo] = (outrasDespesas[periodo] || 0) + valor;
+            } else if (codigo.startsWith('4')) {
+                despesasOperacionais[periodo] = (despesasOperacionais[periodo] || 0) + valor;
+            }
+        });
+
+        res.json({
+            total_vendas: parseFloat(vendas[0].total_vendas) || 0,
+            total_contas_pagar: contasPagar[0].total,
+            total_contas_pagar_valor: parseFloat(contasPagar[0].total_valor) || 0,
+            saldo_caixa: parseFloat(saldoCaixa[0].saldo_caixa) || 0,
+            evolucao_periodos: meses,
+            evolucao_receitas_operacionais: meses.map(m => receitasOperacionais[m] || 0),
+            evolucao_outras_receitas: meses.map(m => outrasReceitas[m] || 0),
+            evolucao_custo_mercadoria: meses.map(m => custoMercadoria[m] || 0),
+            evolucao_despesas_operacionais: meses.map(m => despesasOperacionais[m] || 0),
+            evolucao_outras_despesas: meses.map(m => outrasDespesas[m] || 0)
+        });
+    } catch (error) {
+        console.error('Erro ao carregar dashboard:', error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
 app.post('/api/fornecedores', (req, res) => {

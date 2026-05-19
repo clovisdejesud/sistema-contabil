@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consulta - CMRT</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { box-sizing: border-box; margin: 0; background: var(--bg); color: var(--text); }
+    .sidebar-item { cursor: pointer; text-decoration: none; color: #FFFFFF; display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 8px; transition: 0.2s; font-size: 14px; }
+    a.sidebar-item:hover { background: rgba(255,255,255,0.1); }
+    .sidebar-item.active { background: #ffffff; color: #1e293b; font-weight: 600; border-left: 3px solid #4f8ef7; padding-left: 11px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: 14px; }
+    .submenu { margin-left: 12px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 8px; }
+    .sidebar-group-label { font-size: 11px; text-transform: uppercase; color: #B0B8C1; margin: 20px 10px 8px; letter-spacing: 0.05em; }
+    .box-opcao { border: 1px solid var(--border); border-radius: 16px; padding: 28px; background: var(--surface); transition: transform 0.2s ease; }
+    .box-opcao:hover { transform: translateY(-2px); }
+  </style>
+</head>
+<body class="h-full">
+  <div style="display:flex; height:100vh; width:100%; overflow:hidden;">
+    <aside style="width:230px; min-width:230px; background:#0E204E; display:flex; flex-direction:column; overflow-y:auto;">
+      <div style="padding:20px 18px 12px; border-bottom:1px solid rgba(255,255,255,0.1);">
+        <img src="../img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width: 100%;">
+      </div>
+      <nav style="flex:1; padding:10px 8px;">
+        <a href="../prototipo.html" class="sidebar-item">
+          <i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard
+        </a>
+
+        <div class="sidebar-group-label">Cadastro</div>
+        <div class="submenu">
+          <a href="clientes.html" class="sidebar-item"><i data-lucide="user" style="width:14px;height:14px;"></i> Clientes</a>
+          <a href="fornecedores.html" class="sidebar-item"><i data-lucide="truck" style="width:14px;height:14px;"></i> Fornecedores</a>
+          <a href="funcionarios.html" class="sidebar-item"><i data-lucide="user-check" style="width:14px;height:14px;"></i> Funcionários</a>
+          <a href="produtos.html" class="sidebar-item"><i data-lucide="package" style="width:14px;height:14px;"></i> Produtos/Serviços</a>
+          <a href="menu/plano-contas.html" onclick="navigateTo('plano-contas')" class="sidebar-item"><i data-lucide="list" style="width:14px;height:14px;"></i> Plano de Contas</a>
+        </div>
+
+        <div class="sidebar-group-label">Consulta</div>
+        <div class="submenu">
+          <a href="consulta.html" class="sidebar-item active"><i data-lucide="search" style="width:14px;height:14px;"></i> Consulta</a>
+        </div>
+
+        <div class="sidebar-group-label">Contabilidade</div>
+        <div class="submenu">
+          <a href="lancamentos.html" class="sidebar-item"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> Lançamentos</a>
+          <a href="livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
+          <a href="livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
+          <a href="balancete.html" class="sidebar-item"><i data-lucide="table-2" style="width:14px;height:14px;"></i> Balancete</a>
+          <a href="balanco-patrimonial.html" class="sidebar-item"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Balanço Patrimonial</a>
+          <a href="dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> DRE</a>
+        </div>
+      </nav>
+    </aside>
+
+    <main style="flex:1; display:flex; flex-direction:column; min-width:0; border-left: none;">
+      <header style="padding:14px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface);">
+        <div>
+          <div style="font-size:18px; font-weight:700;">Consulta</div>
+          <div style="font-size:12px; color:var(--text-muted);">Selecione a lista desejada</div>
+        </div>
+      </header>
+
+      <div id="page-content" style="flex:1; padding:24px 28px; overflow-y:auto;">
+        <div class="stat-card" style="display:grid; gap:18px;">
+          <a href="clientes-consulta.html" class="box-opcao" style="display:block; text-decoration:none; color:inherit;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;"><i data-lucide="user" style="width:24px;height:24px;"></i><span style="font-size:16px; font-weight:700;">Clientes</span></div>
+            <p style="margin:0; color:var(--text-muted);">Veja todos os clientes cadastrados e use o filtro para encontrar registros.</p>
+          </a>
+          <a href="fornecedores-consulta.html" class="box-opcao" style="display:block; text-decoration:none; color:inherit;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;"><i data-lucide="truck" style="width:24px;height:24px;"></i><span style="font-size:16px; font-weight:700;">Fornecedores</span></div>
+            <p style="margin:0; color:var(--text-muted);">Veja todos os fornecedores cadastrados e use o filtro para encontrar registros.</p>
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

@@ -12,6 +12,12 @@
     body { box-sizing: border-box; margin: 0; background: var(--bg); color: var(--text); }
     .sidebar-item { cursor: pointer; text-decoration: none; color: #FFFFFF; display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 8px; transition: 0.2s; font-size: 14px; }
     a.sidebar-item:hover { background: rgba(255,255,255,0.1); }
+    /* Especificidade: tornar fundo dos cabeçalhos da tabela Livro Diário branco */
+    .tabela-contabil thead.header-div th {
+      background-color: #FFFFFF !important;
+      color: var(--text) !important;
+      border-bottom: 1px solid var(--border);
+    }
     .sidebar-item.active { background: #ffffff; color: #1e293b; font-weight: 600; border-left: 3px solid #4f8ef7; padding-left: 11px; }
     .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: 14px; }
     .submenu { margin-left: 12px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 8px; }
@@ -153,6 +159,9 @@
           tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum registro de diário analítico encontrado.</td></tr>';
           return;
         }
+
+        // Ordenar por data do mais recente ao mais antigo
+        diariosFiltrados.sort((a, b) => new Date(b.data_lancamento) - new Date(a.data_lancamento));
 
         tbody.innerHTML = '';
         

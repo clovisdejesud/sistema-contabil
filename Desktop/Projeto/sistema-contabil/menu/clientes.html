@@ -35,6 +35,8 @@
         <div class="sidebar-group-label">Cadastro</div>
         <div class="submenu">
           <a href="clientes.html" class="sidebar-item active"><i data-lucide="user" style="width:14px;height:14px;"></i> Clientes</a>
+          <a href="clientes-consulta.html" class="sidebar-item"><i data-lucide="list" style="width:14px;height:14px;"></i> Consultar Clientes</a>
+          <a href="consulta.html" class="sidebar-item"><i data-lucide="search" style="width:14px;height:14px;"></i> Consulta</a>
           <a href="fornecedores.html" class="sidebar-item"><i data-lucide="truck" style="width:14px;height:14px;"></i> Fornecedores</a>
           <a href="enderecos.html" class="sidebar-item"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> Endere�os</a>
           <a href="plano-contas.html" class="sidebar-item"><i data-lucide="list" style="width:14px;height:14px;"></i> Plano de Contas</a>
@@ -58,11 +60,12 @@
     </aside>
 
     <main style="flex:1; display:flex; flex-direction:column; min-width:0; border-left: none;">
-      <header style="padding:14px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface);">
+      <header class="header-custom">
         <div>
-          <div style="font-size:18px; font-weight:700;">Cadastro de Cliente</div>
-          <div style="font-size:12px; color:var(--text-muted);">Preencha todos os campos obrigatórios para o registro contábil</div>
+          <div class="header-title" style="font-size:18px; font-weight:700;">Cadastro de Cliente</div>
+          <div class="header-subtitle">Preencha todos os campos obrigatórios para o registro contábil</div>
         </div>
+        <div></div>
       </header>
       
       <div id="page-content" style="flex:1; padding:24px 28px; overflow-y:auto;">

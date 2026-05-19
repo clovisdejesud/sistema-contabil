@@ -94,6 +94,25 @@ async function cadastrarEmpresa(dados) {
     }
 }
 
+async function buscarClientes() {
+  const res = await fetch(`${API_URL}/api/clientes`);
+  if (!res.ok) throw new Error('Erro ao buscar clientes');
+  return await res.json();
+}
+
+async function buscarFornecedores() {
+  const res = await fetch(`${API_URL}/api/fornecedores`);
+  if (!res.ok) throw new Error('Erro ao buscar fornecedores');
+  return await res.json();
+}
+
+// 🔹 Dashboard
+async function buscarDashboard() {
+  const res = await fetch(`${API_URL}/api/dashboard`);
+  if (!res.ok) throw new Error('Erro ao buscar indicadores do dashboard');
+  return await res.json();
+}
+
 // 🔹 Livro Razão
 async function buscarLivroRazao() {
   const res = await fetch(`${API_URL}/api/livro-razao`);

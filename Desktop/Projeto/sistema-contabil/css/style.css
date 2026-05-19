@@ -13,7 +13,8 @@ body { font-family: 'DM Sans', sans-serif;
   --border: #DEE2E6;       /* Bordas claras para fundo branco */
   
   /* Cores da Sidebar (Lado Esquerdo) */
-  --sidebar-bg: #0E204E;   /* RGB 0E204E solicitado */
+    --sidebar-bg: #0E204E;   /* RGB 0E204E solicitado */
+    --header-bg: #0E204E;
   --sidebar-text: #FFFFFF; /* Fontes brancas solicitadas */
   --sidebar-text-muted: #B0B8C1;
   
@@ -109,12 +110,47 @@ body { background-color: var(--bg); color: var(--text); }
 /* Pagina Lancamentos*/
 /* No seu style.css */
 .header-custom {
-    background-color: #0E204E !important;
-    padding: 18px 28px 16px;
+    background-color: var(--header-bg) !important;
+    padding: 12px 20px;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     border-bottom: none;
+    min-height: 64px;
+}
+
+/* Prevent title/subtitle from wrapping and keep buttons on one line */
+.header-custom > div:first-child {
+    flex: 1 1 auto;
+    min-width: 0; /* allows flex children to shrink */
+}
+.header-custom .header-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.header-custom .header-subtitle {
+    /* allow subtitle to wrap to multiple lines for readability */
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    opacity: 0.95;
+    font-size: 12px;
+}
+.header-custom > div:nth-child(2) {
+    white-space: nowrap; /* keep buttons on single line */
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* Smaller button sizing when inside header to avoid overflow */
+.header-custom .btn-contabil {
+    padding: 8px 12px;
+    font-size: 13px;
+    min-width: 0 !important;
+    height: 38px;
 }
 
 /*Header padrao*/
@@ -158,12 +194,12 @@ body { background-color: var(--bg); color: var(--text); }
 
 /* Força o subtítulo a ser um cinza claro (contraste alto sobre o azul) */
 .header-subtitle {
-    color: #B0B8C1 !important;
+    color: #FFFFFF !important;
     font-size: 12px;
 }
 
 .header-div {
-    background-color: #E0B23D       /* #fffae0;*/
+    background-color: var(--table-header-bg, #e6f0ff);
 }
 
 /* Ajusta o link de voltar */
@@ -185,7 +221,7 @@ body { background-color: var(--bg); color: var(--text); }
 
 /* Classe auxiliar para o subtítulo não ficar tão brilhante quanto o título */
 .header-custom .header-subtitle {
-    color: #B0B8C1 !important;
+    color: #FFFFFF !important;
     font-size: 12px;
 }
 
@@ -493,6 +529,42 @@ fieldset:first-child {
     max-width: 900px;
     margin: 0 auto;
     padding: 0 20px;
+}
+
+/* Regra global para padronizar o cabeçalho em todas as páginas */
+header,
+.header-padrao,
+.header-custom,
+.header-clientes,
+header[role="banner"] {
+    background-color: var(--header-bg) !important;
+    color: #FFFFFF !important;
+}
+
+.header-padrao .header-title,
+.header-custom .header-title,
+.header-clientes .header-title {
+    color: #FFFFFF !important;
+}
+
+/* Força subtítulos do header (IDs comuns como subtitulo-periodo) a branco */
+header .header-subtitle,
+.header-custom .header-subtitle,
+.header-padrao .header-subtitle,
+.header-clientes .header-subtitle,
+header #subtitulo-periodo,
+header #titulo-periodo {
+    color: #FFFFFF !important;
+}
+
+/* Estilo específico para cabeçalhos de tabela com a classe header-div */
+.tabela-contabil thead.header-div {
+    background-color: var(--table-header-bg, #e6f0ff) !important;
+}
+.tabela-contabil thead.header-div th {
+    color: #0b2a5a !important;
+    font-weight: 700;
+    text-transform: uppercase;
 }
 /*
 .header-title {
