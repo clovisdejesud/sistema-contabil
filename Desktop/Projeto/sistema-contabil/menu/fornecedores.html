@@ -20,9 +20,11 @@
 </head>
 
 <body class="h-full">
-  <div style="display:flex; height:100vh; width:100%; overflow:hidden;">
-    
-    <aside style="width:230px; min-width:230px; background:#0E204E; display:flex; flex-direction:column; overflow-y:auto;">
+  <div id="layout-wrapper" style="display:flex; height:100vh; width:100%; overflow:hidden;">
+
+  <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<aside id="sidebar" style="width:230px; min-width:230px; background:#0E204E; display:flex; flex-direction:column; overflow-y:auto;">
       <div style="padding:20px 18px 12px; border-bottom:1px solid rgba(255,255,255,0.1);">
         <img src="../img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width: 100%;">
       </div>
@@ -59,8 +61,11 @@
     </aside>
 
     <main style="flex:1; display:flex; flex-direction:column; min-width:0; border-left: none;">
-      <header style="padding:14px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface);">
-        <div>
+      <header style="padding:14px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; justify-content:space-between; background:var(--surface);">
+        <button class="btn-hamburger" onclick="toggleSidebar()" aria-label="Abrir menu">
+          <i data-lucide="menu" style="width:22px;height:22px;"></i>
+        </button>
+        <div style="flex:1; min-width:0;">
           <div style="font-size:18px; font-weight:700;">Cadastro de Fornecedor</div>
           <div style="font-size:12px; color:var(--text-muted);">Preencha todos os campos obrigatórios para o registro contábil</div>
         </div>
@@ -126,7 +131,7 @@
                             <input type="text" name="nome_contato" placeholder="ResponsÃ¡vel">
                         </div>
                         <div class="form-group">
-                            <label>Inscrio Municipal</label>
+                            <label>Inscrição Municipal</label>
                             <input type="text" name="inscricao_municipal">
                         </div>
                         <div class="form-group">
@@ -141,13 +146,13 @@
                 </fieldset>
 
                 <div class="form-actions">
-                    <button type="button" class="btn-contabil btn-limpar" onclick="this.form.reset()">
+                    <button type="button" class="btn-contabil btn-limpar" style="min-width:196px;" onclick="this.form.reset()">
                         <i data-lucide="rotate-ccw"></i> Limpar Campos
                     </button>
-                    <button type="submit" class="btn-contabil btn-salvar">
+                    <button type="submit" class="btn-contabil btn-salvar" style="min-width:140px;">
                         <i data-lucide="save"></i> SALVAR
                     </button>
-                    <button type="button" class="btn-contabil" onclick="irParaEnderecoFornecedor()">
+                    <button type="button" class="btn-contabil" style="min-width:196px;" onclick="irParaEnderecoFornecedor()">
                         <i data-lucide="map-pin"></i> Cadastrar Endereço
                     </button>
                 </div>
@@ -157,8 +162,14 @@
     </main>
   </div>
 
+  <script src="../javascript/script.js"></script>
   <script>
     lucide.createIcons();
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('sidebar-open');
+      document.getElementById('sidebar-overlay').classList.toggle('active');
+    }
   </script>
 </body>
 </html>

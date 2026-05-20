@@ -49,53 +49,92 @@
       </nav>
     </aside>
 
-    <main style="flex:1; display:flex; flex-direction:column; min-width:0; overflow-y:auto; border-left:none;">
-    <header class="header-padrao">
+    <main style="flex:1; display:flex; flex-direction:column; min-width:0; overflow:hidden; border-left:none;">
+      <header class="header-padrao">
+        <div>
+          <div style="font-size:18px; font-weight:700;">Plano de Contas</div>
+          <div style="font-size:12px;">Estrutura de contas do banco sistema_contabil</div>
+        </div>
+      </header>
 
-      <!-- ESQUERDA -->
-      <div>
-        <div style="font-size:18px; font-weight:700;">Plano de Contas</div>
-        <div style="font-size:12px;">Estrutura de contas do banco sistema_contabil</div>
-      </div>
+      <div style="flex:1; display:flex; gap:24px; padding:24px; overflow:hidden; min-height:0;">
 
-      <!-- CENTRO -->
-      <div>
-        <button>+ Nova Conta</button>
-      </div>
+        <!-- Coluna esquerda: formulário -->
+        <div style="flex:0 0 320px; overflow-y:auto;">
+          <div class="stat-card">
+            <div style="font-weight:700; font-size:14px; margin-bottom:16px;">Nova Conta</div>
+            <form id="form-nova-conta">
+              <div style="margin-bottom:10px;">
+                <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Código:</label>
+                <input type="text" name="codigo_conta" placeholder="Ex: 1.1.01"
+                  style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px;" required>
+              </div>
+              <div style="margin-bottom:10px;">
+                <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Nome da Conta:</label>
+                <input type="text" name="nome_conta" placeholder="Ex: Caixa"
+                  style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px;" required>
+              </div>
+              <div style="margin-bottom:10px;">
+                <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Tipo:</label>
+                <select name="tipo_conta" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text);" required>
+                  <option value="">— Selecione —</option>
+                  <option value="Sintética">Sintética</option>
+                  <option value="Analítica">Analítica</option>
+                </select>
+              </div>
+              <div style="margin-bottom:16px;">
+                <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Natureza:</label>
+                <select name="natureza" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text);" required>
+                  <option value="">— Selecione —</option>
+                  <option value="Devedora">Devedora</option>
+                  <option value="Credora">Credora</option>
+                </select>
+              </div>
+              <button type="submit" style="width:100%; background:var(--success); color:white; border:none; padding:10px; border-radius:8px; font-weight:600; cursor:pointer;">
+                Salvar Conta
+              </button>
+              <div id="msg-nova-conta" style="margin-top:8px; font-size:12px; min-height:16px;"></div>
+            </form>
 
-    </header>
-      <div class="busca-div">
-        <div class="stat-card" style="margin-bottom: 24px;">
-          <div">
-            <label style="display:block; font-weight:600; font-size:13px; margin-bottom:8px; color: var(--text-muted);">Buscar por ID:</label>
-            <input type="number" id="buscar-id-conta" placeholder="Digite o ID da conta..." style="width:100%; max-width: 200px; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:14px; background: var(--surface);">
-            <div id="resultado-busca" style="margin-top:6px; font-size:12px; color:var(--text-muted); min-height:18px;"></div>
+            <hr style="border:none; border-top:1px solid var(--border); margin:20px 0;">
+
+            <div style="font-weight:700; font-size:14px; margin-bottom:10px;">Buscar por ID</div>
+            <input type="number" id="buscar-id-conta" placeholder="Digite o ID..."
+              style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:var(--surface);">
+            <div id="resultado-busca" style="margin-top:6px; font-size:12px; color:var(--text-muted); min-height:16px;"></div>
           </div>
         </div>
 
-        <div class="stat-card">
-          <div style="overflow-x:auto;">
-            <table style="width:100%; border-collapse: collapse;">
-              <thead>
-                <tr style="border-bottom: 1px solid var(--border); text-align: left;">
-                  <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; max-width: 60px;">ID</th>
-                  <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">Código</th>
-                  <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">Nome da Conta</th>
-                  <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">Tipo</th>
-                  <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">Natureza</th>
-                  <th style="padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; text-align: right;">Ações</th>
-                </tr>
-              </thead>
-              <tbody id="lista-plano-contas">
-                <tr>
-                  <td colspan="6" style="padding:40px; text-align:center; color:var(--text-muted);">
-                    Carregando dados do servidor...
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        <!-- Coluna direita: tabela -->
+        <div style="flex:1; display:flex; flex-direction:column; min-width:0; min-height:0;">
+          <div class="stat-card" style="flex:1; display:flex; flex-direction:column; padding:0; overflow:hidden;">
+            <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:700; font-size:14px;">
+              Contas Cadastradas
+            </div>
+            <div style="flex:1; overflow-y:auto;">
+              <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                  <tr style="border-bottom:1px solid var(--border); text-align:left;">
+                    <th style="padding:10px; color:var(--text-muted); font-size:11px; text-transform:uppercase; position:sticky; top:0; background:var(--surface); z-index:1;">ID</th>
+                    <th style="padding:10px; color:var(--text-muted); font-size:11px; text-transform:uppercase; position:sticky; top:0; background:var(--surface); z-index:1;">Código</th>
+                    <th style="padding:10px; color:var(--text-muted); font-size:11px; text-transform:uppercase; position:sticky; top:0; background:var(--surface); z-index:1;">Nome da Conta</th>
+                    <th style="padding:10px; color:var(--text-muted); font-size:11px; text-transform:uppercase; position:sticky; top:0; background:var(--surface); z-index:1;">Tipo</th>
+                    <th style="padding:10px; color:var(--text-muted); font-size:11px; text-transform:uppercase; position:sticky; top:0; background:var(--surface); z-index:1;">Natureza</th>
+                    <th style="padding:10px; color:var(--text-muted); font-size:11px; text-transform:uppercase; position:sticky; top:0; background:var(--surface); z-index:1; text-align:right;">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="lista-plano-contas">
+                  <tr>
+                    <td colspan="6" style="padding:40px; text-align:center; color:var(--text-muted);">
+                      Carregando dados do servidor...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
+
       </div>
     </main>
   </div>
@@ -145,7 +184,7 @@
               </td>
               <td style="padding: 10px; text-align: right;">
                 <button style="background:none; border:none; color:var(--text-muted); cursor:pointer; margin-right:8px;"><i data-lucide="edit-2" style="width:14px;"></i></button>
-                <button style="background:none; border:none; color:var(--text-muted); cursor:pointer;"><i data-lucide="trash" style="width:14px;"></i></button>
+                <button onclick="excluirConta(${conta.id}, '${conta.codigo_conta} - ${conta.nome_conta}')" style="background:none; border:none; color:#f25c5c; cursor:pointer;"><i data-lucide="trash" style="width:14px;"></i></button>
               </td>
             </tr>
           `;
@@ -182,7 +221,39 @@
       });
     }
 
-    // Carrega ao abrir a pÃ¡gina
+    async function excluirConta(id, nome) {
+      if (!confirm(`Deseja excluir a conta:\n"${nome}"?\n\nEssa ação não pode ser desfeita.`)) return;
+      try {
+        const res = await fetch(`http://localhost:3000/api/plano-contas/${id}`, { method: 'DELETE' });
+        const json = await res.json();
+        if (!res.ok) { alert('Erro ao excluir: ' + json.error); return; }
+        carregarPlanoContas();
+      } catch (err) {
+        alert('Erro ao excluir: ' + err.message);
+      }
+    }
+
+    document.getElementById('form-nova-conta').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('msg-nova-conta');
+      const dados = Object.fromEntries(new FormData(e.target));
+      try {
+        const res = await fetch('http://localhost:3000/api/plano-contas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+        const json = await res.json();
+        if (!res.ok) { msg.innerHTML = `<span style="color:#f25c5c;">${json.error}</span>`; return; }
+        msg.innerHTML = `<span style="color:#30c97e;">Conta criada! ID: ${json.id}</span>`;
+        e.target.reset();
+        carregarPlanoContas();
+      } catch (err) {
+        msg.innerHTML = `<span style="color:#f25c5c;">Erro ao salvar: ${err.message}</span>`;
+      }
+    });
+
+    // Carrega ao abrir a página
     window.addEventListener('DOMContentLoaded', () => {
       carregarPlanoContas();
       buscarContaPorId();

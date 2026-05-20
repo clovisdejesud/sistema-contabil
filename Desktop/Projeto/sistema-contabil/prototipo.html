@@ -14,6 +14,11 @@
     a.sidebar-item:hover { background: var(--surface2); }
     .sidebar-item.active { background: var(--surface2); font-weight: 600; }
     .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: 14px; }
+    .stat-card.compact-card { padding: 12px 14px; }
+    .stat-card.compact-card > div:last-child { margin: 4px 0 0; font-size: 20px; }
+    .dashboard-chart-card { padding: 16px 16px 14px; display: flex; flex-direction: column; }
+    .dashboard-chart-card h2 { margin-bottom: 14px; }
+    .dashboard-chart-card canvas { display: block; }
     .submenu { margin-left: 12px; border-left: 1px solid var(--border); padding-left: 8px; }
     .sidebar-group-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin: 20px 10px 8px; letter-spacing: 0.05em; }
   </style>
@@ -22,12 +27,12 @@
 <body class="h-full">
   <div id="app-root" style="display:flex; height:100vh; width:100%; overflow:hidden;">
     
-    <aside id="sidebar" style="width:230px; min-width:230px; background:var(--surface); display:flex; flex-direction:column; overflow-y:auto;">
+    <aside id="sidebar" style="width:230px; min-width:230px; height:100vh; background:var(--surface); display:flex; flex-direction:column; min-height:0;">
       <div style="padding:20px 18px 12px; border-bottom:1px solid var(--border);">
         <img src="./img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width: 100%;">
       </div>
       
-      <nav style="flex:1; padding:10px 8px;">
+      <nav style="flex:1; min-height:0; padding:10px 8px; overflow-y:auto;">
         <a href="index.html" class="sidebar-item active">
           <i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard
         </a>
@@ -71,7 +76,7 @@
       </nav>
     </aside>
 
-    <main style="flex:1; display:flex; flex-direction:column; min-width:0; border-left: none;">
+    <main style="flex:1; display:flex; flex-direction:column; min-width:0; min-height:0; overflow:hidden; border-left: none;">
       <header style="padding:14px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface);">
         <div>
           <div style="font-size:18px; font-weight:700;">Dashboard</div>
@@ -79,26 +84,34 @@
         </div>
       </header>
       
-      <div id="page-content" style="flex:1; padding:24px 28px; overflow-y:auto;">
+      <div id="page-content" style="flex:1; min-height:0; padding:24px 28px; overflow-y:auto; background-image:url('./img/img_Fundo.png'); background-size:cover; background-position:center; background-attachment:fixed;">
         
         <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-bottom:24px;">
-          <div class="stat-card">
+          <div class="stat-card compact-card">
             <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Total de Vendas</div>
-            <div id="vendas-total" style="font-size:22px; font-weight:700; margin:8px 0;">R$ 0,00</div>
+            <div id="vendas-total" style="font-size:20px; font-weight:700; margin:4px 0 0;">R$ 0,00</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card compact-card">
             <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Contas a Pagar</div>
-            <div id="pagar-total" style="font-size:22px; font-weight:700; margin:8px 0;">R$ 0,00</div>
+            <div id="pagar-total" style="font-size:20px; font-weight:700; margin:4px 0 0;">R$ 0,00</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card compact-card">
             <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Saldo em Caixa</div>
-            <div id="saldo-caixa" style="font-size:22px; font-weight:700; margin:8px 0;">R$ 0,00</div>
+            <div id="saldo-caixa" style="font-size:20px; font-weight:700; margin:4px 0 0;">R$ 0,00</div>
           </div>
         </div>
 
-        <div class="stat-card" style="margin-bottom:24px;">
-          <h2 style="font-size:15px; font-weight:700; margin-bottom:18px;">Evolução Financeira</h2>
-          <canvas id="dashboard-chart" height="280"></canvas>
+        <div class="stat-card" style="margin-bottom:16px; padding:16px;">
+          <h2 style="font-size:15px; font-weight:700; margin-bottom:4px;">Fluxo de Caixa</h2>
+          <p style="font-size:11px; color:var(--text-muted); margin:0 0 14px;">Evolução do saldo em caixa ao longo dos períodos</p>
+          <div style="height:240px;">
+            <canvas id="fluxo-caixa-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="stat-card dashboard-chart-card" style="margin-bottom:16px; width:60%;">
+          <h2 style="font-size:15px; font-weight:700;">Evolução Financeira</h2>
+          <canvas id="dashboard-chart"></canvas>
         </div>
 
       </div>
@@ -119,56 +132,64 @@
       }).format(valor || 0);
     }
 
-    function renderDashboardChart(stats) {
-      const ctx = document.getElementById('dashboard-chart').getContext('2d');
-      if (window.dashboardChart) {
-        window.dashboardChart.destroy();
-      }
+    function renderFluxoCaixaChart(stats) {
+      const ctx = document.getElementById('fluxo-caixa-chart').getContext('2d');
+      if (window.fluxoCaixaChart) window.fluxoCaixaChart.destroy();
 
-      window.dashboardChart = new Chart(ctx, {
+      const periodos = (stats.evolucao_periodos || []).map(p => {
+        const [ano, mes] = p.split('-');
+        return new Date(ano, mes - 1).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+      });
+
+      const entradas = (stats.evolucao_periodos || []).map((_, i) =>
+        (stats.evolucao_receitas_operacionais[i] || 0) + (stats.evolucao_outras_receitas[i] || 0)
+      );
+      const saidas = (stats.evolucao_periodos || []).map((_, i) =>
+        (stats.evolucao_custo_mercadoria[i] || 0) +
+        (stats.evolucao_despesas_operacionais[i] || 0) +
+        (stats.evolucao_outras_despesas[i] || 0)
+      );
+
+      let saldoAcum = 0;
+      const saldoAcumulado = entradas.map((e, i) => {
+        saldoAcum += e - saidas[i];
+        return saldoAcum;
+      });
+
+      window.fluxoCaixaChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: stats.evolucao_periodos,
+          labels: periodos,
           datasets: [
             {
-              label: 'Receitas Operacionais',
+              label: 'Saldo Acumulado',
+              data: saldoAcumulado,
+              borderColor: '#6366f1',
+              backgroundColor: 'rgba(99,102,241,0.10)',
+              tension: 0.4,
+              fill: true,
+              borderWidth: 2.5,
+              pointRadius: 4
+            },
+            {
+              label: 'Entradas',
+              data: entradas,
               borderColor: '#22c55e',
-              backgroundColor: 'rgba(34,197,94,0.15)',
-              data: stats.evolucao_receitas_operacionais,
+              backgroundColor: 'transparent',
               tension: 0.35,
-              fill: false
+              fill: false,
+              borderDash: [5, 3],
+              pointRadius: 3
             },
             {
-              label: 'Outras Receitas',
-              borderColor: '#0ea5e9',
-              backgroundColor: 'rgba(14,165,233,0.15)',
-              data: stats.evolucao_outras_receitas,
-              tension: 0.35,
-              fill: false
-            },
-            {
-              label: 'Custo de Mercadoria',
+              label: 'Saídas',
+              data: saidas,
               borderColor: '#ef4444',
-              backgroundColor: 'rgba(239,68,68,0.15)',
-              data: stats.evolucao_custo_mercadoria,
+              backgroundColor: 'transparent',
               tension: 0.35,
-              fill: false
-            },
-            {
-              label: 'Despesas Operacionais',
-              borderColor: '#f97316',
-              backgroundColor: 'rgba(249,115,22,0.15)',
-              data: stats.evolucao_despesas_operacionais,
-              tension: 0.35,
-              fill: false
-            },
-            {
-              label: 'Outras Despesas',
-              borderColor: '#8b5cf6',
-              backgroundColor: 'rgba(139,92,246,0.12)',
-              data: stats.evolucao_outras_despesas,
-              tension: 0.35,
-              fill: false
+              fill: false,
+              borderDash: [5, 3],
+              pointRadius: 3
             }
           ]
         },
@@ -177,21 +198,64 @@
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              position: 'bottom'
+              position: 'bottom',
+              labels: { font: { size: 11 }, boxWidth: 12, padding: 10 }
             },
             tooltip: {
               callbacks: {
-                label: tooltipItem => `${tooltipItem.dataset.label}: ${formatarReal(tooltipItem.parsed.y)}`
+                label: item => `${item.dataset.label}: ${formatarReal(item.parsed.y)}`
               }
             }
           },
           scales: {
-            x: {
-              grid: { display: false }
+            x: { grid: { display: false } },
+            y: { ticks: { callback: v => formatarReal(v) } }
+          }
+        }
+      });
+    }
+
+    function renderDashboardChart(stats) {
+      const ctx = document.getElementById('dashboard-chart').getContext('2d');
+      if (window.dashboardChart) {
+        window.dashboardChart.destroy();
+      }
+
+      const somaArray = arr => (arr || []).reduce((acc, v) => acc + (v || 0), 0);
+
+      window.dashboardChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Receitas Operacionais', 'Outras Receitas', 'Custo de Mercadoria', 'Despesas Operacionais', 'Outras Despesas'],
+          datasets: [{
+            data: [
+              somaArray(stats.evolucao_receitas_operacionais),
+              somaArray(stats.evolucao_outras_receitas),
+              somaArray(stats.evolucao_custo_mercadoria),
+              somaArray(stats.evolucao_despesas_operacionais),
+              somaArray(stats.evolucao_outras_despesas)
+            ],
+            backgroundColor: ['#22c55e', '#0ea5e9', '#ef4444', '#f97316', '#8b5cf6'],
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 2 / (0.85 * 1.2),
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                font: { size: 11 },
+                boxWidth: 12,
+                padding: 10
+              }
             },
-            y: {
-              ticks: {
-                callback: value => formatarReal(value)
+            tooltip: {
+              callbacks: {
+                label: tooltipItem => `${tooltipItem.label}: ${formatarReal(tooltipItem.parsed)}`
               }
             }
           }
@@ -208,6 +272,7 @@
         document.getElementById('pagar-total').textContent = formatarReal(stats.total_contas_pagar_valor);
         document.getElementById('saldo-caixa').textContent = formatarReal(stats.saldo_caixa);
 
+        renderFluxoCaixaChart(stats);
         renderDashboardChart(stats);
       } catch (error) {
         console.error("Erro ao carregar dashboard:", error);

@@ -185,11 +185,40 @@ app.delete('/api/clientes/:id', (req, res) => {
         res.json({ message: 'Cliente excluído!' });
     });
 });
+
+app.put('/api/clientes/:id', (req, res) => {
+    const { razao_social, nome_fantasia, email, telefone, limite_credito } = req.body;
+    const id = req.params.id;
+    
+    db.query(
+        "UPDATE clientes SET razao_social = ?, nome_fantasia = ?, email = ?, telefone = ?, limite_credito = ? WHERE id = ?",
+        [razao_social, nome_fantasia, email, telefone, limite_credito, id],
+        (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: 'Cliente atualizado!' });
+        }
+    );
+});
+
 app.delete('/api/fornecedores/:id', (req, res) => {
     db.query("DELETE FROM fornecedores WHERE id = ?", [req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: 'Fornecedor excluído!' });
     });
+});
+
+app.put('/api/fornecedores/:id', (req, res) => {
+    const { razao_social, nome_fantasia, email, telefone, nome_contato, regime_tributario } = req.body;
+    const id = req.params.id;
+    
+    db.query(
+        "UPDATE fornecedores SET razao_social = ?, nome_fantasia = ?, email = ?, telefone = ?, nome_contato = ?, regime_tributario = ? WHERE id = ?",
+        [razao_social, nome_fantasia, email, telefone, nome_contato, regime_tributario, id],
+        (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: 'Fornecedor atualizado!' });
+        }
+    );
 });
 
 // ── ROTA: POST CLIENTES (estava faltando!) ────────────────────────
@@ -240,6 +269,35 @@ app.get('/api/plano-contas', (req, res) => {
         res.json(result);
     });
 });
+
+app.post('/api/plano-contas', (req, res) => {
+    const { codigo_conta, nome_conta, tipo_conta, natureza } = req.body;
+    if (!codigo_conta || !nome_conta || !tipo_conta || !natureza) {
+        return res.status(400).json({ error: 'Campos obrigatórios: codigo_conta, nome_conta, tipo_conta, natureza.' });
+    }
+    db.query(
+        'INSERT INTO plano_contas (codigo_conta, nome_conta, tipo_conta, natureza) VALUES (?, ?, ?, ?)',
+        [codigo_conta, nome_conta, tipo_conta, natureza],
+        (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.status(201).json({ message: 'Conta criada!', id: result.insertId });
+        }
+    );
+});
+
+app.delete('/api/plano-contas/:id', (req, res) => {
+    db.query('DELETE FROM plano_contas WHERE id = ?', [req.params.id], (err, result) => {
+        if (err) {
+            if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+                return res.status(409).json({ error: 'Esta conta possui lançamentos vinculados e não pode ser excluída.' });
+            }
+            return res.status(500).json({ error: err.message });
+        }
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Conta não encontrada.' });
+        res.json({ message: 'Conta excluída!' });
+    });
+});
+
 //Contas a pagar
 // ── ROTAS: CONTAS A PAGAR ─────────────────────────────────────────
 // GET - Listar contas a pagar

@@ -70,10 +70,20 @@ body { background-color: var(--bg); color: var(--text); }
 
 /* Elementos do Conteúdo Principal (Lado Direito) */
 .stat-card {
-  background: var(--surface); 
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px; padding: 20px 22px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+/* Card único se expande para preencher toda a altura disponível */
+#page-content {
+    display: flex;
+    flex-direction: column;
+}
+
+#page-content > .stat-card:only-child {
+    flex: 1;
 }
 
 .badge {
@@ -801,4 +811,170 @@ header #titulo-periodo {
 }
 .table-md th:nth-child(5) { /* Histórico */
   padding-left: 30px;
+}
+
+/* Tela Cadastro de Fornecedores responsiva */
+.form-grid{
+    display: grid;
+    gap: 16px;
+}
+
+.cols-2 {
+    grid-template-columns: 1fr;
+}
+
+.cols-3 {
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .cols-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    
+}
+
+.btn-contabil {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .btn-contabil {
+        width: auto;
+    }
+
+    .form-actions {
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+    }
+}
+
+input, select {
+    width: 100%;
+}
+
+/* === COMPACTO — VIEWPORT CURTO (notebook 1366×768) === */
+@media (max-height: 850px) {
+    #page-content {
+        padding-top: 14px !important;
+        padding-bottom: 14px !important;
+    }
+
+    .stat-card {
+        padding: 14px 18px !important;
+    }
+
+    .form-section {
+        margin-top: 14px;
+        padding-top: 12px;
+    }
+
+    .section-title {
+        margin-bottom: 6px;
+    }
+
+    .form-grid {
+        gap: 12px;
+    }
+
+    .form-group label {
+        margin-bottom: 3px;
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 7px 10px;
+    }
+
+    .form-actions {
+        margin-top: 14px;
+    }
+
+    .btn-contabil {
+        height: 42px;
+    }
+}
+
+/* === RESPONSIVO — SIDEBAR MOBILE === */
+#sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 40;
+}
+#sidebar-overlay.active {
+    display: block;
+}
+
+.btn-hamburger {
+    display: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 6px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    flex-shrink: 0;
+    color: var(--text);
+}
+
+@media (max-width: 767px) {
+    .btn-hamburger {
+        display: flex;
+    }
+
+    #sidebar {
+        position: fixed !important;
+        top: 0;
+        left: -240px;
+        height: 100vh !important;
+        z-index: 50;
+        transition: left 0.28s ease;
+        width: 230px !important;
+        min-width: 230px !important;
+    }
+
+    #sidebar.sidebar-open {
+        left: 0;
+    }
+
+    .btn-contabil {
+        min-width: 0 !important;
+        font-size: 13px !important;
+    }
+
+    .form-actions {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    #page-content {
+        padding: 16px !important;
+    }
+
+    header {
+        padding: 10px 16px !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    header > div:first-of-type {
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+
+    header > div:first-of-type div:first-child {
+        font-size: 15px !important;
+    }
 }

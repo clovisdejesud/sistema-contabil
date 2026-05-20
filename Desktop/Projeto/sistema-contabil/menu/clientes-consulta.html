@@ -61,6 +61,12 @@
           <button class="btn-contabil" type="button" onclick="window.location.href='clientes.html'">
             <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> Novo Cliente
           </button>
+          <button id="btnAlterar" class="btn-contabil" type="button" onclick="alterarCliente()" disabled>
+            <i data-lucide="edit" style="width:16px;height:16px;"></i> Alterar
+          </button>
+          <button id="btnExcluir" class="btn-contabil" type="button" onclick="excluirCliente()" disabled>
+            <i data-lucide="trash-2" style="width:16px;height:16px;"></i> Excluir
+          </button>
           <button class="btn-contabil btn-voltar" type="button" onclick="window.location.href='consulta.html'">
             <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Voltar
           </button>
@@ -77,23 +83,70 @@
             <table class="tabela-contabil table-sm">
               <thead class="header-div">
                 <tr>
-                  <th style="width:22%;">Razão Social</th>
-                  <th style="width:18%;">Nome Fantasia</th>
-                  <th style="width:12%;">Tipo Pessoa</th>
-                  <th style="width:14%;">Documento</th>
-                  <th style="width:16%;">E-mail</th>
-                  <th style="width:12%;">Telefone</th>
-                  <th class="valor-header">Limite</th>
+                  <th style="width:3%;"></th>
+                  <th style="width:5%;">ID</th>
+                  <th style="width:18%;">Razão Social</th>
+                  <th style="width:15%;">Nome Fantasia</th>
+                  <th style="width:10%;">Tipo Pessoa</th>
+                  <th style="width:12%;">Documento</th>
+                  <th style="width:14%;">E-mail</th>
+                  <th style="width:11%;">Telefone</th>
+                  <th class="valor-header" style="width:8%;">Limite</th>
                 </tr>
               </thead>
               <tbody id="clientesTabela">
-                <tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">Carregando clientes...</td></tr>
+                <tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">Carregando clientes...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Modal de Edição -->
+  <div id="modalEdicao" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; padding:20px;">
+    <div style="background:var(--surface); border-radius:12px; padding:24px; width:100%; max-width:500px; max-height:90vh; overflow-y:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="font-size:18px; font-weight:700; margin:0;">Editar Cliente</h2>
+        <button type="button" onclick="fecharModalEdicao()" style="background:none; border:none; cursor:pointer; font-size:24px; color:var(--text);">×</button>
+      </div>
+      
+      <form id="formEdicao" style="display:flex; flex-direction:column; gap:12px;">
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Razão Social</label>
+          <input type="text" id="editRazaoSocial" style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Nome Fantasia</label>
+          <input type="text" id="editNomeFantasia" style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Documento (CNPJ/CPF)</label>
+          <input type="text" id="editDocumento" disabled style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text-muted);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">E-mail</label>
+          <input type="email" id="editEmail" style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Telefone</label>
+          <input type="text" id="editTelefone" style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Limite de Crédito (R$)</label>
+          <input type="number" id="editLimiteCredito" step="0.01" style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);">
+        </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+          <button type="button" class="btn-contabil" onclick="fecharModalEdicao()">
+            <i data-lucide="x"></i> Cancelar
+          </button>
+          <button type="button" class="btn-contabil btn-salvar" onclick="salvarAlteracoesCliente()">
+            <i data-lucide="save"></i> Salvar
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
@@ -123,14 +176,16 @@
     function renderizarClientes(clientes) {
       const tbody = document.getElementById('clientesTabela');
       if (clientes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum cliente encontrado.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum cliente encontrado.</td></tr>';
         return;
       }
 
       tbody.innerHTML = clientes.map(cliente => {
         const documento = cliente.cnpj || cliente.cpf || '-';
         return `
-          <tr>
+          <tr class="cliente-row" data-id="${cliente.id}">
+            <td><input type="checkbox" class="cliente-checkbox" onchange="atualizarBotoes()" style="cursor:pointer;"></td>
+            <td>${cliente.id || '-'}</td>
             <td>${cliente.razao_social || '-'}</td>
             <td>${cliente.nome_fantasia || '-'}</td>
             <td>${cliente.tipo_pessoa || '-'}</td>
@@ -145,7 +200,7 @@
 
     async function carregarClientes() {
       const tbody = document.getElementById('clientesTabela');
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">Carregando clientes...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">Carregando clientes...</td></tr>';
       try {
         clientesCache = await buscarClientes();
         const filtro = document.getElementById('filtroClientes').value.trim();
@@ -153,7 +208,7 @@
         renderizarClientes(resultado);
       } catch (err) {
         console.error(err);
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--danger);">Erro ao carregar clientes: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--danger);">Erro ao carregar clientes: ${err.message}</td></tr>`;
       }
     }
 
@@ -162,6 +217,119 @@
       const resultado = filtro ? clientesCache.filter(item => contemFiltro(item, filtro)) : clientesCache;
       renderizarClientes(resultado);
     });
+
+    function atualizarBotoes() {
+      const checkboxesSelecionados = document.querySelectorAll('.cliente-checkbox:checked');
+      const btnAlterar = document.getElementById('btnAlterar');
+      const btnExcluir = document.getElementById('btnExcluir');
+      
+      btnAlterar.disabled = checkboxesSelecionados.length !== 1;
+      btnExcluir.disabled = checkboxesSelecionados.length === 0;
+    }
+
+    function obterIdsSelecionados() {
+      const checkboxesSelecionados = document.querySelectorAll('.cliente-checkbox:checked');
+      const ids = [];
+      checkboxesSelecionados.forEach(cb => {
+        const id = cb.closest('tr').getAttribute('data-id');
+        if (id) ids.push(id);
+      });
+      return ids;
+    }
+
+    let clienteEmEdicao = null;
+
+    function alterarCliente() {
+      const ids = obterIdsSelecionados();
+      if (ids.length !== 1) {
+        alert('Selecione exatamente um cliente para alterar.');
+        return;
+      }
+
+      const id = ids[0];
+      const cliente = clientesCache.find(c => c.id == id);
+      
+      if (!cliente) {
+        alert('Cliente não encontrado.');
+        return;
+      }
+
+      clienteEmEdicao = cliente;
+      
+      document.getElementById('editRazaoSocial').value = cliente.razao_social || '';
+      document.getElementById('editNomeFantasia').value = cliente.nome_fantasia || '';
+      document.getElementById('editDocumento').value = cliente.cnpj || cliente.cpf || '';
+      document.getElementById('editEmail').value = cliente.email || '';
+      document.getElementById('editTelefone').value = cliente.telefone || '';
+      document.getElementById('editLimiteCredito').value = cliente.limite_credito || '';
+      
+      document.getElementById('modalEdicao').style.display = 'flex';
+      lucide.createIcons();
+    }
+
+    function fecharModalEdicao() {
+      document.getElementById('modalEdicao').style.display = 'none';
+      clienteEmEdicao = null;
+    }
+
+    function salvarAlteracoesCliente() {
+      if (!clienteEmEdicao) {
+        alert('Erro: nenhum cliente em edição.');
+        return;
+      }
+
+      const dadosAtualizados = {
+        razao_social: document.getElementById('editRazaoSocial').value,
+        nome_fantasia: document.getElementById('editNomeFantasia').value,
+        email: document.getElementById('editEmail').value,
+        telefone: document.getElementById('editTelefone').value,
+        limite_credito: parseFloat(document.getElementById('editLimiteCredito').value) || 0
+      };
+
+      fetch(`/api/clientes/${clienteEmEdicao.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dadosAtualizados)
+      })
+      .then(r => {
+        if (!r.ok) {
+          return r.text().then(text => Promise.reject(new Error(`Status ${r.status}: ${text}`)));
+        }
+        return r.json();
+      })
+      .then(() => {
+        alert('Cliente atualizado com sucesso.');
+        fecharModalEdicao();
+        carregarClientes();
+      })
+      .catch(err => {
+        console.error('Erro completo:', err);
+        alert('Erro ao salvar alterações: ' + err.message);
+      });
+    }
+
+    function excluirCliente() {
+      const ids = obterIdsSelecionados();
+      if (ids.length === 0) {
+        alert('Selecione pelo menos um cliente para excluir.');
+        return;
+      }
+
+      if (confirm(`Tem certeza que deseja excluir ${ids.length} cliente(s)?`)) {
+        Promise.all(ids.map(id => 
+          fetch(`/api/clientes/${id}`, { method: 'DELETE' })
+            .then(r => r.ok ? Promise.resolve() : Promise.reject(new Error(`Erro ao excluir ID ${id}`)))
+        ))
+        .then(() => {
+          alert(`${ids.length} cliente(s) excluído(s) com sucesso.`);
+          carregarClientes();
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Erro ao excluir cliente(s): ' + err.message);
+        });
+      }
+    }
 
     window.addEventListener('DOMContentLoaded', carregarClientes);
   </script>

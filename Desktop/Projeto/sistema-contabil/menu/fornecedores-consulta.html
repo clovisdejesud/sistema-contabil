@@ -61,6 +61,12 @@
           <button class="btn-contabil" type="button" onclick="window.location.href='fornecedores.html'">
             <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> Novo Fornecedor
           </button>
+          <button id="btnAlterar" class="btn-contabil" type="button" onclick="alterarFornecedor()" disabled>
+            <i data-lucide="edit" style="width:16px;height:16px;"></i> Alterar
+          </button>
+          <button id="btnExcluir" class="btn-contabil" type="button" onclick="excluirFornecedor()" disabled>
+            <i data-lucide="trash-2" style="width:16px;height:16px;"></i> Excluir
+          </button>
           <button class="btn-contabil btn-voltar" type="button" onclick="window.location.href='consulta.html'">
             <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Voltar
           </button>
@@ -77,23 +83,78 @@
             <table class="tabela-contabil table-sm">
               <thead class="header-div">
                 <tr>
-                  <th style="width:22%;">Razão Social</th>
-                  <th style="width:18%;">Nome Fantasia</th>
-                  <th style="width:10%;">Tipo Pessoa</th>
-                  <th style="width:14%;">Documento</th>
-                  <th style="width:12%;">Telefone</th>
-                  <th style="width:14%;">Contato</th>
-                  <th style="width:10%;">Tributação</th>
+                  <th style="width:4%;"></th>
+                  <th style="width:5%;">ID</th>
+                  <th style="width:18%;">Razão Social</th>
+                  <th style="width:15%;">Nome Fantasia</th>
+                  <th style="width:8%;">Tipo Pessoa</th>
+                  <th style="width:12%;">Documento</th>
+                  <th style="width:10%;">Telefone</th>
+                  <th style="width:12%;">Contato</th>
+                  <th style="width:8%;">Tributação</th>
                 </tr>
               </thead>
               <tbody id="fornecedoresTabela">
-                <tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">Carregando fornecedores...</td></tr>
+                <tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">Carregando fornecedores...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Modal de Edição -->
+  <div id="modalEdicao" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; padding:20px;">
+    <div style="background:var(--surface); border-radius:12px; padding:24px; width:100%; max-width:500px; max-height:90vh; overflow-y:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="font-size:18px; font-weight:700; margin:0;">Editar Fornecedor</h2>
+        <button type="button" onclick="fecharModalEdicao()" style="background:none; border:none; cursor:pointer; font-size:24px; color:var(--text);">×</button>
+      </div>
+      
+      <form id="formEdicao" style="display:flex; flex-direction:column; gap:12px;">
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Razão Social</label>
+          <input type="text" id="editRazaoSocial" style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Nome Fantasia</label>
+          <input type="text" id="editNomeFantasia" style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Documento (CNPJ/CPF)</label>
+          <input type="text" id="editDocumento" disabled style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text-muted);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">E-mail</label>
+          <input type="email" id="editEmail" style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Telefone</label>
+          <input type="text" id="editTelefone" style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Nome de Contato</label>
+          <input type="text" id="editNomeContato" style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Regime Tributário</label>
+          <select id="editRegimeTributario" style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);">
+            <option>Simples Nacional</option>
+            <option>Lucro Presumido</option>
+            <option>Lucro Real</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+          <button type="button" class="btn-contabil" onclick="fecharModalEdicao()">
+            <i data-lucide="x"></i> Cancelar
+          </button>
+          <button type="button" class="btn-contabil btn-salvar" onclick="salvarAlteracoesFornecedor()">
+            <i data-lucide="save"></i> Salvar
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
@@ -125,13 +186,15 @@
     function renderizarFornecedores(fornecedores) {
       const tbody = document.getElementById('fornecedoresTabela');
       if (fornecedores.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum fornecedor encontrado.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum fornecedor encontrado.</td></tr>';
         return;
       }
 
       tbody.innerHTML = fornecedores.map(item => {
         return `
-          <tr>
+          <tr class="fornecedor-row" data-id="${item.id}">
+            <td><input type="checkbox" class="fornecedor-checkbox" onchange="atualizarBotoes()" style="cursor:pointer;"></td>
+            <td>${item.id || '-'}</td>
             <td>${item.razao_social || '-'}</td>
             <td>${item.nome_fantasia || '-'}</td>
             <td>${item.tipo_pessoa || '-'}</td>
@@ -154,7 +217,7 @@
         renderizarFornecedores(resultado);
       } catch (err) {
         console.error(err);
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--danger);">Erro ao carregar fornecedores: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--danger);">Erro ao carregar fornecedores: ${err.message}</td></tr>`;
       }
     }
 
@@ -163,6 +226,127 @@
       const resultado = filtro ? fornecedoresCache.filter(item => contemFiltroFornecedor(item, filtro)) : fornecedoresCache;
       renderizarFornecedores(resultado);
     });
+
+    function atualizarBotoes() {
+      const checkboxesSelecionados = document.querySelectorAll('.fornecedor-checkbox:checked');
+      const btnAlterar = document.getElementById('btnAlterar');
+      const btnExcluir = document.getElementById('btnExcluir');
+      
+      btnAlterar.disabled = checkboxesSelecionados.length !== 1;
+      btnExcluir.disabled = checkboxesSelecionados.length === 0;
+    }
+
+    function selecionarTodosFornecedores(checkbox) {
+      const checkboxes = document.querySelectorAll('.fornecedor-checkbox');
+      checkboxes.forEach(cb => cb.checked = checkbox.checked);
+      atualizarBotoes();
+    }
+
+    function obterIdsSelecionados() {
+      const checkboxesSelecionados = document.querySelectorAll('.fornecedor-checkbox:checked');
+      const ids = [];
+      checkboxesSelecionados.forEach(cb => {
+        const id = cb.closest('tr').getAttribute('data-id');
+        if (id) ids.push(id);
+      });
+      return ids;
+    }
+
+    let fornecedorEmEdicao = null;
+
+    function alterarFornecedor() {
+      const ids = obterIdsSelecionados();
+      if (ids.length !== 1) {
+        alert('Selecione exatamente um fornecedor para alterar.');
+        return;
+      }
+
+      const id = ids[0];
+      const fornecedor = fornecedoresCache.find(f => f.id == id);
+      
+      if (!fornecedor) {
+        alert('Fornecedor não encontrado.');
+        return;
+      }
+
+      fornecedorEmEdicao = fornecedor;
+      
+      document.getElementById('editRazaoSocial').value = fornecedor.razao_social || '';
+      document.getElementById('editNomeFantasia').value = fornecedor.nome_fantasia || '';
+      document.getElementById('editDocumento').value = fornecedor.cnpj || fornecedor.cpf || '';
+      document.getElementById('editEmail').value = fornecedor.email || '';
+      document.getElementById('editTelefone').value = fornecedor.telefone || '';
+      document.getElementById('editNomeContato').value = fornecedor.nome_contato || '';
+      document.getElementById('editRegimeTributario').value = fornecedor.regime_tributario || 'Simples Nacional';
+      
+      document.getElementById('modalEdicao').style.display = 'flex';
+      lucide.createIcons();
+    }
+
+    function fecharModalEdicao() {
+      document.getElementById('modalEdicao').style.display = 'none';
+      fornecedorEmEdicao = null;
+    }
+
+    function salvarAlteracoesFornecedor() {
+      if (!fornecedorEmEdicao) {
+        alert('Erro: nenhum fornecedor em edição.');
+        return;
+      }
+
+      const dadosAtualizados = {
+        razao_social: document.getElementById('editRazaoSocial').value,
+        nome_fantasia: document.getElementById('editNomeFantasia').value,
+        email: document.getElementById('editEmail').value,
+        telefone: document.getElementById('editTelefone').value,
+        nome_contato: document.getElementById('editNomeContato').value,
+        regime_tributario: document.getElementById('editRegimeTributario').value
+      };
+
+      fetch(`/api/fornecedores/${fornecedorEmEdicao.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dadosAtualizados)
+      })
+      .then(r => {
+        if (!r.ok) {
+          return r.text().then(text => Promise.reject(new Error(`Status ${r.status}: ${text}`)));
+        }
+        return r.json();
+      })
+      .then(() => {
+        alert('Fornecedor atualizado com sucesso.');
+        fecharModalEdicao();
+        carregarFornecedores();
+      })
+      .catch(err => {
+        console.error('Erro completo:', err);
+        alert('Erro ao salvar alterações: ' + err.message);
+      });
+    }
+
+    function excluirFornecedor() {
+      const ids = obterIdsSelecionados();
+      if (ids.length === 0) {
+        alert('Selecione pelo menos um fornecedor para excluir.');
+        return;
+      }
+
+      if (confirm(`Tem certeza que deseja excluir ${ids.length} fornecedor(es)?`)) {
+        Promise.all(ids.map(id => 
+          fetch(`/api/fornecedores/${id}`, { method: 'DELETE' })
+            .then(r => r.ok ? Promise.resolve() : Promise.reject(new Error(`Erro ao excluir ID ${id}`)))
+        ))
+        .then(() => {
+          alert(`${ids.length} fornecedor(es) excluído(s) com sucesso.`);
+          carregarFornecedores();
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Erro ao excluir fornecedor(es): ' + err.message);
+        });
+      }
+    }
 
     window.addEventListener('DOMContentLoaded', carregarFornecedores);
   </script>

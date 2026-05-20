@@ -198,7 +198,8 @@ document.addEventListener('submit', async (e) => {
 window.addEventListener('DOMContentLoaded', () => {
     const content = document.getElementById('page-content');
 
-    if (content) {
+    // Apenas carregar o dashboard automaticamente quando estivermos na página principal.
+    if (content && window.location.pathname.endsWith('/prototipo.html')) {
         navigateTo('dashboard');
     }
 });
