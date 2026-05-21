@@ -147,6 +147,27 @@
 
             <div id="resultado" class="resultado"></div>
         </div>
+
+        <div class="card-sync" style="margin-top: 24px;">
+            <div class="sync-title" style="font-size: 18px;">Limpar Registros Excluídos</div>
+            <div class="sync-description">
+                Use esta opção quando lançamentos forem <strong>deletados diretamente no banco de dados</strong>.
+                Remove os registros órfãos de Diários e Contas a Pagar que ficaram sem lançamento vinculado.
+            </div>
+
+            <div class="info-box" style="border-left-color: #ff9800;">
+                <strong style="color: #ff9800;">Quando usar:</strong><br>
+                Após deletar lançamentos diretamente na tabela <code>lancamentos</code> do banco de dados,
+                os registros relacionados em <strong>Diários</strong> e <strong>Contas a Pagar</strong>
+                ficam órfãos. Esta ação os remove e sincroniza o sistema.
+            </div>
+
+            <button class="btn-sync" style="background: #e67e22;" onclick="limparOrfaos()">
+                <i data-lucide="trash-2"></i> Limpar e Sincronizar
+            </button>
+
+            <div id="resultado-limpeza" class="resultado"></div>
+        </div>
     </main>
 
     <script>
@@ -215,7 +236,50 @@
             }
         }
 
-        // Atualizar Ã­cones quando pÃ¡gina carrega
+        async function limparOrfaos() {
+            const btn = document.querySelectorAll('.btn-sync')[1];
+            const divResultado = document.getElementById('resultado-limpeza');
+
+            btn.classList.add('loading');
+            btn.innerHTML = '<i data-lucide="loader"></i> Limpando...';
+            lucide.createIcons();
+
+            try {
+                const response = await fetch('http://localhost:3000/api/sincronizar-deletados', {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) throw new Error('Erro ao limpar registros');
+
+                const resultado = await response.json();
+
+                divResultado.className = 'resultado sucesso';
+                divResultado.innerHTML = `
+                    <div class="resultado-titulo">&#x2705; Sincronização concluída!</div>
+                    <div class="resultado-detalhes">
+                        <strong>${resultado.diarios_removidos}</strong> registro(s) removido(s) do Livro Diário<br>
+                        <strong>${resultado.contas_pagar_removidas}</strong> conta(s) a pagar órfã(s) removida(s)
+                    </div>
+                    <div style="margin-top:12px; font-size:13px; padding-top:10px; border-top:1px solid rgba(48,201,126,0.3);">
+                        O sistema está sincronizado com o banco de dados.
+                    </div>
+                `;
+            } catch (erro) {
+                divResultado.className = 'resultado erro';
+                divResultado.innerHTML = `
+                    <div class="resultado-titulo">&#x274C; Erro ao limpar</div>
+                    <div class="resultado-detalhes">
+                        ${erro.message}<br><br>
+                        Verifique se o servidor está rodando em http://localhost:3000
+                    </div>
+                `;
+            } finally {
+                btn.classList.remove('loading');
+                btn.innerHTML = '<i data-lucide="trash-2"></i> Limpar e Sincronizar';
+                lucide.createIcons();
+            }
+        }
+
         lucide.createIcons();
     </script>
 </body>

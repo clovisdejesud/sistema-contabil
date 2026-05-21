@@ -845,6 +845,33 @@ app.post('/api/dre/confirmar', (req, res) => {
     });
 });
 
+// ── ROTA: Limpar registros órfãos após deleção direta no banco ─────
+app.delete('/api/sincronizar-deletados', (req, res) => {
+    const promiseDb = db.promise();
+
+    const deleteDiarios = `
+        DELETE FROM diarios
+        WHERE id_lancamento NOT IN (SELECT id FROM lancamentos)
+    `;
+    const deleteContasPagar = `
+        DELETE FROM contas_pagar
+        WHERE id_lancamento NOT IN (SELECT id FROM lancamentos)
+    `;
+
+    promiseDb.query(deleteDiarios)
+        .then(([r1]) => promiseDb.query(deleteContasPagar).then(([r2]) => {
+            res.json({
+                message: 'Sincronização concluída.',
+                diarios_removidos: r1.affectedRows,
+                contas_pagar_removidas: r2.affectedRows
+            });
+        }))
+        .catch(err => {
+            console.error('Erro ao sincronizar deletados:', err);
+            res.status(500).json({ error: err.message });
+        });
+});
+
 // ── ROTAS ADICIONAIS DO INDEX.JS ───────────────────────────────────
 app.get('/', (req, res) => {
     res.send('Servidor do Sistema ContabilCMRT rodando!');
