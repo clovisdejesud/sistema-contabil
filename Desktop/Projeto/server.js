@@ -17,7 +17,6 @@ const db = mysql.createConnection({
     charset: 'utf8mb4'
 });
 
-// ✅ DEPOIS
 db.connect((err) => {
     if (err) {
         console.error('Erro ao conectar ao MySQL:');
@@ -26,7 +25,54 @@ db.connect((err) => {
         return;
     }
     console.log('Conectado ao MySQL com sucesso!');
+    executarMigrations();
 });
+
+function executarMigrations() {
+    // Verifica se a coluna já existe via information_schema (compatível com MySQL 5.x e 8.x)
+    db.query(`
+        SELECT COUNT(*) AS existe
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME   = 'lancamentos'
+          AND COLUMN_NAME  = 'data_vencimento'
+    `, (err, rows) => {
+        if (err) { console.error('Migration check:', err.message); return; }
+
+        const jaExiste = rows[0].existe > 0;
+
+        const runUpdate = () => {
+            db.query(`
+                UPDATE lancamentos l
+                SET l.data_vencimento = COALESCE(
+                    (SELECT MIN(cp.data_vencimento)
+                     FROM contas_pagar cp
+                     WHERE cp.id_lancamento = l.id),
+                    CASE
+                        WHEN LOWER(l.historico) LIKE '%prazo%'
+                        THEN DATE_ADD(l.data_lancamento, INTERVAL 30 DAY)
+                        ELSE l.data_lancamento
+                    END
+                )
+                WHERE l.data_vencimento IS NULL
+            `, (err2, result) => {
+                if (err2) { console.error('Migration update vencimento:', err2.message); return; }
+                if (result.affectedRows > 0)
+                    console.log(`Migration: ${result.affectedRows} lançamento(s) com data_vencimento preenchida.`);
+            });
+        };
+
+        if (jaExiste) {
+            runUpdate();
+        } else {
+            db.query(`ALTER TABLE lancamentos ADD COLUMN data_vencimento DATE NULL`, (err2) => {
+                if (err2) { console.error('Migration ADD COLUMN:', err2.message); return; }
+                console.log('Migration: coluna data_vencimento criada.');
+                runUpdate();
+            });
+        }
+    });
+}
 
 // ── ROTAS: CLIENTES ───────────────────────────────────────────────
 app.get('/api/clientes', (req, res) => {
@@ -130,6 +176,55 @@ app.get('/api/dashboard', async (req, res) => {
         });
     } catch (error) {
         console.error('Erro ao carregar dashboard:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/dashboard/movimentacoes-diarias', async (req, res) => {
+    const promiseDb = db.promise();
+    try {
+        const [[{ ano, mes }]] = await promiseDb.query(
+            `SELECT YEAR(MAX(data_lancamento)) AS ano, MONTH(MAX(data_lancamento)) AS mes FROM diarios`
+        );
+
+        if (!ano || !mes) return res.json({ dias: [], entradas: [], saidas: [], mes_atual: '' });
+
+        // Entradas: contas de caixa/banco (1.1.x) no débito → dinheiro entrando
+        // Saídas:   contas de caixa/banco (1.1.x) no crédito → dinheiro saindo
+        const [rows] = await promiseDb.query(`
+            SELECT
+                DAY(d.data_lancamento) AS dia,
+                SUM(CASE WHEN pc_db.codigo_conta LIKE '1.1%' THEN d.valor ELSE 0 END) AS entradas,
+                SUM(CASE WHEN pc_cr.codigo_conta LIKE '1.1%' THEN d.valor ELSE 0 END) AS saidas
+            FROM diarios d
+            LEFT JOIN plano_contas pc_db ON d.id_conta_debito  = pc_db.id
+            LEFT JOIN plano_contas pc_cr ON d.id_conta_credito = pc_cr.id
+            WHERE YEAR(d.data_lancamento) = ? AND MONTH(d.data_lancamento) = ?
+              AND (pc_db.codigo_conta LIKE '1.1%' OR pc_cr.codigo_conta LIKE '1.1%')
+            GROUP BY dia
+            ORDER BY dia
+        `, [ano, mes]);
+
+        const daysInMonth = new Date(ano, mes, 0).getDate();
+        const diasMap = {};
+        rows.forEach(r => {
+            diasMap[r.dia] = {
+                entradas: parseFloat(r.entradas) || 0,
+                saidas: parseFloat(r.saidas) || 0
+            };
+        });
+
+        const dias = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+        const mesLabel = new Date(ano, mes - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+        res.json({
+            dias,
+            entradas: dias.map(d => diasMap[d]?.entradas || 0),
+            saidas:   dias.map(d => diasMap[d]?.saidas   || 0),
+            mes_atual: mesLabel
+        });
+    } catch (error) {
+        console.error('Erro ao buscar movimentações diárias:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -428,6 +523,7 @@ app.get('/api/lancamentos', (req, res) => {
 app.post('/api/lancamentos', (req, res) => {
     const {
         data_lancamento,
+        data_vencimento,
         conta_debito,
         conta_credito,
         valor,
@@ -467,16 +563,19 @@ app.post('/api/lancamentos', (req, res) => {
             const sql = `
                 INSERT INTO lancamentos (
                     data_lancamento,
+                    data_vencimento,
                     id_conta_debito,
                     id_conta_credito,
                     valor,
                     historico,
                     fornecedor_id
-                ) VALUES (?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
             `;
 
+            const vencimento = data_vencimento || data_lancamento;
             const values = [
                 data_lancamento,
+                vencimento,
                 idDebito,
                 idCredito,
                 valor,
@@ -902,6 +1001,60 @@ app.get('/api/livro-razao', (req, res) => {
         }
         res.json(results);
     });
+});
+
+// ── ROTAS: CONTAS A RECEBER ───────────────────────────────────────
+app.get('/api/contas-receber', async (req, res) => {
+    const promiseDb = db.promise();
+    try {
+        await promiseDb.query(`
+            CREATE TABLE IF NOT EXISTS contas_receber (
+                id            INT AUTO_INCREMENT PRIMARY KEY,
+                cliente_id    BIGINT NULL,
+                descricao     TEXT,
+                valor         DECIMAL(15,2) NOT NULL,
+                data_emissao  DATE,
+                data_vencimento DATE NOT NULL,
+                status        VARCHAR(50) DEFAULT 'Pendente',
+                created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        `);
+
+        const [[{ total }]] = await promiseDb.query('SELECT COUNT(*) AS total FROM contas_receber');
+        if (total === 0) {
+            await promiseDb.query(`
+                INSERT INTO contas_receber (cliente_id, descricao, valor, data_emissao, data_vencimento, status) VALUES
+                (19, 'Serviços de consultoria — Jan/2026',     20000.00, '2026-01-18', '2026-02-17', 'Pendente'),
+                (14, 'Fornecimento de materiais — Jan/2026',   15000.00, '2026-01-15', '2026-03-15', 'Pendente'),
+                (17, 'Prestação de serviços técnicos',          8500.00, '2026-01-26', '2026-03-25', 'Pendente'),
+                (19, 'Contrato de manutenção anual',           30000.00, '2026-01-30', '2026-06-30', 'Pendente'),
+                (14, 'Projeto de implementação',               12000.00, '2026-01-20', '2026-07-20', 'Pendente')
+            `);
+        }
+
+        const [rows] = await promiseDb.query(`
+            SELECT
+                cr.id,
+                cr.descricao,
+                cr.valor,
+                cr.data_emissao,
+                cr.data_vencimento,
+                COALESCE(f.razao_social, 'Cliente não informado') AS cliente,
+                CASE
+                    WHEN cr.status = 'Pago' THEN 'Pago'
+                    WHEN cr.data_vencimento < CURDATE() THEN 'Vencido'
+                    ELSE 'A Vencer'
+                END AS status_real
+            FROM contas_receber cr
+            LEFT JOIN fornecedores f ON cr.cliente_id = f.id
+            ORDER BY cr.data_vencimento ASC
+        `);
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Erro ao buscar contas a receber:', error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // ── START DO SERVIDOR ─────────────────────────────────────────────

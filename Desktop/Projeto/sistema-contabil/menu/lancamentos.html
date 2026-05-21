@@ -127,6 +127,7 @@
         <div class="sidebar-group-label">Financeiro</div>
         <div class="submenu">
           <a href="contas-pagar.html" class="sidebar-item"><i data-lucide="arrow-up-circle" style="width:14px;height:14px;"></i> Contas a Pagar</a>
+          <a href="contas-receber.html" class="sidebar-item"><i data-lucide="arrow-down-circle" style="width:14px;height:14px;"></i> Contas a Receber</a>
         </div>
 
         <div class="sidebar-group-label">Contabilidade</div>
@@ -156,9 +157,15 @@
       <div class="form-column">
         <div class="stat-card">
           <form id="form-lancamento">
-            <div style="margin-bottom:10px;">
-              <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Data:</label>
-              <input type="date" name="data_lancamento" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px;" required>
+            <div style="margin-bottom:10px; display:flex; gap:12px;">
+              <div style="flex:1;">
+                <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Data:</label>
+                <input type="date" name="data_lancamento" id="data_lancamento" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px;" required>
+              </div>
+              <div style="flex:1;">
+                <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Vencimento:</label>
+                <input type="date" name="data_vencimento" id="data_vencimento" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px;" required>
+              </div>
             </div>
 
             <div style="margin-bottom:4px; display:flex; gap:12px;">
@@ -314,8 +321,23 @@
       preview.innerHTML = html;
     }
 
+    function sincronizarVencimento() {
+      const dataLanc = document.getElementById('data_lancamento').value;
+      const condicao = document.getElementById('condicao_pagamento').value;
+      const campoVenc = document.getElementById('data_vencimento');
+      if (!dataLanc) return;
+      if (condicao === 'avista') {
+        campoVenc.value = dataLanc;
+      } else {
+        const d = new Date(dataLanc + 'T00:00:00');
+        d.setDate(d.getDate() + 30);
+        campoVenc.value = d.toISOString().split('T')[0];
+      }
+    }
+
     document.getElementById('condicao_pagamento').addEventListener('change', function () {
       document.getElementById('parcelas-section').style.display = this.value === 'aprazo' ? 'block' : 'none';
+      sincronizarVencimento();
       atualizarPreviewParcelas();
     });
 
@@ -452,7 +474,10 @@
       atualizarInfoConta('conta_credito_id', 'info_credito');
 
       document.getElementById('num_parcelas').addEventListener('input', atualizarPreviewParcelas);
-      document.querySelector('[name="data_lancamento"]').addEventListener('change', atualizarPreviewParcelas);
+      document.getElementById('data_lancamento').addEventListener('change', () => {
+        sincronizarVencimento();
+        atualizarPreviewParcelas();
+      });
       document.querySelector('[name="valor"]').addEventListener('input', atualizarPreviewParcelas);
     });
   </script>

@@ -113,6 +113,20 @@ async function buscarDashboard() {
   return await res.json();
 }
 
+// 🔹 Contas a receber
+async function buscarContasReceber() {
+  const res = await fetch(`${API_URL}/api/contas-receber`);
+  if (!res.ok) throw new Error('Erro ao buscar contas a receber');
+  return await res.json();
+}
+
+// 🔹 Movimentações diárias (mês atual)
+async function buscarMovimentacoesDiarias() {
+  const res = await fetch(`${API_URL}/api/dashboard/movimentacoes-diarias`);
+  if (!res.ok) throw new Error('Erro ao buscar movimentações diárias');
+  return await res.json();
+}
+
 // 🔹 Livro Razão
 async function buscarLivroRazao() {
   const res = await fetch(`${API_URL}/api/livro-razao`);

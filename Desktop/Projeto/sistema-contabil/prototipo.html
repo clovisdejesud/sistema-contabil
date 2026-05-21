@@ -50,7 +50,7 @@
         <div class="sidebar-group-label">Financeiro</div>
         <div class="submenu">
           <a href="menu/contas-pagar.html" class="sidebar-item"><i data-lucide="arrow-up-circle" style="width:14px;height:14px;"></i> Contas a Pagar</a>
-          <a href="contas-receber.html" class="sidebar-item"><i data-lucide="arrow-down-circle" style="width:14px;height:14px;"></i> Contas a Receber</a>
+          <a href="menu/contas-receber.html" class="sidebar-item"><i data-lucide="arrow-down-circle" style="width:14px;height:14px;"></i> Contas a Receber</a>
           <a href="fluxo-caixa.html" class="sidebar-item"><i data-lucide="trending-up" style="width:14px;height:14px;"></i> Fluxo de Caixa</a>
           <a href="conciliacao.html" class="sidebar-item"><i data-lucide="git-compare" style="width:14px;height:14px;"></i> Conciliação</a>
         </div>
@@ -102,10 +102,22 @@
         </div>
 
         <div class="stat-card" style="margin-bottom:16px; padding:16px;">
-          <h2 style="font-size:15px; font-weight:700; margin-bottom:4px;">Fluxo de Caixa</h2>
-          <p style="font-size:11px; color:var(--text-muted); margin:0 0 14px;">Evolução do saldo em caixa ao longo dos períodos</p>
+          <h2 style="font-size:15px; font-weight:700; margin-bottom:2px;">Fluxo de Caixa Diário</h2>
+          <p id="mov-diarias-subtitulo" style="font-size:11px; color:var(--text-muted); margin:0 0 14px;">Saldo acumulado, entradas e saídas por dia do mês atual</p>
+          <div style="height:260px;">
+            <canvas id="mov-diarias-chart"></canvas>
+          </div>
+        </div>
+
+
+        <div class="stat-card" style="margin-bottom:16px; padding:16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
+            <h2 style="font-size:15px; font-weight:700; margin:0;">Contas a Receber</h2>
+            <div id="cr-badges" style="display:flex; gap:8px; font-size:11px;"></div>
+          </div>
+          <p style="font-size:11px; color:var(--text-muted); margin:0 0 14px;">Valores por vencimento — <span style="color:#ef4444; font-weight:600;">vermelho = vencido</span></p>
           <div style="height:240px;">
-            <canvas id="fluxo-caixa-chart"></canvas>
+            <canvas id="contas-receber-chart"></canvas>
           </div>
         </div>
 
@@ -132,70 +144,67 @@
       }).format(valor || 0);
     }
 
-    function renderFluxoCaixaChart(stats) {
-      const ctx = document.getElementById('fluxo-caixa-chart').getContext('2d');
-      if (window.fluxoCaixaChart) window.fluxoCaixaChart.destroy();
+    function renderMovimentacoesDiariasChart(dados) {
+      const canvas = document.getElementById('mov-diarias-chart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (window.movDiariasChart) window.movDiariasChart.destroy();
 
-      const periodos = (stats.evolucao_periodos || []).map(p => {
-        const [ano, mes] = p.split('-');
-        return new Date(ano, mes - 1).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
-      });
-
-      const entradas = (stats.evolucao_periodos || []).map((_, i) =>
-        (stats.evolucao_receitas_operacionais[i] || 0) + (stats.evolucao_outras_receitas[i] || 0)
-      );
-      const saidas = (stats.evolucao_periodos || []).map((_, i) =>
-        (stats.evolucao_custo_mercadoria[i] || 0) +
-        (stats.evolucao_despesas_operacionais[i] || 0) +
-        (stats.evolucao_outras_despesas[i] || 0)
-      );
+      const subtitulo = document.getElementById('mov-diarias-subtitulo');
+      if (subtitulo && dados.mes_atual) {
+        subtitulo.textContent = `Saldo acumulado, entradas e saídas por dia — ${dados.mes_atual}`;
+      }
 
       let saldoAcum = 0;
-      const saldoAcumulado = entradas.map((e, i) => {
-        saldoAcum += e - saidas[i];
+      const saldoAcumulado = (dados.dias || []).map((_, i) => {
+        saldoAcum += (dados.entradas[i] || 0) - (dados.saidas[i] || 0);
         return saldoAcum;
       });
 
-      window.fluxoCaixaChart = new Chart(ctx, {
-        type: 'line',
+      window.movDiariasChart = new Chart(ctx, {
+        type: 'bar',
         data: {
-          labels: periodos,
+          labels: dados.dias.map(d => String(d)),
           datasets: [
             {
-              label: 'Saldo Acumulado',
-              data: saldoAcumulado,
-              borderColor: '#6366f1',
-              backgroundColor: 'rgba(99,102,241,0.10)',
-              tension: 0.4,
-              fill: true,
-              borderWidth: 2.5,
-              pointRadius: 4
-            },
-            {
               label: 'Entradas',
-              data: entradas,
+              type: 'bar',
+              data: dados.entradas,
+              backgroundColor: 'rgba(34,197,94,0.65)',
               borderColor: '#22c55e',
-              backgroundColor: 'transparent',
-              tension: 0.35,
-              fill: false,
-              borderDash: [5, 3],
-              pointRadius: 3
+              borderWidth: 1,
+              borderRadius: 3,
+              yAxisID: 'y'
             },
             {
               label: 'Saídas',
-              data: saidas,
+              type: 'bar',
+              data: dados.saidas,
+              backgroundColor: 'rgba(239,68,68,0.65)',
               borderColor: '#ef4444',
-              backgroundColor: 'transparent',
+              borderWidth: 1,
+              borderRadius: 3,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Saldo Acumulado',
+              type: 'line',
+              data: saldoAcumulado,
+              borderColor: '#6366f1',
+              backgroundColor: 'rgba(99,102,241,0.10)',
               tension: 0.35,
-              fill: false,
-              borderDash: [5, 3],
-              pointRadius: 3
+              fill: true,
+              borderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              yAxisID: 'y'
             }
           ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: {
               position: 'bottom',
@@ -208,8 +217,100 @@
             }
           },
           scales: {
-            x: { grid: { display: false } },
-            y: { ticks: { callback: v => formatarReal(v) } }
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10 }, maxRotation: 0 },
+              title: {
+                display: true,
+                text: 'Dia do mês',
+                font: { size: 11 },
+                color: '#888'
+              }
+            },
+            y: {
+              ticks: { callback: v => formatarReal(v), font: { size: 10 } },
+              grid: { color: 'rgba(128,128,128,0.1)' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderContasReceberChart(dados) {
+      const canvas = document.getElementById('contas-receber-chart');
+      if (!canvas) return;
+      if (window.crChart) window.crChart.destroy();
+
+      const labels = dados.map(r => {
+        const d = new Date(r.data_vencimento);
+        const dd = String(d.getUTCDate()).padStart(2, '0');
+        const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const cliente = r.cliente.length > 16 ? r.cliente.slice(0, 16) + '…' : r.cliente;
+        return `${cliente} (${dd}/${mm})`;
+      });
+
+      const valores  = dados.map(r => parseFloat(r.valor));
+      const cores    = dados.map(r =>
+        r.status_real === 'Vencido'  ? 'rgba(239,68,68,0.80)'  :
+        r.status_real === 'Pago'     ? 'rgba(34,197,94,0.75)'  :
+                                       'rgba(99,102,241,0.75)'
+      );
+      const bordas   = dados.map(r =>
+        r.status_real === 'Vencido'  ? '#ef4444' :
+        r.status_real === 'Pago'     ? '#22c55e' : '#6366f1'
+      );
+
+      // badges de resumo
+      const badges = document.getElementById('cr-badges');
+      if (badges) {
+        const totVencido  = dados.filter(r => r.status_real === 'Vencido').reduce((s, r) => s + parseFloat(r.valor), 0);
+        const totAVencer  = dados.filter(r => r.status_real === 'A Vencer').reduce((s, r) => s + parseFloat(r.valor), 0);
+        const totPago     = dados.filter(r => r.status_real === 'Pago').reduce((s, r) => s + parseFloat(r.valor), 0);
+        badges.innerHTML = [
+          totVencido ? `<span style="background:rgba(239,68,68,0.12);color:#ef4444;padding:2px 8px;border-radius:20px;font-weight:600;">Vencido ${formatarReal(totVencido)}</span>` : '',
+          totAVencer ? `<span style="background:rgba(99,102,241,0.12);color:#6366f1;padding:2px 8px;border-radius:20px;font-weight:600;">A Vencer ${formatarReal(totAVencer)}</span>` : '',
+          totPago    ? `<span style="background:rgba(34,197,94,0.12);color:#22c55e;padding:2px 8px;border-radius:20px;font-weight:600;">Pago ${formatarReal(totPago)}</span>` : ''
+        ].join('');
+      }
+
+      window.crChart = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Valor a Receber',
+            data: valores,
+            backgroundColor: cores,
+            borderColor: bordas,
+            borderWidth: 1.5,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => dados[items[0].dataIndex].cliente,
+                label: (item) => [
+                  `Valor: ${formatarReal(item.parsed.y)}`,
+                  `Venc.: ${new Date(dados[item.dataIndex].data_vencimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}`,
+                  `Status: ${dados[item.dataIndex].status_real}`
+                ]
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10 }, maxRotation: 30 }
+            },
+            y: {
+              ticks: { callback: v => formatarReal(v), font: { size: 10 } },
+              grid: { color: 'rgba(128,128,128,0.1)' }
+            }
           }
         }
       });
@@ -265,21 +366,29 @@
 
     async function carregarDadosDashboard() {
       try {
-        console.log("Buscando indicadores do dashboard...");
         const stats = await buscarDashboard();
-
         document.getElementById('vendas-total').textContent = formatarReal(stats.total_vendas);
         document.getElementById('pagar-total').textContent = formatarReal(stats.total_contas_pagar_valor);
         document.getElementById('saldo-caixa').textContent = formatarReal(stats.saldo_caixa);
-
-        renderFluxoCaixaChart(stats);
         renderDashboardChart(stats);
       } catch (error) {
         console.error("Erro ao carregar dashboard:", error);
-        const chartContainer = document.getElementById('dashboard-chart');
-        if (chartContainer) {
-          chartContainer.parentElement.innerHTML = '<div style="padding:24px; color:var(--text-muted);">Não foi possível carregar o gráfico do dashboard.</div>';
-        }
+      }
+
+      try {
+        const movDiarias = await buscarMovimentacoesDiarias();
+        renderMovimentacoesDiariasChart(movDiarias);
+      } catch (error) {
+        console.error("Erro ao carregar fluxo de caixa diário:", error);
+        const card = document.getElementById('mov-diarias-chart');
+        if (card) card.parentElement.innerHTML = '<div style="padding:16px; color:var(--text-muted); font-size:12px;">Sem dados para o mês atual.</div>';
+      }
+
+      try {
+        const contasReceber = await buscarContasReceber();
+        renderContasReceberChart(contasReceber);
+      } catch (error) {
+        console.error("Erro ao carregar contas a receber:", error);
       }
     }
 
