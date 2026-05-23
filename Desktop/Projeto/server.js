@@ -1057,6 +1057,146 @@ app.get('/api/contas-receber', async (req, res) => {
     }
 });
 
+// ── ROTAS: FUNCIONÁRIOS ───────────────────────────────────────────
+app.get('/api/funcionarios', async (req, res) => {
+    const promiseDb = db.promise();
+    try {
+        const [rows] = await promiseDb.query(`
+            SELECT
+                f.id, f.nome_completo, f.cpf, f.data_nascimento, f.sexo,
+                f.data_admissao, f.salario, f.status,
+                c.nome  AS cargo,
+                d.nome  AS departamento,
+                s.nome  AS setor,
+                ct.telefone, ct.email,
+                ct.contato_emergencia, ct.telefone_emergencia,
+                e.logradouro, e.numero, e.bairro, e.cep, e.cidade, e.estado
+            FROM funcionario f
+            LEFT JOIN cargo       c  ON f.cargo_id        = c.id
+            LEFT JOIN departamento d  ON f.departamento_id = d.id
+            LEFT JOIN setor        s  ON f.setor_id        = s.id
+            LEFT JOIN contato      ct ON f.contato_id      = ct.id
+            LEFT JOIN enderecos    e  ON f.enderecos_id    = e.id_endereco
+            ORDER BY f.nome_completo ASC
+        `);
+        res.json(rows);
+    } catch (error) {
+        console.error('Erro ao buscar funcionários:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/funcionarios', async (req, res) => {
+    const promiseDb = db.promise();
+    const {
+        nome_completo, cpf, data_nascimento, sexo,
+        data_admissao, salario, status,
+        cargo_id, departamento_id, setor_id,
+        telefone, email, contato_emergencia, telefone_emergencia,
+        logradouro, numero, bairro, cep, cidade, estado
+    } = req.body;
+
+    try {
+        const [rContato] = await promiseDb.query(
+            `INSERT INTO contato (telefone, email, contato_emergencia, telefone_emergencia)
+             VALUES (?, ?, ?, ?)`,
+            [telefone || null, email || null, contato_emergencia || null, telefone_emergencia || null]
+        );
+        const contato_id = rContato.insertId;
+
+        const [rEnd] = await promiseDb.query(
+            `INSERT INTO enderecos (logradouro, numero, bairro, cep, cidade, estado)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [logradouro || '', numero || '', bairro || '', cep || '', cidade || '', estado || '']
+        );
+        const enderecos_id = rEnd.insertId;
+
+        const [rFunc] = await promiseDb.query(
+            `INSERT INTO funcionario
+             (nome_completo, cpf, data_nascimento, sexo, data_admissao, salario, status,
+              cargo_id, departamento_id, setor_id, contato_id, enderecos_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                nome_completo, cpf, data_nascimento || null, sexo || null,
+                data_admissao || null, salario || null, status || 'Ativo',
+                cargo_id || null, departamento_id || null, setor_id || null,
+                contato_id, enderecos_id
+            ]
+        );
+        res.status(201).json({ id: rFunc.insertId, message: 'Funcionário cadastrado com sucesso!' });
+    } catch (error) {
+        console.error('Erro ao cadastrar funcionário:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/cargos', (req, res) => {
+    db.query('SELECT * FROM cargo ORDER BY nome ASC', (err, r) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(r);
+    });
+});
+
+app.get('/api/departamentos', (req, res) => {
+    db.query('SELECT * FROM departamento ORDER BY nome ASC', (err, r) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(r);
+    });
+});
+
+app.get('/api/setores', (req, res) => {
+    db.query('SELECT * FROM setor ORDER BY nome ASC', (err, r) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(r);
+    });
+});
+
+// ── ROTA: FLUXO DE CAIXA ─────────────────────────────────────────
+app.get('/api/fluxo-caixa', async (req, res) => {
+    const promiseDb = db.promise();
+    try {
+        const [rows] = await promiseDb.query(`
+            SELECT
+                l.id,
+                l.data_lancamento          AS data,
+                COALESCE(l.historico, '')  AS descricao,
+                CASE
+                    WHEN pc_d.codigo_conta LIKE '1.1%' AND pc_c.codigo_conta NOT LIKE '1.1%'
+                        THEN COALESCE(pc_c.nome_conta, 'Sem conta')
+                    WHEN pc_c.codigo_conta LIKE '1.1%' AND pc_d.codigo_conta NOT LIKE '1.1%'
+                        THEN COALESCE(pc_d.nome_conta, 'Sem conta')
+                    ELSE CONCAT(COALESCE(pc_d.nome_conta,'?'), ' → ', COALESCE(pc_c.nome_conta,'?'))
+                END AS tipo,
+                CASE WHEN pc_d.codigo_conta LIKE '1.1%' THEN l.valor ELSE 0 END AS entrada,
+                CASE WHEN pc_c.codigo_conta LIKE '1.1%' THEN l.valor ELSE 0 END AS saida
+            FROM lancamentos l
+            LEFT JOIN plano_contas pc_d ON l.id_conta_debito  = pc_d.id
+            LEFT JOIN plano_contas pc_c ON l.id_conta_credito = pc_c.id
+            WHERE pc_d.codigo_conta LIKE '1.1%' OR pc_c.codigo_conta LIKE '1.1%'
+            ORDER BY l.data_lancamento ASC, l.id ASC
+        `);
+
+        let saldo = 0;
+        const resultado = rows.map(row => {
+            saldo += parseFloat(row.entrada) - parseFloat(row.saida);
+            return {
+                id:        row.id,
+                data:      row.data,
+                descricao: row.descricao,
+                tipo:      row.tipo,
+                entrada:   parseFloat(row.entrada),
+                saida:     parseFloat(row.saida),
+                saldo
+            };
+        });
+
+        res.json(resultado);
+    } catch (err) {
+        console.error('Erro ao carregar fluxo de caixa:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ── START DO SERVIDOR ─────────────────────────────────────────────
 // IMPORTANTE: o app.listen sempre deve ser o ÚLTIMO item do arquivo
 app.listen(3000, () => {

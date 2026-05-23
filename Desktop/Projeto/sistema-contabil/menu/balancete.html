@@ -97,6 +97,7 @@
 <body class="h-full">
 <div style="display:flex; height:100vh; width:100%; overflow:hidden;">
 
+  <!-- SIDEBAR -->
   <aside style="width:230px; min-width:230px; background:#0E204E; display:flex; flex-direction:column; overflow-y:auto;">
     <div style="padding:20px 18px 12px; border-bottom:1px solid rgba(255,255,255,0.1);">
       <img src="../img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width:100%;">
@@ -105,27 +106,44 @@
       <a href="../prototipo.html" class="sidebar-item">
         <i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard
       </a>
+
       <div class="sidebar-group-label">Cadastro</div>
       <div class="submenu">
         <a href="clientes.html" class="sidebar-item"><i data-lucide="user" style="width:14px;height:14px;"></i> Clientes</a>
+        <a href="consulta.html" class="sidebar-item"><i data-lucide="search" style="width:14px;height:14px;"></i> Consulta</a>
         <a href="fornecedores.html" class="sidebar-item"><i data-lucide="truck" style="width:14px;height:14px;"></i> Fornecedores</a>
-        <a href="enderecos.html" class="sidebar-item"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> Endereços</a>
+        <a href="funcionarios.html" class="sidebar-item"><i data-lucide="user-check" style="width:14px;height:14px;"></i> Funcionários</a>
+        <a href="../produtos.html" class="sidebar-item"><i data-lucide="package" style="width:14px;height:14px;"></i> Produtos/Serviços</a>
         <a href="plano-contas.html" class="sidebar-item"><i data-lucide="list" style="width:14px;height:14px;"></i> Plano de Contas</a>
       </div>
+
       <div class="sidebar-group-label">Financeiro</div>
       <div class="submenu">
         <a href="contas-pagar.html" class="sidebar-item"><i data-lucide="arrow-up-circle" style="width:14px;height:14px;"></i> Contas a Pagar</a>
         <a href="contas-receber.html" class="sidebar-item"><i data-lucide="arrow-down-circle" style="width:14px;height:14px;"></i> Contas a Receber</a>
+        <a href="../fluxo-caixa.html" class="sidebar-item"><i data-lucide="trending-up" style="width:14px;height:14px;"></i> Fluxo de Caixa</a>
+        <a href="../conciliacao.html" class="sidebar-item"><i data-lucide="git-compare" style="width:14px;height:14px;"></i> Conciliação</a>
       </div>
+
       <div class="sidebar-group-label">Contabilidade</div>
       <div class="submenu">
         <a href="lancamentos.html" class="sidebar-item"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> Lançamentos</a>
-        <a href="livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
-        <a href="livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
         <a href="balancete.html" class="sidebar-item active"><i data-lucide="table-2" style="width:14px;height:14px;"></i> Balancete</a>
         <a href="balanco-patrimonial.html" class="sidebar-item"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Balanço Patrimonial</a>
-        <a href="dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> Apuração de Resultado do Exercício</a>
+        <a href="dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> DRE</a>
+        <a href="livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
+        <a href="livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
       </div>
+
+      <div class="sidebar-group-label">Recursos Humanos</div>
+      <div class="submenu">
+        <a href="funcionarios.html" class="sidebar-item"><i data-lucide="users" style="width:14px;height:14px;"></i> Funcionários</a>
+        <a href="../folha.html" class="sidebar-item"><i data-lucide="receipt" style="width:14px;height:14px;"></i> Folha de Pagamento</a>
+        <a href="../ponto.html" class="sidebar-item"><i data-lucide="clock" style="width:14px;height:14px;"></i> Relatórios de Ponto</a>
+      </div>
+
+      <div class="sidebar-group-label">Sistema</div>
+      <a href="../config.html" class="sidebar-item"><i data-lucide="settings" style="width:16px;height:16px;"></i> Configurações</a>
     </nav>
   </aside>
 
