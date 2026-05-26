@@ -1197,6 +1197,97 @@ app.get('/api/fluxo-caixa', async (req, res) => {
     }
 });
 
+// ── ROTAS: USUÁRIOS DO SISTEMA ────────────────────────────────────
+const crypto = require('crypto');
+
+function hashSenha(senha) {
+    return crypto.createHash('sha256').update(senha).digest('hex');
+}
+
+function criarTabelaUsuarios(cb) {
+    db.query(`
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id           INT AUTO_INCREMENT PRIMARY KEY,
+            nome         VARCHAR(150) NOT NULL,
+            login        VARCHAR(80)  NOT NULL UNIQUE,
+            email        VARCHAR(150) NULL,
+            senha_hash   VARCHAR(64)  NOT NULL,
+            nivel_acesso ENUM('administrador','gerente','supervisor','usuario') NOT NULL DEFAULT 'usuario',
+            status       ENUM('ativo','inativo') NOT NULL DEFAULT 'ativo',
+            created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `, (err) => { if (cb) cb(err); });
+}
+
+app.get('/api/usuarios', (req, res) => {
+    criarTabelaUsuarios(() => {
+        db.query(
+            'SELECT id, nome, login, email, nivel_acesso, status, created_at FROM usuarios ORDER BY nome ASC',
+            (err, results) => {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json(results);
+            }
+        );
+    });
+});
+
+app.post('/api/usuarios', (req, res) => {
+    const { nome, login, email, senha, nivel_acesso, status } = req.body;
+    if (!nome || !login || !senha || !nivel_acesso)
+        return res.status(400).json({ error: 'Campos obrigatórios: nome, login, senha, nivel_acesso.' });
+
+    criarTabelaUsuarios(() => {
+        db.query(
+            `INSERT INTO usuarios (nome, login, email, senha_hash, nivel_acesso, status)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [nome, login, email || null, hashSenha(senha), nivel_acesso, status || 'ativo'],
+            (err, result) => {
+                if (err) {
+                    if (err.code === 'ER_DUP_ENTRY')
+                        return res.status(409).json({ error: 'Já existe um usuário com este login.' });
+                    return res.status(500).json({ error: err.message });
+                }
+                res.status(201).json({ message: 'Usuário cadastrado com sucesso!', id: result.insertId });
+            }
+        );
+    });
+});
+
+app.put('/api/usuarios/:id', (req, res) => {
+    const { nome, login, email, senha, nivel_acesso, status } = req.body;
+    if (!nome || !login || !nivel_acesso)
+        return res.status(400).json({ error: 'Campos obrigatórios: nome, login, nivel_acesso.' });
+
+    const atualizar = (senhaHash) => {
+        const campos = senhaHash
+            ? 'nome=?, login=?, email=?, senha_hash=?, nivel_acesso=?, status=?'
+            : 'nome=?, login=?, email=?, nivel_acesso=?, status=?';
+        const valores = senhaHash
+            ? [nome, login, email || null, senhaHash, nivel_acesso, status || 'ativo', req.params.id]
+            : [nome, login, email || null, nivel_acesso, status || 'ativo', req.params.id];
+
+        db.query(`UPDATE usuarios SET ${campos} WHERE id = ?`, valores, (err, result) => {
+            if (err) {
+                if (err.code === 'ER_DUP_ENTRY')
+                    return res.status(409).json({ error: 'Já existe um usuário com este login.' });
+                return res.status(500).json({ error: err.message });
+            }
+            if (result.affectedRows === 0) return res.status(404).json({ error: 'Usuário não encontrado.' });
+            res.json({ message: 'Usuário atualizado com sucesso!' });
+        });
+    };
+
+    atualizar(senha ? hashSenha(senha) : null);
+});
+
+app.delete('/api/usuarios/:id', (req, res) => {
+    db.query('DELETE FROM usuarios WHERE id = ?', [req.params.id], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Usuário não encontrado.' });
+        res.json({ message: 'Usuário excluído com sucesso!' });
+    });
+});
+
 // ── START DO SERVIDOR ─────────────────────────────────────────────
 // IMPORTANTE: o app.listen sempre deve ser o ÚLTIMO item do arquivo
 app.listen(3000, () => {
