@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações - CMRT</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { box-sizing: border-box; margin: 0; background: var(--bg); color: var(--text); }
+    .sidebar-item { cursor: pointer; text-decoration: none; color: #FFFFFF; display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 8px; transition: 0.2s; font-size: 14px; }
+    a.sidebar-item:hover { background: rgba(255,255,255,0.1); }
+    .sidebar-item.active { background: #ffffff; color: #1e293b; font-weight: 600; border-left: 3px solid #4f8ef7; padding-left: 11px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+    .submenu { margin-left: 12px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 8px; }
+    .sidebar-group-label { font-size: 11px; text-transform: uppercase; color: #B0B8C1; margin: 20px 10px 8px; letter-spacing: 0.05em; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .form-section { border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 18px; }
+    .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; color: #4f8ef7; letter-spacing: .06em; margin: 0 0 14px; display: flex; align-items: center; gap: 6px; }
+    .form-grid { display: grid; gap: 12px; margin-bottom: 0; }
+    .form-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .form-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+    .form-group input, .form-group select {
+      padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--surface); color: var(--text); font-size: 13px; outline: none;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: #4f8ef7; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+    .btn-salvar { background: #4f8ef7; color: #fff; border: none; padding: 10px 28px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .btn-salvar:hover { background: #3a7de0; }
+    .btn-limpar { background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .btn-novo { background: #4f8ef7; color: #fff; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .btn-novo:hover { background: #3a7de0; }
+
+    /* Badges de nível de acesso */
+    .badge-administrador { background: rgba(99,102,241,.15); color: #6366f1; padding: 2px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+    .badge-gerente       { background: rgba(14,165,233,.15); color: #0ea5e9; padding: 2px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+    .badge-supervisor    { background: rgba(34,197,94,.15);  color: #22c55e; padding: 2px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+    .badge-usuario       { background: rgba(100,116,139,.15);color: #64748b; padding: 2px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+
+    /* Badges de status */
+    .badge-ativo   { background: rgba(34,197,94,.13);  color: #22c55e; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .badge-inativo { background: rgba(239,68,68,.13);  color: #ef4444; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+
+    /* Tabela */
+    #tabelaUsuarios th, #tabelaUsuarios td { font-size: 11px; }
+    .btn-acao { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 3px 9px; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-editar  { color: #4f8ef7; }
+    .btn-editar:hover  { background: rgba(79,142,247,.08); }
+    .btn-excluir { color: #ef4444; }
+    .btn-excluir:hover { background: rgba(239,68,68,.08); }
+
+    /* Aviso senha */
+    .info-box { background: rgba(79,142,247,.08); border: 1px solid rgba(79,142,247,.25); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #4f8ef7; display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+  </style>
+</head>
+
+<body class="h-full">
+<div style="display:flex; height:100vh; width:100%; overflow:hidden;">
+
+  <!-- SIDEBAR -->
+  <aside style="width:230px; min-width:230px; background:#0E204E; display:flex; flex-direction:column; overflow-y:auto;">
+    <div style="padding:20px 18px 12px; border-bottom:1px solid rgba(255,255,255,0.1);">
+      <img src="img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width:100%;">
+    </div>
+    <nav style="flex:1; padding:10px 8px;">
+      <a href="prototipo.html" class="sidebar-item">
+        <i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard
+      </a>
+
+      <div class="sidebar-group-label">Cadastro</div>
+      <div class="submenu">
+        <a href="menu/clientes.html" class="sidebar-item"><i data-lucide="user" style="width:14px;height:14px;"></i> Clientes</a>
+        <a href="menu/consulta.html" class="sidebar-item"><i data-lucide="search" style="width:14px;height:14px;"></i> Consulta</a>
+        <a href="menu/fornecedores.html" class="sidebar-item"><i data-lucide="truck" style="width:14px;height:14px;"></i> Fornecedores</a>
+        <a href="menu/funcionarios.html" class="sidebar-item"><i data-lucide="user-check" style="width:14px;height:14px;"></i> Funcionários</a>
+        <a href="menu/plano-contas.html" class="sidebar-item"><i data-lucide="list" style="width:14px;height:14px;"></i> Plano de Contas</a>
+      </div>
+
+      <div class="sidebar-group-label">Financeiro</div>
+      <div class="submenu">
+        <a href="menu/contas-pagar.html" class="sidebar-item"><i data-lucide="arrow-up-circle" style="width:14px;height:14px;"></i> Contas a Pagar</a>
+        <a href="menu/contas-receber.html" class="sidebar-item"><i data-lucide="arrow-down-circle" style="width:14px;height:14px;"></i> Contas a Receber</a>
+        <a href="fluxo-caixa.html" class="sidebar-item"><i data-lucide="trending-up" style="width:14px;height:14px;"></i> Fluxo de Caixa</a>
+      </div>
+
+      <div class="sidebar-group-label">Contabilidade</div>
+      <div class="submenu">
+        <a href="menu/lancamentos.html" class="sidebar-item"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> Lançamentos</a>
+        <a href="menu/balancete.html" class="sidebar-item"><i data-lucide="table-2" style="width:14px;height:14px;"></i> Balancete</a>
+        <a href="menu/balanco-patrimonial.html" class="sidebar-item"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Balanço Patrimonial</a>
+        <a href="menu/dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> DRE</a>
+        <a href="menu/livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
+        <a href="menu/livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
+      </div>
+
+      <div class="sidebar-group-label">Sistema</div>
+      <a href="config.html" class="sidebar-item active"><i data-lucide="settings" style="width:16px;height:16px;"></i> Configurações</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main style="flex:1; display:flex; flex-direction:column; min-width:0; overflow:hidden;">
+
+    <header style="padding:14px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface); flex-shrink:0;">
+      <div>
+        <div style="font-size:18px; font-weight:700;">Configurações</div>
+        <div style="font-size:12px; color:var(--text-muted);">Gerenciamento de usuários do sistema</div>
+      </div>
+      <div id="resumo-header" style="display:flex; gap:16px; font-size:12px; color:var(--text-muted);"></div>
+      <button class="btn-novo" id="btn-novo-usuario" onclick="abrirCadastro()">
+        <i data-lucide="user-plus" style="width:15px;height:15px;"></i> Novo Usuário
+      </button>
+    </header>
+
+    <div style="flex:1; overflow-y:auto; padding:16px 10px;">
+
+      <!-- TAB: LISTA -->
+      <div id="tab-lista" class="tab-panel active">
+        <div class="stat-card" style="padding:0; overflow-x:auto;">
+          <table class="tabela-contabil" id="tabelaUsuarios">
+            <thead>
+              <tr>
+                <th style="padding:10px 12px;">Nome</th>
+                <th style="padding:10px 12px;">Login</th>
+                <th style="padding:10px 12px;">E-mail</th>
+                <th style="padding:10px 12px;">Nível de Acesso</th>
+                <th style="padding:10px 12px;">Status</th>
+                <th style="padding:10px 12px;">Cadastrado em</th>
+                <th style="padding:10px 12px; text-align:center;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabela">
+              <tr><td colspan="7" style="text-align:center;padding:28px;color:var(--text-muted);">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: CADASTRO / EDIÇÃO -->
+      <div id="tab-cadastro" class="tab-panel">
+        <form id="formUsuario" style="max-width:760px;">
+
+          <div id="info-edicao" class="info-box" style="display:none;">
+            <i data-lucide="pencil" style="width:14px;height:14px; flex-shrink:0;"></i>
+            <span>Modo edição — preencha a senha apenas se quiser alterá-la.</span>
+          </div>
+
+          <!-- Dados do Usuário -->
+          <div class="form-section">
+            <div class="section-title"><i data-lucide="user" style="width:14px;height:14px;"></i> Identificação</div>
+            <div class="form-grid cols-2" style="margin-bottom:12px;">
+              <div class="form-group" style="grid-column:1/-1;">
+                <label>Nome Completo *</label>
+                <select name="nome" id="campo-nome" required>
+                  <option value="">— Selecione o funcionário —</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-grid cols-2">
+              <div class="form-group">
+                <label>Login (usuário) *</label>
+                <input type="text" name="login" id="campo-login" placeholder="Ex: maria.silva" required autocomplete="off">
+              </div>
+              <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" name="email" id="campo-email" placeholder="usuario@empresa.com">
+              </div>
+            </div>
+          </div>
+
+          <!-- Acesso -->
+          <div class="form-section">
+            <div class="section-title"><i data-lucide="shield" style="width:14px;height:14px;"></i> Acesso</div>
+            <div class="form-grid cols-3">
+              <div class="form-group">
+                <label>Nível de Acesso *</label>
+                <select name="nivel_acesso" id="campo-nivel" required>
+                  <option value="">— Selecione —</option>
+                  <option value="administrador">Administrador</option>
+                  <option value="gerente">Gerente</option>
+                  <option value="supervisor">Supervisor</option>
+                  <option value="usuario">Usuário</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Status</label>
+                <select name="status" id="campo-status">
+                  <option value="ativo">Ativo</option>
+                  <option value="inativo">Inativo</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Senha -->
+          <div class="form-section">
+            <div class="section-title"><i data-lucide="lock" style="width:14px;height:14px;"></i> Senha</div>
+            <div class="form-grid cols-2">
+              <div class="form-group">
+                <label id="label-senha">Senha *</label>
+                <input type="password" name="senha" id="campo-senha" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+              </div>
+              <div class="form-group">
+                <label>Confirmar Senha</label>
+                <input type="password" id="campo-confirmar" placeholder="Repita a senha">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-limpar" onclick="fecharCadastro()">
+              <i data-lucide="arrow-left" style="width:13px;height:13px;"></i> Voltar
+            </button>
+            <button type="button" class="btn-limpar" onclick="limparForm()">
+              <i data-lucide="rotate-ccw" style="width:13px;height:13px;"></i> Limpar
+            </button>
+            <button type="submit" class="btn-salvar" id="btn-submit">
+              <i data-lucide="save" style="width:13px;height:13px;"></i> Salvar Usuário
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  lucide.createIcons();
+
+  const API = 'http://localhost:3000';
+  let modoEdicao = false;
+  let idEdicao = null;
+
+  // ── Navegação entre abas ──────────────────────────────────────────
+  function abrirCadastro(usuario = null) {
+    modoEdicao = !!usuario;
+    idEdicao = usuario ? usuario.id : null;
+
+    document.getElementById('tab-lista').classList.remove('active');
+    document.getElementById('tab-cadastro').classList.add('active');
+    document.getElementById('btn-novo-usuario').style.display = 'none';
+
+    const infoEdicao = document.getElementById('info-edicao');
+    const labelSenha = document.getElementById('label-senha');
+    const btnSubmit  = document.getElementById('btn-submit');
+
+    if (modoEdicao) {
+      infoEdicao.style.display = 'flex';
+      labelSenha.textContent = 'Senha (deixe em branco para manter)';
+      btnSubmit.innerHTML = '<i data-lucide="save" style="width:13px;height:13px;"></i> Atualizar Usuário';
+      preencherForm(usuario);
+    } else {
+      infoEdicao.style.display = 'none';
+      labelSenha.textContent = 'Senha *';
+      btnSubmit.innerHTML = '<i data-lucide="save" style="width:13px;height:13px;"></i> Salvar Usuário';
+      limparForm();
+    }
+
+    lucide.createIcons();
+  }
+
+  function fecharCadastro() {
+    document.getElementById('tab-cadastro').classList.remove('active');
+    document.getElementById('tab-lista').classList.add('active');
+    document.getElementById('btn-novo-usuario').style.display = 'flex';
+    modoEdicao = false;
+    idEdicao = null;
+    limparForm();
+    lucide.createIcons();
+  }
+
+  function preencherForm(u) {
+    const selNome = document.getElementById('campo-nome');
+    // Se o nome já existe no select, seleciona; caso contrário, adiciona temporariamente
+    if (![...selNome.options].some(o => o.value === u.nome)) {
+      const opt = document.createElement('option');
+      opt.value = u.nome;
+      opt.textContent = u.nome;
+      selNome.appendChild(opt);
+    }
+    selNome.value = u.nome || '';
+    document.getElementById('campo-login').value  = u.login  || '';
+    document.getElementById('campo-email').value  = u.email  || '';
+    document.getElementById('campo-nivel').value  = u.nivel_acesso || '';
+    document.getElementById('campo-status').value = u.status || 'ativo';
+    document.getElementById('campo-senha').value  = '';
+    document.getElementById('campo-confirmar').value = '';
+  }
+
+  function limparForm() {
+    document.getElementById('formUsuario').reset();
+    document.getElementById('campo-confirmar').value = '';
+  }
+
+  // ── Helpers visuais ───────────────────────────────────────────────
+  function badgeNivel(nivel) {
+    const map = {
+      administrador: 'administrador',
+      gerente:       'gerente',
+      supervisor:    'supervisor',
+      usuario:       'usuario'
+    };
+    const key = (nivel || '').toLowerCase();
+    const label = { administrador:'Administrador', gerente:'Gerente', supervisor:'Supervisor', usuario:'Usuário' };
+    return `<span class="badge-${map[key] || 'usuario'}">${label[key] || nivel}</span>`;
+  }
+
+  function badgeStatus(status) {
+    const key = (status || '').toLowerCase();
+    const label = key === 'ativo' ? 'Ativo' : 'Inativo';
+    return `<span class="badge-${key === 'ativo' ? 'ativo' : 'inativo'}">${label}</span>`;
+  }
+
+  function fmtData(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+  }
+
+  // ── Listar usuários ───────────────────────────────────────────────
+  let _lista = [];
+
+  async function carregarUsuarios() {
+    const tbody = document.getElementById('corpoTabela');
+    try {
+      const res = await fetch(`${API}/api/usuarios`);
+      if (!res.ok) throw new Error();
+      const lista = await res.json();
+      _lista = lista;
+
+      if (lista.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--text-muted);">Nenhum usuário cadastrado.</td></tr>';
+        atualizarResumo(0, 0);
+        return;
+      }
+
+      tbody.innerHTML = lista.map((u, i) => `
+        <tr class="table-row-contabil">
+          <td style="padding:8px 12px; font-weight:600;">${u.nome}</td>
+          <td style="padding:8px 12px; color:var(--text-muted); font-family:monospace;">${u.login}</td>
+          <td style="padding:8px 12px; color:var(--text-muted);">${u.email || '—'}</td>
+          <td style="padding:8px 12px;">${badgeNivel(u.nivel_acesso)}</td>
+          <td style="padding:8px 12px;">${badgeStatus(u.status)}</td>
+          <td style="padding:8px 12px; color:var(--text-muted);">${fmtData(u.created_at)}</td>
+          <td style="padding:8px 12px; text-align:center;">
+            <button class="btn-acao btn-editar" onclick="abrirCadastro(_lista[${i}])">
+              <i data-lucide="pencil" style="width:11px;height:11px;"></i> Editar
+            </button>
+            <button class="btn-acao btn-excluir" onclick="excluirUsuario(${u.id}, '${u.nome.replace(/'/g,"\\'")}')">
+              <i data-lucide="trash-2" style="width:11px;height:11px;"></i> Excluir
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      const ativos = lista.filter(u => (u.status || '').toLowerCase() === 'ativo').length;
+      atualizarResumo(lista.length, ativos);
+      lucide.createIcons();
+    } catch {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--danger);">Erro ao carregar dados.</td></tr>';
+    }
+  }
+
+  function atualizarResumo(total, ativos) {
+    document.getElementById('resumo-header').innerHTML = `
+      <span>${total} usuário${total !== 1 ? 's' : ''}</span>
+      <span style="color:#22c55e; font-weight:600;">${ativos} ativo${ativos !== 1 ? 's' : ''}</span>
+    `;
+  }
+
+  // ── Excluir usuário ───────────────────────────────────────────────
+  async function excluirUsuario(id, nome) {
+    if (!confirm(`Deseja excluir o usuário "${nome}"?`)) return;
+    try {
+      const res = await fetch(`${API}/api/usuarios/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error((await res.json()).error);
+      await carregarUsuarios();
+    } catch (err) {
+      alert('Erro ao excluir: ' + err.message);
+    }
+  }
+
+  // ── Submit do formulário ──────────────────────────────────────────
+  document.getElementById('formUsuario').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nome   = document.getElementById('campo-nome').value.trim();
+    const login  = document.getElementById('campo-login').value.trim();
+    const email  = document.getElementById('campo-email').value.trim();
+    const nivel  = document.getElementById('campo-nivel').value;
+    const status = document.getElementById('campo-status').value;
+    const senha  = document.getElementById('campo-senha').value;
+    const confirmar = document.getElementById('campo-confirmar').value;
+
+    if (!modoEdicao && !senha) {
+      alert('A senha é obrigatória para novos usuários.');
+      return;
+    }
+    if (senha && senha.length < 6) {
+      alert('A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+    if (senha && senha !== confirmar) {
+      alert('As senhas não conferem.');
+      return;
+    }
+
+    const dados = { nome, login, email, nivel_acesso: nivel, status };
+    if (senha) dados.senha = senha;
+
+    try {
+      const url    = modoEdicao ? `${API}/api/usuarios/${idEdicao}` : `${API}/api/usuarios`;
+      const method = modoEdicao ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        alert('Erro: ' + (err.error || 'Erro desconhecido'));
+        return;
+      }
+      alert(modoEdicao ? 'Usuário atualizado com sucesso!' : 'Usuário cadastrado com sucesso!');
+      await carregarUsuarios();
+      fecharCadastro();
+    } catch (err) {
+      alert('Erro ao salvar: ' + err.message);
+    }
+  });
+
+  // ── Carregar funcionários no select ──────────────────────────────
+  async function carregarFuncionariosSelect() {
+    try {
+      const res = await fetch(`${API}/api/funcionarios`);
+      if (!res.ok) throw new Error();
+      const lista = await res.json();
+      const sel = document.getElementById('campo-nome');
+      lista.forEach(f => {
+        const opt = document.createElement('option');
+        opt.value = f.nome_completo;
+        opt.textContent = f.nome_completo;
+        sel.appendChild(opt);
+      });
+    } catch {
+      // Se a API falhar, o select fica apenas com a opção padrão
+    }
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    carregarUsuarios();
+    carregarFuncionariosSelect();
+  });
+</script>
+</body>
+</html>

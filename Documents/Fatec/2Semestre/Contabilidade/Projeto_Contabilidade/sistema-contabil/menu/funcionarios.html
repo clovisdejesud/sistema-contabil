@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Funcionários - CMRT</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { box-sizing: border-box; margin: 0; background: var(--bg); color: var(--text); }
+    .sidebar-item { cursor: pointer; text-decoration: none; color: #FFFFFF; display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 8px; transition: 0.2s; font-size: 14px; }
+    a.sidebar-item:hover { background: rgba(255,255,255,0.1); }
+    .sidebar-item.active { background: #ffffff; color: #1e293b; font-weight: 600; border-left: 3px solid #4f8ef7; padding-left: 11px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+    .submenu { margin-left: 12px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 8px; }
+    .sidebar-group-label { font-size: 11px; text-transform: uppercase; color: #B0B8C1; margin: 20px 10px 8px; letter-spacing: 0.05em; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Tabela */
+    #tabelaFuncionarios th, #tabelaFuncionarios td { font-size: 11px; }
+    #tabelaFuncionarios td:first-child,
+    #tabelaFuncionarios td:nth-child(2) { white-space: nowrap; }
+
+    /* Formulário */
+    .form-section { border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 18px; }
+    .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; color: #4f8ef7; letter-spacing: .06em; margin: 0 0 14px; display: flex; align-items: center; gap: 6px; }
+    .form-grid { display: grid; gap: 12px; margin-bottom: 0; }
+    .form-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .form-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .form-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+    .form-group input, .form-group select {
+      padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--surface); color: var(--text); font-size: 13px; outline: none;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: #4f8ef7; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+    .btn-salvar { background: #4f8ef7; color: #fff; border: none; padding: 10px 28px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .btn-salvar:hover { background: #3a7de0; }
+    .btn-limpar { background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+
+    #btn-novo-func { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+    #btn-novo-func:hover { background: var(--border); opacity: 1; transform: none; }
+
+    /* Badge status */
+    .badge-ativo    { background: rgba(34,197,94,.13); color: #22c55e; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .badge-inativo  { background: rgba(239,68,68,.13);  color: #ef4444; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .badge-ferias   { background: rgba(99,102,241,.13); color: #6366f1; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .badge-afastado { background: rgba(245,166,35,.13); color: #f5a623; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+
+    /* Modal detalhe funcionário */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; display:none; align-items:center; justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal-box { background:var(--surface); border:1px solid var(--border); border-radius:16px; width:680px; max-width:95vw; max-height:90vh; overflow-y:auto; padding:28px 32px; position:relative; }
+    .modal-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:22px; }
+    .modal-title { font-size:17px; font-weight:700; }
+    .modal-subtitle { font-size:12px; color:var(--text-muted); margin-top:2px; }
+    .modal-close { background:none; border:none; cursor:pointer; color:var(--text-muted); padding:4px; border-radius:6px; }
+    .modal-close:hover { color:var(--text); background:var(--border); }
+    .modal-section { margin-bottom:20px; }
+    .modal-section-title { font-size:11px; font-weight:700; text-transform:uppercase; color:#4f8ef7; letter-spacing:.06em; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+    .modal-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px 16px; }
+    .modal-grid.cols-2 { grid-template-columns:repeat(2,1fr); }
+    .modal-field label { font-size:11px; color:var(--text-muted); font-weight:600; display:block; margin-bottom:2px; }
+    .modal-field span { font-size:13px; color:var(--text); }
+    .modal-divider { border:none; border-top:1px solid var(--border); margin:16px 0; }
+    #tabelaFuncionarios tbody tr { cursor:default; }
+  </style>
+</head>
+
+<body class="h-full">
+<div style="display:flex; height:100vh; width:100%; overflow:hidden;">
+
+  <!-- SIDEBAR -->
+  <aside style="width:230px; min-width:230px; background:#0E204E; display:flex; flex-direction:column; overflow-y:auto;">
+    <div style="padding:20px 18px 12px; border-bottom:1px solid rgba(255,255,255,0.1);">
+      <img src="../img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width:100%;">
+    </div>
+    <nav style="flex:1; padding:10px 8px;">
+      <a href="../prototipo.html" class="sidebar-item">
+        <i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard
+      </a>
+
+      <div class="sidebar-group-label">Cadastro</div>
+      <div class="submenu">
+        <a href="clientes.html" class="sidebar-item"><i data-lucide="user" style="width:14px;height:14px;"></i> Clientes</a>
+        <a href="clientes-consulta.html" class="sidebar-item"><i data-lucide="search" style="width:14px;height:14px;"></i> Consulta</a>
+        <a href="fornecedores.html" class="sidebar-item"><i data-lucide="truck" style="width:14px;height:14px;"></i> Fornecedores</a>
+        <a href="funcionarios.html" class="sidebar-item active"><i data-lucide="user-check" style="width:14px;height:14px;"></i> Funcionários</a>
+        <a href="enderecos.html" class="sidebar-item"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> Endereços</a>
+        <a href="plano-contas.html" class="sidebar-item"><i data-lucide="list" style="width:14px;height:14px;"></i> Plano de Contas</a>
+      </div>
+
+      <div class="sidebar-group-label">Financeiro</div>
+      <div class="submenu">
+        <a href="contas-pagar.html" class="sidebar-item"><i data-lucide="arrow-up-circle" style="width:14px;height:14px;"></i> Contas a Pagar</a>
+        <a href="contas-receber.html" class="sidebar-item"><i data-lucide="arrow-down-circle" style="width:14px;height:14px;"></i> Contas a Receber</a>
+        <a href="../fluxo-caixa.html" class="sidebar-item"><i data-lucide="trending-up" style="width:14px;height:14px;"></i> Fluxo de Caixa</a>
+      </div>
+
+      <div class="submenu">
+        <a href="funcionarios.html" class="sidebar-item active"><i data-lucide="users" style="width:14px;height:14px;"></i> Funcionários</a>
+      </div>
+
+      <div class="sidebar-group-label">Contabilidade</div>
+      <div class="submenu">
+        <a href="lancamentos.html" class="sidebar-item"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> Lançamentos</a>
+        <a href="livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
+        <a href="livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
+        <a href="balancete.html" class="sidebar-item"><i data-lucide="table-2" style="width:14px;height:14px;"></i> Balancete</a>
+        <a href="balanco-patrimonial.html" class="sidebar-item"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Balanço Patrimonial</a>
+        <a href="dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> DRE</a>
+      </div>
+
+      <div class="sidebar-group-label">Sistema</div>
+      <a href="../config.html" class="sidebar-item"><i data-lucide="settings" style="width:16px;height:16px;"></i> Configurações</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main style="flex:1; display:flex; flex-direction:column; min-width:0; overflow:hidden;">
+
+    <header style="padding:14px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface); flex-shrink:0;">
+      <div>
+        <div style="font-size:18px; font-weight:700;">Funcionários</div>
+        <div style="font-size:12px; color:var(--text-muted);">Gestão de colaboradores</div>
+      </div>
+      <div id="resumo-header" style="display:flex; gap:16px; font-size:12px; color:var(--text-muted);"></div>
+      <button class="btn-novo" id="btn-novo-func" onclick="abrirCadastro()" style="display:flex; align-items:center; gap:5px;">
+        <i data-lucide="user-plus" style="width:15px;height:15px;"></i> Novo Funcionário
+      </button>
+    </header>
+
+    <div style="flex:1; overflow-y:auto; padding:16px 10px;">
+
+      <!-- TAB: LISTA -->
+      <div id="tab-funcionarios" class="tab-panel active">
+        <div class="stat-card" style="padding:0; overflow-x:auto;">
+          <table class="tabela-contabil" id="tabelaFuncionarios">
+            <thead>
+              <tr>
+                <th style="padding:8px 8px;">Nome</th>
+                <th style="padding:8px 8px;">CPF</th>
+                <th style="padding:8px 8px;">Cargo</th>
+                <th style="padding:8px 8px;">Departamento</th>
+                <th style="padding:8px 8px;">Setor</th>
+                <th style="padding:8px 8px;">Admissão</th>
+                <th style="padding:8px 8px;">Salário</th>
+                <th style="padding:8px 8px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabela">
+              <tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-muted);">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: CADASTRO -->
+      <div id="tab-cadastro" class="tab-panel">
+        <form id="formFuncionario" style="max-width:900px;">
+
+          <!-- Dados Pessoais -->
+          <div class="form-section">
+            <div class="section-title"><i data-lucide="user" style="width:14px;height:14px;"></i> Dados Pessoais</div>
+            <div class="form-grid cols-2" style="margin-bottom:12px;">
+              <div class="form-group" style="grid-column:1/-1;">
+                <label>Nome Completo *</label>
+                <input type="text" name="nome_completo" placeholder="Ex: João da Silva" required>
+              </div>
+            </div>
+            <div class="form-grid cols-3">
+              <div class="form-group">
+                <label>CPF *</label>
+                <input id="cpf-input" type="text" name="cpf" placeholder="000.000.000-00" required>
+                <div id="cpf-resultado" style="min-height:18px; margin-top:6px; font-size:12px; color:#dc2626;"></div>
+              </div>
+              <div class="form-group">
+                <label>Data de Nascimento</label>
+                <input type="date" name="data_nascimento">
+              </div>
+              <div class="form-group">
+                <label>Sexo</label>
+                <select name="sexo">
+                  <option value="">— Selecione —</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Feminino">Feminino</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vínculo Empregatício -->
+          <div class="form-section">
+            <div class="section-title"><i data-lucide="briefcase" style="width:14px;height:14px;"></i> Vínculo Empregatício</div>
+            <div class="form-grid cols-4" style="margin-bottom:12px;">
+              <div class="form-group">
+                <label>Data de Admissão</label>
+                <input type="date" name="data_admissao">
+              </div>
+              <div class="form-group">
+                <label>Salário (R$)</label>
+                <input type="number" step="0.01" min="0" name="salario" placeholder="0,00">
+              </div>
+              <div class="form-group">
+                <label>Status</label>
+                <select name="status">
+                  <option value="Ativo">Ativo</option>
+                  <option value="Inativo">Inativo</option>
+                  <option value="Férias">Férias</option>
+                  <option value="Afastado">Afastado</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-grid cols-3">
+              <div class="form-group">
+                <label>Cargo</label>
+                <select name="cargo_id" id="sel-cargo">
+                  <option value="">— Selecione —</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Departamento</label>
+                <select name="departamento_id" id="sel-departamento">
+                  <option value="">— Selecione —</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Setor</label>
+                <select name="setor_id" id="sel-setor">
+                  <option value="">— Selecione —</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contato -->
+          <div class="form-section">
+            <div class="section-title"><i data-lucide="phone" style="width:14px;height:14px;"></i> Contato</div>
+            <div class="form-grid cols-2" style="margin-bottom:12px;">
+              <div class="form-group">
+                <label>Telefone</label>
+                <input type="text" name="telefone" placeholder="(13) 99999-9999">
+              </div>
+              <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" name="email" placeholder="colaborador@empresa.com">
+              </div>
+            </div>
+            <div class="form-grid cols-2">
+              <div class="form-group">
+                <label>Contato de Emergência</label>
+                <input type="text" name="contato_emergencia" placeholder="Nome do contato">
+              </div>
+              <div class="form-group">
+                <label>Telefone de Emergência</label>
+                <input type="text" name="telefone_emergencia" placeholder="(13) 99999-9999">
+              </div>
+            </div>
+          </div>
+
+          <!-- Endereço -->
+          <div class="form-section">
+            <div class="section-title"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> Endereço</div>
+            <div class="form-grid cols-4" style="margin-bottom:12px;">
+              <div class="form-group" style="grid-column:span 3;">
+                <label>Logradouro</label>
+                <input type="text" name="logradouro" placeholder="Rua, Avenida...">
+              </div>
+              <div class="form-group">
+                <label>Número</label>
+                <input type="text" name="numero" placeholder="Ex: 123">
+              </div>
+            </div>
+            <div class="form-grid cols-4">
+              <div class="form-group">
+                <label>Bairro</label>
+                <input type="text" name="bairro" placeholder="Bairro">
+              </div>
+              <div class="form-group">
+                <label>CEP</label>
+                <input type="text" name="cep" placeholder="00000-000" maxlength="9">
+              </div>
+              <div class="form-group">
+                <label>Cidade</label>
+                <input type="text" name="cidade" placeholder="Cidade">
+              </div>
+              <div class="form-group">
+                <label>Estado (UF)</label>
+                <select name="estado">
+                  <option value="">UF</option>
+                  <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+                  <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+                  <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+                  <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+                  <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+                  <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+                  <option selected>SP</option><option>SE</option><option>TO</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-limpar" onclick="fecharCadastro()">
+              <i data-lucide="arrow-left" style="width:13px;height:13px;"></i> Voltar
+            </button>
+            <button type="button" class="btn-limpar" onclick="limparForm()">
+              <i data-lucide="rotate-ccw" style="width:13px;height:13px;"></i> Limpar
+            </button>
+            <button type="submit" class="btn-salvar">
+              <i data-lucide="save" style="width:13px;height:13px;"></i> Salvar Funcionário
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- MODAL DETALHE FUNCIONÁRIO -->
+<div class="modal-overlay" id="modalDetalhe" onclick="fecharModal(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-nome"></div>
+        <div class="modal-subtitle" id="modal-cargo-dept"></div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('modalDetalhe').classList.remove('open')">
+        <i data-lucide="x" style="width:18px;height:18px;"></i>
+      </button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title"><i data-lucide="user" style="width:13px;height:13px;"></i> Dados Pessoais</div>
+      <div class="modal-grid">
+        <div class="modal-field"><label>CPF</label><span id="md-cpf">—</span></div>
+        <div class="modal-field"><label>Nascimento</label><span id="md-nasc">—</span></div>
+        <div class="modal-field"><label>Sexo</label><span id="md-sexo">—</span></div>
+      </div>
+    </div>
+    <hr class="modal-divider">
+
+    <div class="modal-section">
+      <div class="modal-section-title"><i data-lucide="briefcase" style="width:13px;height:13px;"></i> Vínculo Empregatício</div>
+      <div class="modal-grid">
+        <div class="modal-field"><label>Cargo</label><span id="md-cargo">—</span></div>
+        <div class="modal-field"><label>Departamento</label><span id="md-dept">—</span></div>
+        <div class="modal-field"><label>Setor</label><span id="md-setor">—</span></div>
+        <div class="modal-field"><label>Admissão</label><span id="md-admissao">—</span></div>
+        <div class="modal-field"><label>Salário</label><span id="md-salario">—</span></div>
+        <div class="modal-field"><label>Status</label><span id="md-status">—</span></div>
+      </div>
+    </div>
+    <hr class="modal-divider">
+
+    <div class="modal-section">
+      <div class="modal-section-title"><i data-lucide="phone" style="width:13px;height:13px;"></i> Contato</div>
+      <div class="modal-grid cols-2">
+        <div class="modal-field"><label>Telefone</label><span id="md-tel">—</span></div>
+        <div class="modal-field"><label>E-mail</label><span id="md-email">—</span></div>
+        <div class="modal-field"><label>Contato de Emergência</label><span id="md-emerg">—</span></div>
+        <div class="modal-field"><label>Telefone de Emergência</label><span id="md-tel-emerg">—</span></div>
+      </div>
+    </div>
+    <hr class="modal-divider">
+
+    <div class="modal-section" style="margin-bottom:0;">
+      <div class="modal-section-title"><i data-lucide="map-pin" style="width:13px;height:13px;"></i> Endereço</div>
+      <div class="modal-grid cols-2">
+        <div class="modal-field" style="grid-column:1/-1;"><label>Logradouro</label><span id="md-logradouro">—</span></div>
+        <div class="modal-field"><label>Bairro</label><span id="md-bairro">—</span></div>
+        <div class="modal-field"><label>CEP</label><span id="md-cep">—</span></div>
+        <div class="modal-field"><label>Cidade</label><span id="md-cidade">—</span></div>
+        <div class="modal-field"><label>Estado</label><span id="md-estado">—</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+
+  const API = 'http://localhost:3000';
+
+  // ── Modal detalhe ────────────────────────────────────────────────
+  function abrirDetalhe(f) {
+    const v = (val) => val || '—';
+    document.getElementById('modal-nome').textContent = f.nome_completo;
+    document.getElementById('modal-cargo-dept').textContent =
+      [f.cargo, f.departamento, f.setor].filter(Boolean).join(' · ') || 'Sem vínculo';
+
+    document.getElementById('md-cpf').textContent       = v(f.cpf);
+    document.getElementById('md-nasc').textContent      = fmtData(f.data_nascimento);
+    document.getElementById('md-sexo').textContent      = v(f.sexo);
+
+    document.getElementById('md-cargo').textContent     = v(f.cargo);
+    document.getElementById('md-dept').textContent      = v(f.departamento);
+    document.getElementById('md-setor').textContent     = v(f.setor);
+    document.getElementById('md-admissao').textContent  = fmtData(f.data_admissao);
+    document.getElementById('md-salario').textContent   = fmtSalario(f.salario);
+    document.getElementById('md-status').innerHTML      = badgeStatus(f.status);
+
+    document.getElementById('md-tel').textContent       = v(f.telefone);
+    document.getElementById('md-email').textContent     = v(f.email);
+    document.getElementById('md-emerg').textContent     = v(f.contato_emergencia);
+    document.getElementById('md-tel-emerg').textContent = v(f.telefone_emergencia);
+
+    const end = [f.logradouro, f.numero ? 'nº ' + f.numero : ''].filter(Boolean).join(', ');
+    document.getElementById('md-logradouro').textContent = end || '—';
+    document.getElementById('md-bairro').textContent    = v(f.bairro);
+    document.getElementById('md-cep').textContent       = v(f.cep);
+    document.getElementById('md-cidade').textContent    = v(f.cidade);
+    document.getElementById('md-estado').textContent    = v(f.estado);
+
+    document.getElementById('modalDetalhe').classList.add('open');
+    lucide.createIcons();
+  }
+
+  function fecharModal(event) {
+    if (event.target === document.getElementById('modalDetalhe'))
+      document.getElementById('modalDetalhe').classList.remove('open');
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.getElementById('modalDetalhe').classList.remove('open');
+  });
+
+  function abrirCadastro() {
+    document.getElementById('tab-funcionarios').classList.remove('active');
+    document.getElementById('tab-cadastro').classList.add('active');
+    document.getElementById('btn-novo-func').style.display = 'none';
+    lucide.createIcons();
+  }
+
+  function fecharCadastro() {
+    document.getElementById('tab-cadastro').classList.remove('active');
+    document.getElementById('tab-funcionarios').classList.add('active');
+    document.getElementById('btn-novo-func').style.display = 'flex';
+    lucide.createIcons();
+  }
+
+  // ── Utilitários ──────────────────────────────────────────────────
+  function fmtData(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+  }
+  function fmtSalario(v) {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
+  }
+  function badgeStatus(s) {
+    const map = { 'ativo': 'ativo', 'inativo': 'inativo', 'férias': 'ferias', 'ferias': 'ferias', 'afastado': 'afastado' };
+    const key = (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    return `<span class="badge-${map[key] || 'ativo'}">${s || 'Ativo'}</span>`;
+  }
+
+  // ── Lista de funcionários ─────────────────────────────────────────
+  let _listaFuncionarios = [];
+
+  async function carregarFuncionarios() {
+    const tbody = document.getElementById('corpoTabela');
+    try {
+      const res = await fetch(`${API}/api/funcionarios`);
+      if (!res.ok) throw new Error();
+      const lista = await res.json();
+      _listaFuncionarios = lista;
+
+      if (lista.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-muted);">Nenhum funcionário cadastrado.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = lista.map((f, i) => `
+        <tr class="table-row-contabil" data-idx="${i}" ondblclick="abrirDetalhe(_listaFuncionarios[${i}])" title="Duplo clique para ver detalhes">
+          <td style="padding:6px 8px; font-weight:600;">${f.nome_completo}</td>
+          <td style="padding:6px 8px; color:var(--text-muted);">${f.cpf}</td>
+          <td style="padding:6px 8px;">${f.cargo || '—'}</td>
+          <td style="padding:6px 8px;">${f.departamento || '—'}</td>
+          <td style="padding:6px 8px;">${f.setor || '—'}</td>
+          <td style="padding:6px 8px; white-space:nowrap;">${fmtData(f.data_admissao)}</td>
+          <td style="padding:6px 8px; text-align:right; font-weight:600;">${fmtSalario(f.salario)}</td>
+          <td style="padding:6px 8px;">${badgeStatus(f.status)}</td>
+        </tr>
+      `).join('');
+
+      const total = lista.length;
+      const ativos = lista.filter(f => (f.status || '').toLowerCase() === 'ativo').length;
+      document.getElementById('resumo-header').innerHTML = `
+        <span>${total} funcionário${total !== 1 ? 's' : ''}</span>
+        <span style="color:#22c55e; font-weight:600;">${ativos} ativo${ativos !== 1 ? 's' : ''}</span>
+      `;
+    } catch {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--danger);">Erro ao carregar dados.</td></tr>';
+    }
+  }
+
+  // ── Selects de cargo / departamento / setor ────────────────────────
+  async function carregarSelects() {
+    const [cargos, departamentos, setores] = await Promise.all([
+      fetch(`${API}/api/cargos`).then(r => r.json()),
+      fetch(`${API}/api/departamentos`).then(r => r.json()),
+      fetch(`${API}/api/setores`).then(r => r.json())
+    ]);
+    const preencher = (id, lista) => {
+      const sel = document.getElementById(id);
+      lista.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.id;
+        opt.textContent = item.nome;
+        sel.appendChild(opt);
+      });
+    };
+    preencher('sel-cargo', cargos);
+    preencher('sel-departamento', departamentos);
+    preencher('sel-setor', setores);
+  }
+
+  // ── Submit do formulário ──────────────────────────────────────────
+  document.getElementById('formFuncionario').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!validarCPF()) {
+      return;
+    }
+    const dados = Object.fromEntries(new FormData(e.target));
+
+    try {
+      const res = await fetch(`${API}/api/funcionarios`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        alert('Erro: ' + (err.error || 'Erro desconhecido'));
+        return;
+      }
+      alert('Funcionário cadastrado com sucesso!');
+      e.target.reset();
+      await carregarFuncionarios();
+      fecharCadastro();
+    } catch (err) {
+      alert('Erro ao salvar: ' + err.message);
+    }
+  });
+
+  function limparForm() {
+    document.getElementById('formFuncionario').reset();
+  }
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    await carregarFuncionarios();
+    await carregarSelects();
+  });
+</script>
+<script src="../javascript/cpf.js"></script>
+</body>
+</html>

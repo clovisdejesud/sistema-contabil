@@ -1,0 +1,395 @@
+﻿<!doctype html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Contabilidade - CMRT</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { box-sizing: border-box; margin: 0; background: var(--bg); color: var(--text); }
+    .sidebar-item { cursor: pointer; text-decoration: none; color: #FFFFFF; display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 8px; transition: 0.2s; font-size: 14px; }
+    a.sidebar-item:hover { background: var(--surface2); }
+    .sidebar-item.active { background: var(--surface2); font-weight: 600; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: 14px; }
+    .stat-card.compact-card { padding: 12px 14px; }
+    .stat-card.compact-card > div:last-child { margin: 4px 0 0; font-size: 20px; }
+    .dashboard-chart-card { padding: 16px 16px 14px; display: flex; flex-direction: column; }
+    .dashboard-chart-card h2 { margin-bottom: 14px; }
+    .dashboard-chart-card canvas { display: block; }
+    .submenu { margin-left: 12px; border-left: 1px solid var(--border); padding-left: 8px; }
+    .sidebar-group-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin: 20px 10px 8px; letter-spacing: 0.05em; }
+  </style>
+</head>
+
+<body class="h-full">
+  <div id="app-root" style="display:flex; height:100vh; width:100%; overflow:hidden;">
+    
+    <aside id="sidebar" style="width:230px; min-width:230px; height:100vh; background:var(--surface); display:flex; flex-direction:column; min-height:0;">
+      <div style="padding:20px 18px 12px; border-bottom:1px solid var(--border);">
+        <img src="./img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width: 100%;">
+      </div>
+      
+      <nav style="flex:1; min-height:0; padding:10px 8px; overflow-y:auto;">
+        <a href="index.html" class="sidebar-item active">
+          <i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard
+        </a>
+
+        <div class="sidebar-group-label">Cadastro</div>
+        <div class="submenu">
+          <a href="menu/clientes.html" class="sidebar-item"><i data-lucide="user" style="width:14px;height:14px;"></i> Clientes</a>
+          <a href="menu/consulta.html" class="sidebar-item"><i data-lucide="search" style="width:14px;height:14px;"></i> Consulta</a>
+          <a href="menu/fornecedores.html" class="sidebar-item"><i data-lucide="truck" style="width:14px;height:14px;"></i> Fornecedores</a>
+          <a href="menu/funcionarios.html" class="sidebar-item"><i data-lucide="user-check" style="width:14px;height:14px;"></i> Funcionários</a>
+          <a href="menu/plano-contas.html" onclick="navigateTo('plano-contas')" class="sidebar-item"><i data-lucide="list" style="width:14px;height:14px;"></i> Plano de Contas</a>
+        </div>
+
+        <div class="sidebar-group-label">Financeiro</div>
+        <div class="submenu">
+          <a href="menu/contas-pagar.html" class="sidebar-item"><i data-lucide="arrow-up-circle" style="width:14px;height:14px;"></i> Contas a Pagar</a>
+          <a href="menu/contas-receber.html" class="sidebar-item"><i data-lucide="arrow-down-circle" style="width:14px;height:14px;"></i> Contas a Receber</a>
+          <a href="fluxo-caixa.html" class="sidebar-item"><i data-lucide="trending-up" style="width:14px;height:14px;"></i> Fluxo de Caixa</a>
+        </div>
+
+        <div class="sidebar-group-label">Contabilidade</div>
+        <div class="submenu">
+          <a href="menu/lancamentos.html" class="sidebar-item"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> Lançamentos</a>
+          <a href="menu/balancete.html" class="sidebar-item"><i data-lucide="table-2" style="width:14px;height:14px;"></i> Balancete</a>
+          <a href="menu/balanco-patrimonial.html" class="sidebar-item"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Balanço Patrimonial</a>
+          <a href="menu/dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> DRE</a>
+          <a href="menu/livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
+          <a href="menu/livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
+        </div>
+
+        <div class="submenu">
+        </div>
+
+        <div class="sidebar-group-label">Sistema</div>
+        <a href="config.html" class="sidebar-item"><i data-lucide="settings" style="width:16px;height:16px;"></i> Configurações</a>
+      </nav>
+    </aside>
+
+    <main style="flex:1; display:flex; flex-direction:column; min-width:0; min-height:0; overflow:hidden; border-left: none;">
+      <header style="padding:14px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface);">
+        <div>
+          <div style="font-size:18px; font-weight:700;">Dashboard</div>
+          <div style="font-size:12px; color:var(--text-muted);">Visão geral do sistema</div>
+        </div>
+      </header>
+      
+      <div id="page-content" style="flex:1; min-height:0; padding:24px 28px; overflow-y:auto; background-image:url('./img/img_Fundo.png'); background-size:cover; background-position:center; background-attachment:fixed;">
+        
+        <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-bottom:24px;">
+          <div class="stat-card compact-card">
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Total de Vendas</div>
+            <div id="vendas-total" style="font-size:20px; font-weight:700; margin:4px 0 0;">R$ 0,00</div>
+          </div>
+          <div class="stat-card compact-card">
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Contas a Pagar</div>
+            <div id="pagar-total" style="font-size:20px; font-weight:700; margin:4px 0 0;">R$ 0,00</div>
+          </div>
+          <div class="stat-card compact-card">
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Saldo em Caixa</div>
+            <div id="saldo-caixa" style="font-size:20px; font-weight:700; margin:4px 0 0;">R$ 0,00</div>
+          </div>
+        </div>
+
+        <div class="stat-card" style="margin-bottom:16px; padding:16px;">
+          <h2 style="font-size:15px; font-weight:700; margin-bottom:2px;">Fluxo de Caixa Diário</h2>
+          <p id="mov-diarias-subtitulo" style="font-size:11px; color:var(--text-muted); margin:0 0 14px;">Saldo acumulado, entradas e saídas por dia do mês atual</p>
+          <div style="height:260px;">
+            <canvas id="mov-diarias-chart"></canvas>
+          </div>
+        </div>
+
+
+        <div class="stat-card" style="margin-bottom:16px; padding:16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
+            <h2 style="font-size:15px; font-weight:700; margin:0;">Contas a Receber</h2>
+            <div id="cr-badges" style="display:flex; gap:8px; font-size:11px;"></div>
+          </div>
+          <p style="font-size:11px; color:var(--text-muted); margin:0 0 14px;">Valores por vencimento — <span style="color:#ef4444; font-weight:600;">vermelho = vencido</span></p>
+          <div style="height:240px;">
+            <canvas id="contas-receber-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="stat-card dashboard-chart-card" style="margin-bottom:16px; width:60%;">
+          <h2 style="font-size:15px; font-weight:700;">Evolução Financeira</h2>
+          <canvas id="dashboard-chart"></canvas>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Inicializa os ícones do Lucide
+    lucide.createIcons();
+
+    function formatarReal(valor) {
+      return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(valor || 0);
+    }
+
+    function renderMovimentacoesDiariasChart(dados) {
+      const canvas = document.getElementById('mov-diarias-chart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (window.movDiariasChart) window.movDiariasChart.destroy();
+
+      const subtitulo = document.getElementById('mov-diarias-subtitulo');
+      if (subtitulo && dados.mes_atual) {
+        subtitulo.textContent = `Saldo acumulado, entradas e saídas por dia — ${dados.mes_atual}`;
+      }
+
+      let saldoAcum = 0;
+      const saldoAcumulado = (dados.dias || []).map((_, i) => {
+        saldoAcum += (dados.entradas[i] || 0) - (dados.saidas[i] || 0);
+        return saldoAcum;
+      });
+
+      window.movDiariasChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: dados.dias.map(d => String(d)),
+          datasets: [
+            {
+              label: 'Entradas',
+              type: 'bar',
+              data: dados.entradas,
+              backgroundColor: 'rgba(34,197,94,0.65)',
+              borderColor: '#22c55e',
+              borderWidth: 1,
+              borderRadius: 3,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Saídas',
+              type: 'bar',
+              data: dados.saidas,
+              backgroundColor: 'rgba(239,68,68,0.65)',
+              borderColor: '#ef4444',
+              borderWidth: 1,
+              borderRadius: 3,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Saldo Acumulado',
+              type: 'line',
+              data: saldoAcumulado,
+              borderColor: '#6366f1',
+              backgroundColor: 'rgba(99,102,241,0.10)',
+              tension: 0.35,
+              fill: true,
+              borderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              yAxisID: 'y'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { font: { size: 11 }, boxWidth: 12, padding: 10 }
+            },
+            tooltip: {
+              callbacks: {
+                label: item => `${item.dataset.label}: ${formatarReal(item.parsed.y)}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10 }, maxRotation: 0 },
+              title: {
+                display: true,
+                text: 'Dia do mês',
+                font: { size: 11 },
+                color: '#888'
+              }
+            },
+            y: {
+              ticks: { callback: v => formatarReal(v), font: { size: 10 } },
+              grid: { color: 'rgba(128,128,128,0.1)' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderContasReceberChart(dados) {
+      const canvas = document.getElementById('contas-receber-chart');
+      if (!canvas) return;
+      if (window.crChart) window.crChart.destroy();
+
+      const labels = dados.map(r => {
+        const d = new Date(r.data_vencimento);
+        const dd = String(d.getUTCDate()).padStart(2, '0');
+        const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const cliente = r.cliente.length > 16 ? r.cliente.slice(0, 16) + '…' : r.cliente;
+        return `${cliente} (${dd}/${mm})`;
+      });
+
+      const valores  = dados.map(r => parseFloat(r.valor));
+      const cores    = dados.map(r =>
+        r.status_real === 'Vencido'  ? 'rgba(239,68,68,0.80)'  :
+        r.status_real === 'Pago'     ? 'rgba(34,197,94,0.75)'  :
+                                       'rgba(99,102,241,0.75)'
+      );
+      const bordas   = dados.map(r =>
+        r.status_real === 'Vencido'  ? '#ef4444' :
+        r.status_real === 'Pago'     ? '#22c55e' : '#6366f1'
+      );
+
+      // badges de resumo
+      const badges = document.getElementById('cr-badges');
+      if (badges) {
+        const totVencido  = dados.filter(r => r.status_real === 'Vencido').reduce((s, r) => s + parseFloat(r.valor), 0);
+        const totAVencer  = dados.filter(r => r.status_real === 'A Vencer').reduce((s, r) => s + parseFloat(r.valor), 0);
+        const totPago     = dados.filter(r => r.status_real === 'Pago').reduce((s, r) => s + parseFloat(r.valor), 0);
+        badges.innerHTML = [
+          totVencido ? `<span style="background:rgba(239,68,68,0.12);color:#ef4444;padding:2px 8px;border-radius:20px;font-weight:600;">Vencido ${formatarReal(totVencido)}</span>` : '',
+          totAVencer ? `<span style="background:rgba(99,102,241,0.12);color:#6366f1;padding:2px 8px;border-radius:20px;font-weight:600;">A Vencer ${formatarReal(totAVencer)}</span>` : '',
+          totPago    ? `<span style="background:rgba(34,197,94,0.12);color:#22c55e;padding:2px 8px;border-radius:20px;font-weight:600;">Pago ${formatarReal(totPago)}</span>` : ''
+        ].join('');
+      }
+
+      window.crChart = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Valor a Receber',
+            data: valores,
+            backgroundColor: cores,
+            borderColor: bordas,
+            borderWidth: 1.5,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => dados[items[0].dataIndex].cliente,
+                label: (item) => [
+                  `Valor: ${formatarReal(item.parsed.y)}`,
+                  `Venc.: ${new Date(dados[item.dataIndex].data_vencimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}`,
+                  `Status: ${dados[item.dataIndex].status_real}`
+                ]
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10 }, maxRotation: 30 }
+            },
+            y: {
+              ticks: { callback: v => formatarReal(v), font: { size: 10 } },
+              grid: { color: 'rgba(128,128,128,0.1)' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderDashboardChart(stats) {
+      const ctx = document.getElementById('dashboard-chart').getContext('2d');
+      if (window.dashboardChart) {
+        window.dashboardChart.destroy();
+      }
+
+      const somaArray = arr => (arr || []).reduce((acc, v) => acc + (v || 0), 0);
+
+      window.dashboardChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Receitas Operacionais', 'Outras Receitas', 'Custo de Mercadoria', 'Despesas Operacionais', 'Outras Despesas'],
+          datasets: [{
+            data: [
+              somaArray(stats.evolucao_receitas_operacionais),
+              somaArray(stats.evolucao_outras_receitas),
+              somaArray(stats.evolucao_custo_mercadoria),
+              somaArray(stats.evolucao_despesas_operacionais),
+              somaArray(stats.evolucao_outras_despesas)
+            ],
+            backgroundColor: ['#22c55e', '#0ea5e9', '#ef4444', '#f97316', '#8b5cf6'],
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 2 / (0.85 * 1.2),
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                font: { size: 11 },
+                boxWidth: 12,
+                padding: 10
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: tooltipItem => `${tooltipItem.label}: ${formatarReal(tooltipItem.parsed)}`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    async function carregarDadosDashboard() {
+      try {
+        const stats = await buscarDashboard();
+        document.getElementById('vendas-total').textContent = formatarReal(stats.total_vendas);
+        document.getElementById('pagar-total').textContent = formatarReal(stats.total_contas_pagar_valor);
+        document.getElementById('saldo-caixa').textContent = formatarReal(stats.saldo_caixa);
+        renderDashboardChart(stats);
+      } catch (error) {
+        console.error("Erro ao carregar dashboard:", error);
+      }
+
+      try {
+        const movDiarias = await buscarMovimentacoesDiarias();
+        renderMovimentacoesDiariasChart(movDiarias);
+      } catch (error) {
+        console.error("Erro ao carregar fluxo de caixa diário:", error);
+        const card = document.getElementById('mov-diarias-chart');
+        if (card) card.parentElement.innerHTML = '<div style="padding:16px; color:var(--text-muted); font-size:12px;">Sem dados para o mês atual.</div>';
+      }
+
+      try {
+        const contasReceber = await buscarContasReceber();
+        renderContasReceberChart(contasReceber);
+      } catch (error) {
+        console.error("Erro ao carregar contas a receber:", error);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', carregarDadosDashboard);
+  </script>
+  <script src="api.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

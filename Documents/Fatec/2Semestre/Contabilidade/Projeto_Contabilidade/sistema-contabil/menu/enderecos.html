@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Endereços - CMRT</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { box-sizing: border-box; margin: 0; background: var(--bg); color: var(--text); }
+    .sidebar-item { cursor: pointer; text-decoration: none; color: #FFFFFF; display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 8px; transition: 0.2s; font-size: 14px; }
+    a.sidebar-item:hover { background: rgba(255,255,255,0.1); }
+    .sidebar-item.active { background: #ffffff; color: #1e293b; font-weight: 600; border-left: 3px solid #4f8ef7; padding-left: 11px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: 14px; }
+    .submenu { margin-left: 12px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 8px; }
+    .sidebar-group-label { font-size: 11px; text-transform: uppercase; color: #B0B8C1; margin: 20px 10px 8px; letter-spacing: 0.05em; }
+  </style>
+</head>
+
+<body class="h-full">
+  <div style="display:flex; height:100vh; width:100%; overflow:hidden;">
+    
+    <!-- SIDEBAR -->
+    <aside style="width:230px; min-width:230px; background:#0E204E; display:flex; flex-direction:column; overflow-y:auto;">
+      <div style="padding:20px 18px 12px; border-bottom:1px solid rgba(255,255,255,0.1);">
+        <img src="../img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width:100%;">
+      </div>
+      <nav style="flex:1; padding:10px 8px;">
+        <a href="../prototipo.html" class="sidebar-item active">
+          <i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard
+        </a>
+
+        <div class="sidebar-group-label">Cadastro</div>
+        <div class="submenu">
+          <a href="clientes.html" class="sidebar-item"><i data-lucide="user" style="width:14px;height:14px;"></i> Clientes</a>
+          <a href="consulta.html" class="sidebar-item"><i data-lucide="search" style="width:14px;height:14px;"></i> Consulta</a>
+          <a href="fornecedores.html" class="sidebar-item"><i data-lucide="truck" style="width:14px;height:14px;"></i> Fornecedores</a>
+          <a href="funcionarios.html" class="sidebar-item"><i data-lucide="user-check" style="width:14px;height:14px;"></i> Funcionários</a>
+          <a href="plano-contas.html" class="sidebar-item"><i data-lucide="list" style="width:14px;height:14px;"></i> Plano de Contas</a>
+        </div>
+
+        <div class="sidebar-group-label">Financeiro</div>
+        <div class="submenu">
+          <a href="contas-pagar.html" class="sidebar-item"><i data-lucide="arrow-up-circle" style="width:14px;height:14px;"></i> Contas a Pagar</a>
+          <a href="contas-receber.html" class="sidebar-item"><i data-lucide="arrow-down-circle" style="width:14px;height:14px;"></i> Contas a Receber</a>
+          <a href="../fluxo-caixa.html" class="sidebar-item"><i data-lucide="trending-up" style="width:14px;height:14px;"></i> Fluxo de Caixa</a>
+        </div>
+
+        <div class="sidebar-group-label">Contabilidade</div>
+        <div class="submenu">
+          <a href="lancamentos.html" class="sidebar-item"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> Lançamentos</a>
+          <a href="balancete.html" class="sidebar-item"><i data-lucide="table-2" style="width:14px;height:14px;"></i> Balancete</a>
+          <a href="balanco-patrimonial.html" class="sidebar-item"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Balanço Patrimonial</a>
+          <a href="dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> DRE</a>
+          <a href="livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
+          <a href="livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
+        </div>
+
+        <div class="submenu">
+          <a href="funcionarios.html" class="sidebar-item"><i data-lucide="users" style="width:14px;height:14px;"></i> Funcionários</a>
+        </div>
+
+        <div class="sidebar-group-label">Sistema</div>
+        <a href="../config.html" class="sidebar-item"><i data-lucide="settings" style="width:16px;height:16px;"></i> Configurações</a>
+      </nav>
+    </aside>
+
+    <main style="flex:1; display:flex; flex-direction:column; min-width:0; border-left: none;">
+      <header style="padding:14px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface);">
+        <div>
+          <div style="font-size:18px; font-weight:700;">Cadastro de Endereços</div>
+          <div style="font-size:12px; color:var(--text-muted);">Informe os dados de localização para o registro contábil</div>
+        </div>
+      </header>
+      
+      <div id="page-content" style="flex:1; padding:24px 28px; overflow-y:auto;">
+        <div class="stat-card">
+            <form id="formEndereco">
+
+                <fieldset class="form-section">
+                    <h3 class="section-title">Dados de Localização</h3>
+
+                    <div class="form-grid cols-3">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Logradouro / Rua *</label>
+                            <input type="text" name="logradouro" placeholder="Ex: Av. Ana Costa" required maxlength="255">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Número*</label>
+                            <input type="text" name="numero" placeholder="Ex: 123" required maxlength="10">
+                        </div>
+                    </div>
+
+                    <div class="form-grid cols-2">
+                        <div class="form-group">
+                            <label>Bairro *</label>
+                            <input type="text" name="bairro" placeholder="Ex: Gonzaga" required maxlength="100">
+                        </div>
+
+                        <div class="form-group">
+                            <label>CEP *</label>
+                            <input type="text" name="cep" id="cep" placeholder="00000-000" required maxlength="9">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="form-section">
+                    <h3 class="section-title">Região e Referência</h3>
+
+                    <div class="form-grid cols-2">
+                        <div class="form-group">
+                            <label>Cidade *</label>
+                            <input type="text" name="cidade" required maxlength="100">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Estado (UF) *</label>
+                            <select name="estado" required>
+                                <option value="" disabled selected>Selecione...</option>
+                                <option value="AC">AC</option>
+                                <option value="AL">AL</option>
+                                <option value="AP">AP</option>
+                                <option value="AM">AM</option>
+                                <option value="BA">BA</option>
+                                <option value="CE">CE</option>
+                                <option value="DF">DF</option>
+                                <option value="ES">ES</option>
+                                <option value="GO">GO</option>
+                                <option value="MA">MA</option>
+                                <option value="MT">MT</option>
+                                <option value="MS">MS</option>
+                                <option value="MG">MG</option>
+                                <option value="PA">PA</option>
+                                <option value="PB">PB</option>
+                                <option value="PR">PR</option>
+                                <option value="PE">PE</option>
+                                <option value="PI">PI</option>
+                                <option value="RJ">RJ</option>
+                                <option value="RN">RN</option>
+                                <option value="RS">RS</option>
+                                <option value="RO">RO</option>
+                                <option value="RR">RR</option>
+                                <option value="SC">SC</option>
+                                <option value="SP">SP</option>
+                                <option value="SE">SE</option>
+                                <option value="TO">TO</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-contabil btn-limpar" onclick="this.form.reset()">
+                        <i data-lucide="rotate-ccw"></i> Limpar Campos
+                    </button>
+
+                    <button type="submit" class="btn-contabil btn-salvar">
+                        <i data-lucide="save"></i> SALVAR
+                    </button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../javascript/script.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

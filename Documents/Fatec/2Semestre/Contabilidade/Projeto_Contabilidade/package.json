@@ -1,0 +1,26 @@
+{
+  "name": "contabilidade---versao1.2",
+  "version": "1.0.0",
+  "description": "-Clovis F de Jesus\r -Matheus Valério Valeri\r -Renato Fordelone Farias\r -Thiago Pinheiro",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clovisdejesud/sistema-contabil.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/clovisdejesud/sistema-contabil/issues"
+  },
+  "homepage": "https://github.com/clovisdejesud/sistema-contabil#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "mysql2": "^3.20.0"
+  }
+}

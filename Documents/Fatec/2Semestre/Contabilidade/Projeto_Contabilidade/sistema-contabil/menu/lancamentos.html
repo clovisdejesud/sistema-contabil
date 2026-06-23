@@ -1,0 +1,494 @@
+﻿<!doctype html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novo Lançamento - CMRT</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  
+  <style>
+    
+    body { background: var(--bg); color: var(--text); overflow: hidden; }
+    
+    /* Container principal em duas colunas */
+    .layout-grid {
+      display: flex;
+      gap: 24px;
+      padding: 24px;
+      height: calc(100vh - 70px); /* Desconta o header */
+    }
+
+    /* Coluna do FormulÃ¡rio */
+    .form-column {
+      flex: 0 0 400px; /* Largura fixa para o formulÃ¡rio */
+      overflow-y: auto;
+    }
+
+    /* Coluna do Plano de Contas (Espelhada) */
+    .plano-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    /* Estilos personalizados para barra de rolagem - WebKit (Chrome, Safari, Edge) */
+    .scroll-area::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .scroll-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb {
+      background: rgba(124, 92, 252, 0.5);
+      border-radius: 5px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb:hover {
+      background: rgba(124, 92, 252, 0.8);
+      background-clip: padding-box;
+    }
+
+    /* Estilos para Firefox */
+    .scroll-area {
+      scrollbar-color: rgba(124, 92, 252, 0.5) transparent;
+      scrollbar-width: thin;
+    }
+
+    /* Barra de rolagem do formulÃ¡rio tambÃ©m */
+    .form-column::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .form-column::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .form-column::-webkit-scrollbar-thumb {
+      background: rgba(124, 92, 252, 0.5);
+      border-radius: 5px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    .form-column::-webkit-scrollbar-thumb:hover {
+      background: rgba(124, 92, 252, 0.8);
+      background-clip: padding-box;
+    }
+
+    .form-column {
+      scrollbar-color: rgba(124, 92, 252, 0.5) transparent;
+      scrollbar-width: thin;
+    }
+
+    /* Estilos de badges vindos do seu Plano de Contas */
+    .badge-sintetica { background: rgba(124, 92, 252, 0.1); color: #7c5cfc; }
+    .badge-analitica { background: rgba(48, 201, 126, 0.1); color: #30c97e; }
+    
+    table { width: 100%; border-collapse: collapse; }
+    th { position: sticky; top: 0; background: var(--surface); z-index: 10; }
+  </style>
+</head>
+
+<body class="h-full">
+  <div style="display:flex; height:100vh; width:100%; overflow:hidden;">
+    
+    <!-- SIDEBAR -->
+    <aside style="width:230px; min-width:230px; background:#0E204E; display:flex; flex-direction:column; overflow-y:auto;">
+      <div style="padding:20px 18px 12px; border-bottom:1px solid rgba(255,255,255,0.1);">
+        <img src="../img/CMRTlogoWhite.png" alt="Logo CMRT" style="max-width:100%;">
+      </div>
+      <nav style="flex:1; padding:10px 8px;">
+        <a href="../prototipo.html" class="sidebar-item">
+          <i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard
+        </a>
+
+        <div class="sidebar-group-label">Cadastro</div>
+        <div class="submenu">
+          <a href="clientes.html" class="sidebar-item"><i data-lucide="user" style="width:14px;height:14px;"></i> Clientes</a>
+          <a href="consulta.html" class="sidebar-item"><i data-lucide="search" style="width:14px;height:14px;"></i> Consulta</a>
+          <a href="fornecedores.html" class="sidebar-item"><i data-lucide="truck" style="width:14px;height:14px;"></i> Fornecedores</a>
+          <a href="funcionarios.html" class="sidebar-item"><i data-lucide="user-check" style="width:14px;height:14px;"></i> Funcionários</a>
+          <a href="plano-contas.html" class="sidebar-item"><i data-lucide="list" style="width:14px;height:14px;"></i> Plano de Contas</a>
+        </div>
+
+        <div class="sidebar-group-label">Financeiro</div>
+        <div class="submenu">
+          <a href="contas-pagar.html" class="sidebar-item"><i data-lucide="arrow-up-circle" style="width:14px;height:14px;"></i> Contas a Pagar</a>
+          <a href="contas-receber.html" class="sidebar-item"><i data-lucide="arrow-down-circle" style="width:14px;height:14px;"></i> Contas a Receber</a>
+          <a href="../fluxo-caixa.html" class="sidebar-item"><i data-lucide="trending-up" style="width:14px;height:14px;"></i> Fluxo de Caixa</a>
+        </div>
+
+        <div class="sidebar-group-label">Contabilidade</div>
+        <div class="submenu">
+          <a href="lancamentos.html" class="sidebar-item active"><i data-lucide="pen-line" style="width:14px;height:14px;"></i> Lançamentos</a>
+          <a href="balancete.html" class="sidebar-item"><i data-lucide="table-2" style="width:14px;height:14px;"></i> Balancete</a>
+          <a href="balanco-patrimonial.html" class="sidebar-item"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Balanço Patrimonial</a>
+          <a href="dre.html" class="sidebar-item"><i data-lucide="file-bar-chart" style="width:14px;height:14px;"></i> DRE</a>
+          <a href="livro-diario.html" class="sidebar-item"><i data-lucide="book" style="width:14px;height:14px;"></i> Livro Diário</a>
+          <a href="livro-razao.html" class="sidebar-item"><i data-lucide="book-marked" style="width:14px;height:14px;"></i> Livro Razão</a>
+        </div>
+
+        <div class="submenu">
+          <a href="funcionarios.html" class="sidebar-item"><i data-lucide="users" style="width:14px;height:14px;"></i> Funcionários</a>
+        </div>
+
+        <div class="sidebar-group-label">Sistema</div>
+        <a href="../config.html" class="sidebar-item"><i data-lucide="settings" style="width:16px;height:16px;"></i> Configurações</a>
+      </nav>
+    </aside>
+
+    <main style="flex:1; display:flex; flex-direction:column; min-width:0; border-left: none;">
+      <header class="header-custom">
+        <div>
+          <div class="header-title" style="font-size:18px; font-weight:700;">Lançamento Contábil</div>
+          <div class="header-subtitle">Registre movimentações consultando o plano ao lado</div>
+        </div>
+        <div></div>
+      </header>
+      
+      <div id="page-content" style="flex:1; padding:24px; overflow-y:auto;">
+        <div class="layout-grid">
+      
+      <div class="form-column">
+        <div class="stat-card">
+          <form id="form-lancamento">
+            <div style="margin-bottom:10px; display:flex; gap:12px;">
+              <div style="flex:1;">
+                <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Data:</label>
+                <input type="date" name="data_lancamento" id="data_lancamento" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px;" required>
+              </div>
+              <div style="flex:1;">
+                <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Vencimento:</label>
+                <input type="date" name="data_vencimento" id="data_vencimento" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px;" required>
+              </div>
+            </div>
+
+            <div style="margin-bottom:4px; display:flex; gap:12px;">
+              <div style="flex:1;">
+                <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Débito (ID):</label>
+                <input type="number" name="conta_debito" id="conta_debito_id" style="width:100%; padding:7px; border:1px solid var(--border); border-radius:8px; font-size:12px;" required>
+                <div id="info_debito" style="margin-top:2px; font-size:11px; color:var(--text-muted);"></div>
+              </div>
+              <div style="flex:1;">
+                <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Crédito (ID):</label>
+                <input type="number" name="conta_credito" id="conta_credito_id" style="width:100%; padding:7px; border:1px solid var(--border); border-radius:8px; font-size:12px;" required>
+                <div id="info_credito" style="margin-top:2px; font-size:11px; color:var(--text-muted);"></div>
+              </div>
+            </div>
+
+            <div style="margin-bottom:10px;">
+              <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Valor (R$):</label>
+              <input type="number" step="0.01" name="valor" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px;" placeholder="0,00" required>
+            </div>
+
+            <div style="margin-bottom:10px;">
+              <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Fornecedor:</label>
+              <select name="fornecedor_id" id="lan_fornecedor_id"
+                style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text);">
+                <option value="">— Selecione (opcional) —</option>
+              </select>
+            </div>
+
+            <div style="margin-bottom:10px;">
+              <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Condição de Pagamento:</label>
+              <select id="condicao_pagamento" name="condicao_pagamento"
+                style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text);">
+                <option value="avista">À Vista</option>
+                <option value="aprazo">A Prazo</option>
+              </select>
+            </div>
+
+            <div id="parcelas-section" style="display:none; margin-bottom:10px; background:rgba(99,102,241,0.06); border:1px solid var(--border); border-radius:8px; padding:12px;">
+              <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Número de Parcelas:</label>
+              <input type="number" id="num_parcelas" name="num_parcelas" min="1" max="60" value="1"
+                style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px;">
+              <div id="parcelas-preview" style="margin-top:8px; font-size:11px; color:var(--text-muted);"></div>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <label style="display:block; font-weight:600; font-size:13px; margin-bottom:3px;">Histórico:</label>
+              <textarea name="historico" rows="2" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px;"></textarea>
+            </div>
+
+            <button type="submit" style="width:100%; background:var(--success); color:white; border:none; padding:12px; border-radius:8px; font-weight:600; cursor:pointer;">
+              Salvar Lançamento
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="plano-column">
+        <div class="stat-card" style="height: 100%; display: flex; flex-direction: column; padding: 0;">
+          <div style="padding: 16px; border-bottom: 1px solid var(--border);">
+            <div style="font-weight: 700; font-size: 14px;">Consulta: Plano de Contas</div>
+          </div>
+          
+          <div class="scroll-area">
+            <table>
+              <thead>
+                <tr style="text-align: left; border-bottom: 1px solid var(--border);">
+                  <th style="padding: 8px; font-size: 10px; color: var(--text-muted); text-transform: uppercase;">ID</th>
+                  <th style="padding: 8px; font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Código</th>
+                  <th style="padding: 8px; font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Conta</th>
+                  <th style="padding: 8px; font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Tipo</th>
+                </tr>
+              </thead>
+              <tbody id="lista-espelho-plano">
+                <tr><td colspan="4" style="padding:20px; text-align:center;">Carregando contas...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    // Mesma funÃ§Ã£o da sua pÃ¡gina plano-contas.html para espelhar os dados
+    async function carregarPlanoContasEspelho() {
+      const tbody = document.getElementById('lista-espelho-plano');
+      try {
+        const response = await fetch('http://localhost:3000/api/plano-contas');
+        if (!response.ok) throw new Error('Erro na API');
+        const dados = await response.json();
+        tbody.innerHTML = '';
+
+        // Filtrar apenas contas analíticas
+        const contasAnaliticas = dados.filter(c => (c.tipo_conta || '').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase() === 'analitica');
+
+        if (contasAnaliticas.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="padding:20px; text-align:center;">Nenhuma conta analí­tica cadastrada.</td></tr>';
+          return;
+        }
+
+        contasAnaliticas.forEach(conta => {
+          tbody.innerHTML += `
+            <tr style="border-bottom: 1px solid var(--border); font-size: 13px; hover: background: rgba(124, 92, 252, 0.05);">
+              <td style="padding: 8px; color: var(--text-muted); background: rgba(124, 92, 252, 0.05); font-weight: 600; border-radius: 4px;">${conta.id}</td>
+              <td style="padding: 8px; color: #7c5cfc; font-weight: 700; font-size: 13px;">${conta.codigo_conta}</td>
+              <td style="padding: 8px; font-weight: 600; font-size: 13px; color: var(--text);">${conta.nome_conta}</td>
+              <td style="padding: 8px;">
+                <span class="badge badge-analitica" style="font-size:10px;">Analítica</span>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (error) {
+        tbody.innerHTML = '<tr><td colspan="4" style="color:red; padding:10px;">Erro ao carregar consulta.</td></tr>';
+      }
+    }
+
+    async function carregarFornecedores() {
+      try {
+        const res = await fetch('http://localhost:3000/api/fornecedores');
+        const lista = await res.json();
+        const select = document.getElementById('lan_fornecedor_id');
+        lista.forEach(f => {
+          const opt = document.createElement('option');
+          opt.value = f.id;
+          opt.textContent = f.razao_social;
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        console.error('Erro ao carregar fornecedores:', e);
+      }
+    }
+
+    function atualizarPreviewParcelas() {
+      const dataLanc = document.querySelector('[name="data_lancamento"]').value;
+      const num = parseInt(document.getElementById('num_parcelas').value) || 0;
+      const valor = parseFloat(document.querySelector('[name="valor"]').value) || 0;
+      const preview = document.getElementById('parcelas-preview');
+
+      if (!dataLanc || num < 1 || !valor) { preview.innerHTML = ''; return; }
+
+      const valorParcela = valor / num;
+      const base = new Date(dataLanc + 'T00:00:00');
+      let html = '';
+      for (let i = 1; i <= num; i++) {
+        const d = new Date(base);
+        d.setDate(d.getDate() + 30 * i);
+        html += `<div style="padding:2px 0;">Parcela ${i}/${num}: ${valorParcela.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})} — venc. ${d.toLocaleDateString('pt-BR')}</div>`;
+      }
+      preview.innerHTML = html;
+    }
+
+    function sincronizarVencimento() {
+      const dataLanc = document.getElementById('data_lancamento').value;
+      const condicao = document.getElementById('condicao_pagamento').value;
+      const campoVenc = document.getElementById('data_vencimento');
+      if (!dataLanc) return;
+      if (condicao === 'avista') {
+        campoVenc.value = dataLanc;
+      } else {
+        const d = new Date(dataLanc + 'T00:00:00');
+        d.setDate(d.getDate() + 30);
+        campoVenc.value = d.toISOString().split('T')[0];
+      }
+    }
+
+    document.getElementById('condicao_pagamento').addEventListener('change', function () {
+      document.getElementById('parcelas-section').style.display = this.value === 'aprazo' ? 'block' : 'none';
+      sincronizarVencimento();
+      atualizarPreviewParcelas();
+    });
+
+    // Cache de contas para busca rápida
+    let planContasCache = [];
+
+    async function carregarCacheContas() {
+      try {
+        const response = await fetch('http://localhost:3000/api/plano-contas');
+        if (response.ok) {
+          const todas = await response.json();
+          // Filtrar apenas contas analíticas
+          planContasCache = todas.filter(c => (c.tipo_conta || '').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase() === 'analitica');
+        }
+      } catch (error) {
+        console.error('Erro ao carregar cache de contas:', error);
+      }
+    }
+
+    function buscarContaPorId(idConta) {
+      return planContasCache.find(c => c.id === parseInt(idConta));
+    }
+
+    function atualizarInfoConta(idCampo, idInfo) {
+      const inputElement = document.getElementById(idCampo);
+      const infoElement = document.getElementById(idInfo);
+      
+      inputElement.addEventListener('blur', () => {
+        const idConta = inputElement.value.trim();
+        if (!idConta) {
+          infoElement.textContent = '';
+          return;
+        }
+
+        const conta = buscarContaPorId(idConta);
+        if (conta) {
+          infoElement.innerHTML = `<span style=”color: #7c5cfc;”>✔ ${conta.codigo_conta} • ${conta.nome_conta}</span>`;
+        } else {
+          infoElement.innerHTML = `<span style=”color: #ff4444;”>✗ Conta analítica não encontrada</span>`;
+        }
+      });
+    }
+
+    // Handler para o formulÃ¡rio de lanÃ§amento
+    document.getElementById('form-lancamento').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(document.getElementById('form-lancamento'));
+      const dados = Object.fromEntries(formData);
+
+      // Converter IDs para cÃ³digos
+      const contaDebitoObj = buscarContaPorId(dados.conta_debito);
+      const contaCreditoObj = buscarContaPorId(dados.conta_credito);
+
+      if (!contaDebitoObj || !contaCreditoObj) {
+        alert('IDs de conta analítica inválidos. Verifique os valores na tabela ao lado.');
+        return;
+      }
+
+      // Substituir IDs pelos cÃ³digos para enviar ao backend
+      dados.conta_debito = contaDebitoObj.codigo_conta;
+      dados.conta_credito = contaCreditoObj.codigo_conta;
+
+      try {
+        const response = await fetch('http://localhost:3000/api/lancamentos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert('Erro: ' + (error.error || 'Erro desconhecido'));
+          return;
+        }
+
+        const resultado = await response.json();
+        const condicao = document.getElementById('condicao_pagamento').value;
+        const numParcelas = parseInt(document.getElementById('num_parcelas').value) || 0;
+
+        if (condicao === 'aprazo' && numParcelas >= 1) {
+          const valorTotal = parseFloat(dados.valor);
+          const valorParcela = (valorTotal / numParcelas).toFixed(2);
+          const fornecedorId = document.getElementById('lan_fornecedor_id').value || null;
+          const base = new Date(dados.data_lancamento + 'T00:00:00');
+          let erros = 0;
+
+          for (let i = 1; i <= numParcelas; i++) {
+            const d = new Date(base);
+            d.setDate(d.getDate() + 30 * i);
+            const vencimento = d.toISOString().split('T')[0];
+
+            const resParcela = await fetch('http://localhost:3000/api/contas-pagar', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id_lancamento: resultado.id,
+                fornecedor_id: fornecedorId || null,
+                descricao: `${dados.historico || 'Lançamento'} (Parcela ${i}/${numParcelas})`,
+                valor: valorParcela,
+                data_emissao: dados.data_lancamento,
+                data_vencimento: vencimento,
+                status: 'Pendente'
+              })
+            });
+            if (!resParcela.ok) erros++;
+          }
+
+          if (erros === 0) {
+            alert(`Lançamento registrado! ${numParcelas} parcelas criadas em Contas a Pagar.`);
+          } else {
+            alert(`Lançamento registrado, mas ${erros} parcela(s) não puderam ser criadas.`);
+          }
+        } else {
+          alert('Lançamento registrado com sucesso! ID: ' + resultado.id);
+        }
+
+        document.getElementById('form-lancamento').reset();
+        document.getElementById('info_debito').textContent = '';
+        document.getElementById('info_credito').textContent = '';
+        document.getElementById('parcelas-section').style.display = 'none';
+        document.getElementById('parcelas-preview').innerHTML = '';
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao salvar: ' + error.message);
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await carregarCacheContas();
+      await carregarFornecedores();
+      carregarPlanoContasEspelho();
+      atualizarInfoConta('conta_debito_id', 'info_debito');
+      atualizarInfoConta('conta_credito_id', 'info_credito');
+
+      document.getElementById('num_parcelas').addEventListener('input', atualizarPreviewParcelas);
+      document.getElementById('data_lancamento').addEventListener('change', () => {
+        sincronizarVencimento();
+        atualizarPreviewParcelas();
+      });
+      document.querySelector('[name="valor"]').addEventListener('input', atualizarPreviewParcelas);
+    });
+  </script>
+</body>
+</html>
